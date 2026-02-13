@@ -13,7 +13,7 @@ export const login = async (credentials: { email: string }): Promise<AuthRespons
     return new Promise((resolve) => {
         setTimeout(() => {
             const role: 'admin' | 'student' =
-                credentials.email === 'admin' ? 'admin' : 'student';
+                credentials.email === 'admin@innopolis.university' ? 'admin' : 'student';
 
             const name = credentials.email.split('@')[0];
 
