@@ -1,0 +1,16 @@
+.wrapper {
+    height: calc(100vh - 64px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--color-main-background);
+    padding-top: 64px;
+    box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+    .wrapper {
+        padding: 64px 10px 0;
+        align-items: flex-start;
+    }
+}
