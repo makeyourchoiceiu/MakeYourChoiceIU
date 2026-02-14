@@ -1,0 +1,167 @@
+.card {
+    background: var(--color-elem-background);
+    border-radius: var(--border-radius-xl);
+    box-shadow: var(--shadow-lg);
+    padding: var(--spacing-xl);
+    transition: all var(--transition-normal);
+    width: 100%;
+}
+
+.card:hover {
+    box-shadow: var(--shadow-xl);
+    transform: translateY(-2px);
+}
+
+.header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--spacing-lg);
+}
+
+.title {
+    font-size: var(--font-size-xxxl);
+    line-height: 1.1;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-primary);
+}
+
+.iconButton {
+    width: 52px;
+    height: 52px;
+    border-radius: var(--border-radius-lg);
+    background: transparent;
+    border: 2px solid transparent;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+}
+
+.iconButton:hover {
+    border-color: var(--color-primary-light);
+    box-shadow: var(--shadow-sm);
+    transform: translateY(-1px);
+}
+
+.icon {
+    display: block;
+}
+
+.meta {
+    margin-top: var(--spacing-md);
+    display: grid;
+    gap: 6px;
+}
+
+.metaRow {
+    display: flex;
+    gap: 8px;
+    align-items: baseline;
+}
+
+.metaLabel {
+    color: var(--color-text-lighter);
+    font-weight: var(--font-weight-semibold);
+    font-size: var(--font-size-xl);
+}
+
+.metaValue {
+    color: var(--color-text-lighter);
+    font-weight: var(--font-weight-semibold);
+    font-size: var(--font-size-xl);
+}
+
+.descriptionPreview {
+    margin-top: var(--spacing-md);
+    color: var(--color-primary);
+    font-weight: var(--font-weight-bold);
+    font-size: var(--font-size-xxl);
+    line-height: 1.2;
+
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* важное: в списке всегда коротко */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.footer {
+    margin-top: var(--spacing-lg);
+    display: flex;
+    justify-content: flex-start;
+}
+
+.menuWrap {
+    position: relative;
+}
+
+.menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 160px;
+    background: var(--color-elem-background);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--color-border);
+    padding: 6px;
+    z-index: 10;
+}
+
+.menuItem {
+    width: 100%;
+    background: transparent;
+    color: var(--color-text);
+    padding: 10px 12px;
+    border-radius: var(--border-radius-md);
+    text-align: left;
+    font-size: var(--font-size-md);
+    transition: all var(--transition-fast);
+}
+
+.menuItem:hover {
+    background: var(--color-primary-light);
+}
+
+.menuItemDanger {
+    color: var(--color-danger);
+}
+
+.menuItemDanger:hover {
+    background: rgba(255, 68, 68, 0.12);
+}
+
+/* modal details */
+.modalMeta {
+    display: grid;
+    gap: 6px;
+    margin-bottom: var(--spacing-lg);
+}
+
+.modalMetaRow {
+    display: flex;
+    gap: 8px;
+    align-items: baseline;
+}
+
+.modalDescription {
+    color: var(--color-text);
+    font-size: var(--font-size-lg);
+    line-height: 1.5;
+    white-space: pre-wrap; /* если описание с переносами */
+}
+
+@media (max-width: 768px) {
+    .title {
+        font-size: 22px;
+    }
+    .metaLabel,
+    .metaValue,
+    .descriptionPreview {
+        font-size: 18px;
+    }
+    .iconButton {
+        width: 46px;
+        height: 46px;
+    }
+}
