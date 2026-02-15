@@ -3,11 +3,9 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-
-
     background: transparent;
-
     padding: 0 var(--spacing-xl);
+    z-index: 2000;
 }
 
 .left {
@@ -110,7 +108,7 @@
     box-shadow: var(--shadow-lg);
 
     padding: 6px;
-    z-index: 20;
+    z-index: 2001;
 }
 
 .menuItem {

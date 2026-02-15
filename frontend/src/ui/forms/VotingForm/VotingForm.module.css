@@ -1,0 +1,203 @@
+.wrapper {
+    position: fixed;
+    right: 0;
+    top: 64px;
+    width: 25vw;
+    height: calc(100vh - 64px);
+    background: white;
+    box-shadow: -4px 0 20px rgba(64, 187, 32, 0.2);
+    z-index: 1000;
+    overflow-y: auto;
+    border-left: 3px solid var(--color-primary);
+}
+
+.container {
+    width: 100%;
+    min-height: 100%;
+    padding: var(--spacing-xl) var(--spacing-lg);
+    display: flex;
+    flex-direction: column;
+}
+
+.form {
+    width: 100%;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
+
+.fieldsColumn {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+    flex: 1;
+    width: 100%;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.field label {
+    font-weight: var(--font-weight-semibold);
+    margin-bottom: var(--spacing-xs);
+    color: var(--color-primary-dark);
+    font-size: var(--font-size-sm);
+    text-transform: capitalize;
+    letter-spacing: 0.5px;
+    text-align: left;
+    font-family: var(--font-family), sans-serif;
+}
+
+.select {
+    padding: var(--spacing-md);
+    font-size: var(--font-size-md);
+    border: 2px solid var(--color-primary-light);
+    border-radius: var(--border-radius-md);
+    background-color: white;
+    font-family: var(--font-family), sans-serif;
+    transition: all var(--transition-fast);
+    width: 100%;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2340BB20' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right var(--spacing-md) center;
+    background-size: 16px;
+    cursor: pointer;
+}
+
+.select:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-light);
+}
+
+.select:disabled {
+    background-color: var(--color-inactive);
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.select option {
+    background-color: white;
+    color: var(--color-text);
+}
+
+.select option:hover {
+    background-color: var(--color-primary-light);
+}
+
+.buttonsRow {
+    display: flex;
+    gap: var(--spacing-md);
+    justify-content: space-between;
+    width: 100%;
+    margin-top: auto;
+    padding-top: var(--spacing-lg);
+    border-top: 2px solid var(--color-primary-light);
+}
+
+.submitButton {
+    flex: 1;
+    padding: var(--spacing-md) 0;
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-semibold);
+    color: white;
+    background: linear-gradient(135deg, var(--color-primary), #2d8f1a);
+    border: none;
+    border-radius: var(--border-radius-md);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    min-width: 0;
+    box-shadow: 0 4px 12px rgba(64, 187, 32, 0.3);
+    font-family: var(--font-family), sans-serif;
+    text-transform: capitalize;
+    letter-spacing: 0.5px;
+}
+
+.submitButton:hover:not(:disabled) {
+    background: var(--color-primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(64, 187, 32, 0.4);
+}
+
+.submitButton:disabled {
+    background: var(--color-inactive);
+    cursor: not-allowed;
+    opacity: 0.7;
+    transform: none;
+    box-shadow: none;
+}
+
+.clearButton {
+    flex: 1;
+    padding: var(--spacing-md) 0;
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-semibold);
+    background: white;
+    color: var(--color-primary);
+    border: 2px solid var(--color-primary);
+    border-radius: var(--border-radius-md);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    min-width: 0;
+    font-family: var(--font-family), sans-serif;
+    text-transform: capitalize;
+    letter-spacing: 0.5px;
+}
+
+.clearButton:hover:not(:disabled) {
+    background: var(--color-primary-light);
+    transform: translateY(-2px);
+    border-color: var(--color-primary-dark);
+    color: var(--color-primary-dark);
+}
+
+.clearButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    border-color: var(--color-border);
+    color: var(--color-text-lighter);
+}
+
+.noCoursesMessage {
+    text-align: center;
+    color: var(--color-primary-dark);
+    font-size: var(--font-size-md);
+    padding: var(--spacing-xl);
+    width: 100%;
+    background-color: var(--color-primary-light);
+    border-radius: var(--border-radius-md);
+    font-family: var(--font-family), sans-serif;
+    border: 1px solid var(--color-primary);
+}
+
+@media (max-width: 768px) {
+    .wrapper {
+        width: 100%;
+        height: 40vh;
+        bottom: 0;
+        top: auto;
+        border-left: none;
+        border-top: 3px solid var(--color-primary);
+        box-shadow: 0 -4px 20px rgba(64, 187, 32, 0.2);
+    }
+
+    .form {
+        max-width: 100%;
+    }
+
+    .buttonsRow {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+
+    .submitButton,
+    .clearButton {
+        width: 100%;
+    }
+}
