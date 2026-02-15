@@ -1,0 +1,152 @@
+.header {
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+
+    background: transparent;
+
+    padding: 0 var(--spacing-xl);
+}
+
+.left {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.right {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+/* дедлайн — компактная плашка без рамок */
+.deadline {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-lighter);
+    font-weight: var(--font-weight-semibold);
+    padding: 6px 10px;
+    border-radius: var(--border-radius-xl);
+    background: rgba(0, 0, 0, 0.04); /* лёгкая серость, не белая */
+}
+
+
+
+.langButton {
+    height: 36px;
+    padding: 0 10px;
+    border-radius: var(--border-radius-lg);
+    border: 1px solid var(--color-primary);   /* было var(--color-border) */
+    background: transparent;
+    color: var(--color-primary);                    /* было var(--color-text) */
+    font-weight: var(--font-weight-semibold);
+    font-size: var(--font-size-sm);
+    transition: all var(--transition-fast);
+}
+
+
+.profileWrap {
+    position: relative;
+}
+
+.profileButton {
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+
+    border-radius: var(--border-radius-lg);
+    border: 1px solid var(--color-primary);   /* ✅ всегда зелёная рамка */
+    background: transparent;
+
+    padding: 0 10px;
+    cursor: pointer;
+
+    transition: all var(--transition-fast);
+}
+
+.profileButton:hover {
+    border-color: var(--color-primary);       /* ✅ не серый border */
+    box-shadow: var(--shadow-sm);
+}
+
+.profileButtonActive {
+    border-color: var(--color-primary);       /* ✅ активное состояние тоже зелёное */
+}
+
+
+.email {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-lighter);     /* ✅ серый по умолчанию */
+    font-weight: var(--font-weight-semibold);
+    max-width: 240px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.emailActive {
+    color: var(--color-primary);          /* ✅ зелёный при открытом меню */
+}
+
+
+
+.icon {
+    display: block;
+}
+
+/* dropdown */
+.menu {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+
+    min-width: 190px;
+    background: var(--color-elem-background); /* белая подложка только у меню — как ты хотела */
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-xl);
+    box-shadow: var(--shadow-lg);
+
+    padding: 6px;
+    z-index: 20;
+}
+
+.menuItem {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: var(--border-radius-lg);
+
+    background: transparent;
+    text-align: left;
+
+    font-size: var(--font-size-md);
+    color: var(--color-text);
+    transition: all var(--transition-fast);
+
+}
+
+.menuItem:hover {
+    background: var(--color-primary-light);
+}
+
+.menuItemDanger {
+    color: var(--color-danger);
+}
+
+.menuItemDanger:hover {
+    background: rgba(255, 68, 68, 0.12);
+}
+
+@media (max-width: 768px) {
+    .header {
+        padding: 0 var(--spacing-lg);
+    }
+    .email {
+        max-width: 160px;
+    }
+    .deadline {
+        display: none; /* чтобы не забивать хедер на мобиле */
+    }
+}

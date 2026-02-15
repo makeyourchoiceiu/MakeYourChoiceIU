@@ -1,30 +1,37 @@
-import { useState, useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 
 import LoginPage from './pages/LoginPage/LoginPage.tsx';
 import { AdminElectivesPage } from './pages/AdminElectivesPage/AdminElectivesPage.tsx';
 import { StudentElectivesPage } from './pages/StudentElectivesPage/StudentElectivePage.tsx';
 
-import { getStoredUser } from './api/auth';
+import ProtectedRoute from './routes/ProtectedRoute';
+import { LogoutRoute } from './routes/LogoutRoute';
+
 import type { User } from './types/user';
+import { AuthProvider, useAuth } from './app/AuthContext.tsx';
+import { LocaleProvider } from './app/locale/LocaleContext';
 
 function getDefaultPath(user: User) {
-    if (user.role === 'admin') return '/admin';
+    // combined пока ведём как admin (можно сделать отдельный выбор)
+    if (user.role === 'admin' ) return '/admin';
     return '/student';
 }
 
+/**
+ * Вынесли провайдеры в App, чтобы state был доступен во всех страницах.
+ */
 export default function App() {
-    const [user, setUser] = useState<User | null>(() => getStoredUser());
-    const [loading, setLoading] = useState(true);
+    return (
+        <AuthProvider>
+            <LocaleProvider>
+                <AppRoutes />
+            </LocaleProvider>
+        </AuthProvider>
+    );
+}
 
-    useEffect(() => {
-        // Никаких setUser тут не надо — мы уже инициализировали из localStorage выше
-        setLoading(false);
-    }, []);
-
-    const handleLoginSuccess = (userData: User) => setUser(userData);
-
-    if (loading) return null;
+function AppRoutes() {
+    const { user, setUser } = useAuth();
 
     return (
         <Routes>
@@ -34,24 +41,43 @@ export default function App() {
                     user ? (
                         <Navigate to={getDefaultPath(user)} replace />
                     ) : (
-                        <LoginPage onLoginSuccess={handleLoginSuccess} />
+                        <LoginPage onLoginSuccess={setUser} />
                     )
                 }
             />
 
             <Route
                 path="/student"
-                element={user ? <StudentElectivesPage /> : <Navigate to="/login" replace />}
+                element={
+                    <ProtectedRoute user={user}>
+                        <StudentElectivesPage />
+                    </ProtectedRoute>
+                }
             />
 
             <Route
                 path="/admin"
-                element={user ? <AdminElectivesPage /> : <Navigate to="/login" replace />}
+                element={
+                    <ProtectedRoute user={user}>
+                        <AdminElectivesPage />
+                    </ProtectedRoute>
+                }
+            />
+
+            <Route
+                path="/logout"
+                element={
+                    <ProtectedRoute user={user}>
+                        <LogoutRoute />
+                    </ProtectedRoute>
+                }
             />
 
             <Route
                 path="/"
-                element={user ? <Navigate to={getDefaultPath(user)} replace /> : <Navigate to="/login" replace />}
+                element={
+                    user ? <Navigate to={getDefaultPath(user)} replace /> : <Navigate to="/login" replace />
+                }
             />
 
             <Route path="*" element={<Navigate to="/" replace />} />

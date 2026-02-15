@@ -1,11 +1,31 @@
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../app/AuthContext.tsx';
+import { useLocale } from '../../app/locale/LocaleContext';
+import { Header } from '../../ui/components/Header/Header';
 import { ElectiveCard } from '../../ui/components/ElectiveCard/ElectiveCard';
 
 export function AdminElectivesPage() {
-    return (
-        <div style={{ padding: 'var(--spacing-xxl)', background: 'var(--color-main-background)', minHeight: '100vh' }}>
-            <div style={{ width: 'min(980px, 100%)', margin: '0 auto', display: 'grid', gap: 'var(--spacing-xl)' }}>
-                <h1 className="heading-2">Admin Electives</h1>
+    const navigate = useNavigate();
+    const { user } = useAuth();
+    const { locale, toggleLocale } = useLocale();
 
+    // user гарантирован ProtectedRoute
+    const email = user!.email;
+    const role = user!.role;
+
+    return (
+        <div style={{ background: 'var(--color-main-background)', minHeight: '100vh' }}>
+            <Header
+                email={email}
+                role={role}
+                locale={locale}
+                onToggleLocale={toggleLocale}
+                onLogout={() => navigate('/logout')}
+                onSwitchToStudent={() => navigate('/student')}
+            />
+
+            {/* остальная страница */}
+            <div style={{ padding: 'var(--spacing-xxl)' }}>
                 <ElectiveCard
                     role="admin"
                     elective={{
@@ -14,11 +34,11 @@ export function AdminElectivesPage() {
                         language: 'Russian',
                         program: 'BS1 DSAI, BS1 CSE',
                         year: 1,
-                        description: 'Some description and details\nSome description and details\n\n' + 'Long text '.repeat(50),
+                        description: 'Some description and details\n\n' + 'Long text '.repeat(50),
                     }}
-                    onEdit={(id) => console.log('edit', id)}
-                    onArchive={(id) => console.log('archive', id)}
-                    onDelete={(id) => console.log('delete', id)}
+                    onEdit={() => {}}
+                    onArchive={() => {}}
+                    onDelete={() => {}}
                 />
             </div>
         </div>
