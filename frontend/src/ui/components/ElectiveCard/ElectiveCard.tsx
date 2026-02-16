@@ -5,17 +5,20 @@ import { Modal } from '../Modal/Modal';
 type Elective = {
     id: string;
     title: string;
+    teacher: string;
     language: string;
-    program: string; // можно string[] если нужно
+    program: string;
     year: number;
     description: string;
 };
 
 type Role = 'student' | 'admin';
+type Locale = 'en' | 'ru';
 
 type ElectiveCardProps = {
     role: Role;
     elective: Elective;
+    locale: Locale; // ✅ добавили
 
     // Student
     isFavourite?: boolean;
@@ -27,9 +30,43 @@ type ElectiveCardProps = {
     onDelete?: (id: string) => void;
 };
 
+const TEXT = {
+    en: {
+        meta: {
+            teacher: 'Teacher',
+            language: 'Language',
+            program: 'Program',
+            year: 'Year',
+        },
+        seeMore: 'See more',
+        edit: 'Edit',
+        archive: 'Archive',
+        delete: 'Delete',
+        addFav: 'Add to favourites',
+        removeFav: 'Remove from favourites',
+        openMenu: 'Open menu',
+    },
+    ru: {
+        meta: {
+            teacher: 'Преподаватель',
+            language: 'Язык',
+            program: 'Программа',
+            year: 'Курс',
+        },
+        seeMore: 'Подробнее',
+        edit: 'Редактировать',
+        archive: 'Архивировать',
+        delete: 'Удалить',
+        addFav: 'В избранное',
+        removeFav: 'Убрать из избранного',
+        openMenu: 'Открыть меню',
+    },
+} as const;
+
 export function ElectiveCard({
                                  role,
                                  elective,
+                                 locale,
                                  isFavourite = false,
                                  onToggleFavourite,
                                  onEdit,
@@ -40,22 +77,38 @@ export function ElectiveCard({
     const [menuOpen, setMenuOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement | null>(null);
 
+    const t = TEXT[locale];
+
+    // ✅ meta делаем с ключами, а label подставляем из t (так проще и безопаснее)
     const meta = useMemo(
         () => [
-            { label: 'Language', value: elective.language },
-            { label: 'Program', value: elective.program },
-            { label: 'Year', value: String(elective.year) },
+            { key: 'teacher', label: t.meta.teacher, value: elective.teacher }, // ✅
+            { key: 'language', label: t.meta.language, value: elective.language },
+            { key: 'program', label: t.meta.program, value: elective.program },
+            { key: 'year', label: t.meta.year, value: String(elective.year) },
         ],
-        [elective.language, elective.program, elective.year]
+        [
+            t.meta.teacher,
+            t.meta.language,
+            t.meta.program,
+            t.meta.year,
+            elective.teacher,
+            elective.language,
+            elective.program,
+            elective.year,
+        ]
     );
+
 
     // close admin menu on outside click
     useEffect(() => {
         if (!menuOpen) return;
+
         const onClick = (e: MouseEvent) => {
             const target = e.target as Node;
             if (menuRef.current && !menuRef.current.contains(target)) setMenuOpen(false);
         };
+
         window.addEventListener('mousedown', onClick);
         return () => window.removeEventListener('mousedown', onClick);
     }, [menuOpen]);
@@ -64,8 +117,9 @@ export function ElectiveCard({
         role === 'student' ? (
             <button
                 className={styles.iconButton}
-                aria-label={isFavourite ? 'Remove from favourites' : 'Add to favourites'}
+                aria-label={isFavourite ? t.removeFav : t.addFav}
                 onClick={() => onToggleFavourite?.(elective.id)}
+                type="button"
             >
                 <StarIcon filled={isFavourite} />
             </button>
@@ -73,8 +127,9 @@ export function ElectiveCard({
             <div className={styles.menuWrap} ref={menuRef}>
                 <button
                     className={styles.iconButton}
-                    aria-label="Open menu"
+                    aria-label={t.openMenu}
                     onClick={() => setMenuOpen((v) => !v)}
+                    type="button"
                 >
                     <DotsIcon />
                 </button>
@@ -84,32 +139,37 @@ export function ElectiveCard({
                         <button
                             className={styles.menuItem}
                             role="menuitem"
+                            type="button"
                             onClick={() => {
                                 setMenuOpen(false);
                                 onEdit?.(elective.id);
                             }}
                         >
-                            Edit
+                            {t.edit}
                         </button>
+
                         <button
                             className={styles.menuItem}
                             role="menuitem"
+                            type="button"
                             onClick={() => {
                                 setMenuOpen(false);
                                 onArchive?.(elective.id);
                             }}
                         >
-                            Archive
+                            {t.archive}
                         </button>
+
                         <button
                             className={`${styles.menuItem} ${styles.menuItemDanger}`}
                             role="menuitem"
+                            type="button"
                             onClick={() => {
                                 setMenuOpen(false);
                                 onDelete?.(elective.id);
                             }}
                         >
-                            Delete
+                            {t.delete}
                         </button>
                     </div>
                 ) : null}
@@ -126,7 +186,7 @@ export function ElectiveCard({
 
                 <div className={styles.meta}>
                     {meta.map((m) => (
-                        <div key={m.label} className={styles.metaRow}>
+                        <div key={m.key} className={styles.metaRow}>
                             <span className={styles.metaLabel}>{m.label}:</span>
                             <span className={styles.metaValue}>{m.value}</span>
                         </div>
@@ -139,8 +199,9 @@ export function ElectiveCard({
                     <button
                         className="button button--primary button--lg"
                         onClick={() => setOpen(true)}
+                        type="button"
                     >
-                        See more
+                        {t.seeMore}
                     </button>
                 </div>
             </article>
@@ -152,63 +213,47 @@ export function ElectiveCard({
                 footer={
                     role === 'admin' ? (
                         <>
-                            <button
-                                className="button button--outline"
-                                onClick={() => onEdit?.(elective.id)}
-                            >
-                                Edit
+                            <button className="button button--outline" onClick={() => onEdit?.(elective.id)} type="button">
+                                {t.edit}
                             </button>
-                            <button
-                                className="button button--secondary"
-                                onClick={() => onArchive?.(elective.id)}
-                            >
-                                Archive
+                            <button className="button button--secondary" onClick={() => onArchive?.(elective.id)} type="button">
+                                {t.archive}
                             </button>
-                            <button
-                                className="button button--danger"
-                                onClick={() => onDelete?.(elective.id)}
-                            >
-                                Delete
+                            <button className="button button--danger" onClick={() => onDelete?.(elective.id)} type="button">
+                                {t.delete}
                             </button>
                         </>
                     ) : (
                         <button
                             className={`button ${isFavourite ? 'button--outline' : 'button--primary'}`}
                             onClick={() => onToggleFavourite?.(elective.id)}
+                            type="button"
                         >
-                            {isFavourite ? 'Remove from favourites' : 'Add to favourites'}
+                            {isFavourite ? t.removeFav : t.addFav}
                         </button>
                     )
                 }
             >
                 <div className={styles.modalMeta}>
                     {meta.map((m) => (
-                        <div key={m.label} className={styles.modalMetaRow}>
+                        <div key={m.key} className={styles.modalMetaRow}>
                             <span className={styles.metaLabel}>{m.label}:</span>
                             <span className={styles.metaValue}>{m.value}</span>
                         </div>
                     ))}
                 </div>
 
-                <div className={styles.modalDescription}>
-                    {elective.description}
-                </div>
+                <div className={styles.modalDescription}>{elective.description}</div>
             </Modal>
         </>
     );
 }
 
-/* --- icons (простые inline SVG, чтобы не тащить либы) --- */
+/* --- icons --- */
 
 function StarIcon({ filled }: { filled: boolean }) {
     return (
-        <svg
-            width="34"
-            height="34"
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-            className={styles.icon}
-        >
+        <svg width="34" height="34" viewBox="0 0 24 24" aria-hidden="true" className={styles.icon}>
             <path
                 d="M12 17.3l-5.5 3 1-6.1-4.5-4.4 6.2-.9L12 3l2.8 5.9 6.2.9-4.5 4.4 1 6.1z"
                 fill={filled ? 'var(--color-primary)' : 'transparent'}

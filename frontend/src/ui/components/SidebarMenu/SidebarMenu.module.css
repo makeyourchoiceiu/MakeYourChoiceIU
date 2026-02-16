@@ -1,0 +1,39 @@
+.sidebar {
+    position: fixed;
+    top: 56px;                 /* если header fixed и 56px */
+    left: 0;
+    bottom: 0;
+    width: 220px;
+    background: var(--color-elem-background);
+    border-right: 1px solid var(--color-border);
+    padding: var(--spacing-lg);
+}
+
+.logo {
+    font-weight: var(--font-weight-bold);
+    color: var(--color-primary);
+    margin-bottom: var(--spacing-xl);
+}
+
+.nav {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.item {
+    padding: 10px 12px;
+    border-radius: var(--border-radius-md);
+    color: var(--color-text-lighter);
+    text-decoration: none;
+    font-weight: var(--font-weight-semibold);
+}
+
+.itemActive {
+    padding: 10px 12px;
+    border-radius: var(--border-radius-md);
+    color: white;
+    background: var(--color-primary);
+    text-decoration: none;
+    font-weight: var(--font-weight-semibold);
+}

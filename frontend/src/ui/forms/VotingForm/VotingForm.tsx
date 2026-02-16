@@ -13,7 +13,26 @@ export interface VotingFormProps {
     onClear?: () => void;
     isSubmitting?: boolean;
     className?: string;
+    locale: 'en' | 'ru';
 }
+
+const TEXT = {
+    en: {
+        noElectives: 'No electives available',
+        priority: 'Priority',
+        selectElective: 'Select elective',
+        clearAll: 'Clear All',
+        submit: 'Submit',
+    },
+    ru: {
+        noElectives: 'Нет доступных элективов',
+        priority: 'Приоритет',
+        selectElective: 'Выберите электив',
+        clearAll: 'Очистить',
+        submit: 'Отправить',
+    },
+} as const;
+
 
 export default function VotingForm({
                                        electives,
@@ -21,11 +40,12 @@ export default function VotingForm({
                                        onSubmit,
                                        onClear,
                                        isSubmitting = false,
-                                       className = ''
+                                       className = '',
+                                        locale
                                    }: VotingFormProps) {
 
     const [selectedIds, setSelectedIds] = useState<(number | undefined)[]>([]);
-
+    const t = TEXT[locale];
     useEffect(() => {
         setSelectedIds(Array(requiredCount).fill(undefined));
     }, [electives, requiredCount]);
@@ -56,12 +76,13 @@ export default function VotingForm({
             <div className={`${styles.wrapper} ${className}`}>
                 <div className={styles.container}>
                     <p className={styles.noCoursesMessage}>
-                        No electives available
+                        {t.noElectives}
                     </p>
                 </div>
             </div>
         );
     }
+
 
     return (
         <div className={`${styles.wrapper} ${className}`}>
@@ -80,7 +101,7 @@ export default function VotingForm({
                             return (
                                 <div key={i} className={styles.field}>
                                     <label htmlFor={`elective-${i}`}>
-                                        Priority {i + 1}
+                                        {t.priority}  {i + 1}
                                     </label>
                                     <select
                                         id={`elective-${i}`}
@@ -90,7 +111,7 @@ export default function VotingForm({
                                         disabled={isSubmitting}
                                     >
                                         <option value="" disabled>
-                                            Select elective
+                                            {t.selectElective}
                                         </option>
                                         {availableElectives.map((elective) => (
                                             <option
@@ -113,7 +134,7 @@ export default function VotingForm({
                             className={styles.clearButton}
                             disabled={isSubmitting || selectedIds.every(id => id === undefined)}
                         >
-                            Clear All
+                            {t.clearAll}
                         </button>
 
                         <button
@@ -121,7 +142,7 @@ export default function VotingForm({
                             className={styles.submitButton}
                             disabled={!isFilled || isSubmitting}
                         >
-                            Submit
+                            {t.submit}
                         </button>
                     </div>
                 </form>

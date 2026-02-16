@@ -1,0 +1,18 @@
+.page {
+    display: grid;
+    grid-template-columns: 1fr 25vw; /* справа как у VotingForm */
+    gap: var(--spacing-xxl);
+    align-items: start;
+}
+
+/* левый блок со списком */
+.list {
+    min-width: 0; /* важно, чтобы grid не ломался */
+}
+
+/* на мобиле форма вниз */
+@media (max-width: 768px) {
+    .page {
+        grid-template-columns: 1fr;
+    }
+}

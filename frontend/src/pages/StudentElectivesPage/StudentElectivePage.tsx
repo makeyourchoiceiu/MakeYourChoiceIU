@@ -44,9 +44,11 @@ export function StudentElectivesPage() {
                 padding: 'var(--spacing-xxl)' }}>
                 <ElectiveCard
                     role="student"
+                    locale={locale}
                     elective={{
                         id: 'rbt-101',
                         title: 'Intro into Robotics',
+                        teacher: 'Ivan Petrov',
                         language: 'Russian',
                         program: 'English',
                         year: 1,
@@ -63,6 +65,7 @@ export function StudentElectivesPage() {
                     requiredCount={5}
                     onSubmit={handleSubmit}
                     onClear={handleClear}
+                    locale={locale}
                 />
             </div>
         </div>

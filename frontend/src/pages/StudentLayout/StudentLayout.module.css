@@ -1,0 +1,11 @@
+.page {
+    background: var(--color-main-background);
+    min-height: 100vh;
+}
+
+/* контент справа от сайдбара и ниже хедера */
+.content {
+    padding: var(--spacing-xxl);
+    padding-top: calc(var(--spacing-xxl) + 56px);
+    margin-left: 220px;       /* ширина сайдбара */
+}

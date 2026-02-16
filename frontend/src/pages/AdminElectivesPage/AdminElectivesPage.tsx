@@ -28,9 +28,11 @@ export function AdminElectivesPage() {
             <div style={{ padding: 'var(--spacing-xxl)' }}>
                 <ElectiveCard
                     role="admin"
+                    locale={locale}
                     elective={{
                         id: 'rbt-101',
                         title: 'Intro into Robotics',
+                        teacher: 'Ivan Petrov',
                         language: 'Russian',
                         program: 'BS1 DSAI, BS1 CSE',
                         year: 1,

@@ -11,6 +11,10 @@ import type { User } from './types/user';
 import { AuthProvider, useAuth } from './app/AuthContext.tsx';
 import { LocaleProvider } from './app/locale/LocaleContext';
 
+import { StudentLayout } from './pages/StudentLayout/StudentLayout';
+import { StudentElectivesByTypePage } from './pages/StudentElectivesByTypePage/StudentElectivesByTypePage';
+
+
 function getDefaultPath(user: User) {
     // combined пока ведём как admin (можно сделать отдельный выбор)
     if (user.role === 'admin' ) return '/admin';
@@ -50,10 +54,18 @@ function AppRoutes() {
                 path="/student"
                 element={
                     <ProtectedRoute user={user}>
-                        <StudentElectivesPage />
+                        <StudentLayout />
                     </ProtectedRoute>
                 }
-            />
+            >
+                {/* куда попадать при /student */}
+                <Route index element={<Navigate to="electives/tech" replace />} />
+                {/* если хочешь главную: <Route index element={<Navigate to="main" replace />} /> */}
+                {/* <Route path="main" element={<StudentMainPage />} /> */}
+
+                {/* динамическая страница по типу */}
+                <Route path="electives/:type" element={<StudentElectivesByTypePage />} />
+            </Route>
 
             <Route
                 path="/admin"
