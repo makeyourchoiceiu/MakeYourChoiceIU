@@ -10,6 +10,8 @@ import styles from './StudentElectivesByTypePage.module.css';
 import { useEffect, useMemo, useState } from 'react';
 
 
+
+
 export function StudentElectivesByTypePage() {
     const { user } = useAuth();
     const { locale } = useLocale();
@@ -64,14 +66,20 @@ export function StudentElectivesByTypePage() {
     };
 
 
-
-
-
-
     const { items, loading, error, query, setQuery } = useElectives({
         groupId,
         type,
     });
+
+    const sortedItems = useMemo(() => {
+        // стабильная сортировка: сначала fav=true, потом остальные
+        // внутри групп порядок сохраняем как был (в том числе после поиска)
+        return [...items].sort((a, b) => {
+            const af = !!favs[a.id];
+            const bf = !!favs[b.id];
+            return Number(bf) - Number(af); // true(1) идет раньше false(0)
+        });
+    }, [items, favs]);
 
 
     const { handleSubmit, handleClear } = useVotingForm();
@@ -88,7 +96,7 @@ export function StudentElectivesByTypePage() {
                 <ElectivesList
                     role="student"
                     locale={locale}
-                    electives={items}
+                    electives={sortedItems}
                     loading={loading}
                     error={error}
                     query={query}
