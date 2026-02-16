@@ -7,6 +7,8 @@ import type { ElectiveType } from '../../types/electives';
 import VotingForm, { type ElectiveOption } from '../../ui/forms/VotingForm/VotingForm.tsx';
 import { useVotingForm } from '../../hooks/useVotingForm.ts';
 import styles from './StudentElectivesByTypePage.module.css';
+import { useEffect, useMemo, useState } from 'react';
+
 
 export function StudentElectivesByTypePage() {
     const { user } = useAuth();
@@ -17,6 +19,54 @@ export function StudentElectivesByTypePage() {
     const type = params.type as ElectiveType; // tech/hum/math/custom
 
     const groupId = 'mock-group';
+
+    const favKey = useMemo(() => {
+        // лучше использовать user.id если он есть, иначе email
+        const userKey = user?.id ? String(user.id) : (user?.email ?? 'anon');
+        // храним избранное отдельно по группе и по типу элективов
+        return `favs:${userKey}:${groupId}:${type}`;
+    }, [user, groupId, type]);
+
+    const [favs, setFavs] = useState<Record<string, boolean>>(() => {
+        const raw = localStorage.getItem(favKey);
+        if (!raw) return {};
+        try {
+            const ids: string[] = JSON.parse(raw);
+            return Object.fromEntries(ids.map((id) => [id, true]));
+        } catch {
+            return {};
+        }
+    });
+
+    useEffect(() => {
+        const raw = localStorage.getItem(favKey);
+        if (!raw) {
+            setFavs({});
+            return;
+        }
+        try {
+            const ids: string[] = JSON.parse(raw);
+            setFavs(Object.fromEntries(ids.map((id) => [id, true])));
+        } catch {
+            setFavs({});
+        }
+    }, [favKey]);
+
+    useEffect(() => {
+        const ids = Object.keys(favs).filter((id) => favs[id]);
+        localStorage.setItem(favKey, JSON.stringify(ids));
+    }, [favs, favKey]);
+
+    const isFavourite = (id: string) => !!favs[id];
+
+    const onToggleFavourite = (id: string) => {
+        setFavs((prev) => ({ ...prev, [id]: !prev[id] }));
+    };
+
+
+
+
+
 
     const { items, loading, error, query, setQuery } = useElectives({
         groupId,
@@ -43,6 +93,8 @@ export function StudentElectivesByTypePage() {
                     error={error}
                     query={query}
                     onQueryChange={setQuery}
+                    isFavourite={isFavourite}
+                    onToggleFavourite={onToggleFavourite}
                 />
             </div>
 

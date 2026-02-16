@@ -42,6 +42,7 @@ const UI = {
     },
 } as const;
 
+
 export function ElectivesList({
                                   role,
                                   locale,
