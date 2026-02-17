@@ -22,6 +22,9 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: MakeYourChoice_frontend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
     ports:
       - "3000:5173"
     depends_on:
