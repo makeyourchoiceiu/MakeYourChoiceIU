@@ -33,6 +33,9 @@ ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
 # Application definition
 
 INSTALLED_APPS = [
+    'voting',
+    'catalog',
+    'iteration',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
