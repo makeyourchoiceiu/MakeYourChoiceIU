@@ -37,7 +37,7 @@ def add_initial_tracks(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('catalog', '0007_add_initial_programs'),
+        ('catalog', '0003_add_initial_programs'),
     ]
 
     operations = [
