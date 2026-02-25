@@ -3,14 +3,14 @@
 from django.db import migrations
 
 def add_initial_languages(apps, schema_editor):
-    ProgramLanguages = apps.get_model('catalog', 'ProgramLanguages')
+    ProgramLanguage = apps.get_model('catalog', 'ProgramLanguage')
 
     languages = [
-        ProgramLanguages(language='ENG'),
-        ProgramLanguages(language='RUS'),
+        ProgramLanguage(language='ENG'),
+        ProgramLanguage(language='RUS'),
     ]
 
-    ProgramLanguages.objects.bulk_create(languages)
+    ProgramLanguage.objects.bulk_create(languages)
 
 def add_initial_degree(apps, schema_editor):
     Degree = apps.get_model('catalog', 'Degree')
@@ -25,20 +25,20 @@ def add_initial_degree(apps, schema_editor):
     Degree.objects.bulk_create(degrees)
 
 def add_initial_elective_types(apps, schema_editor):
-    ElectiveTypes = apps.get_model('catalog', 'ElectiveTypes')
+    ElectiveType = apps.get_model('catalog', 'ElectiveType')
 
     elective_types = [
-        ElectiveTypes(elective_type_name='TECH'),
-        ElectiveTypes(elective_type_name='HUM'),
-        ElectiveTypes(elective_type_name='MATH'),
+        ElectiveType(elective_type_name='TECH'),
+        ElectiveType(elective_type_name='HUM'),
+        ElectiveType(elective_type_name='MATH'),
     ]
 
-    ElectiveTypes.objects.bulk_create(elective_types)
+    ElectiveType.objects.bulk_create(elective_types)
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('catalog', '0003_rename_program_id_tracks_program'),
+        ('catalog', '0004_elective_rename_programs_program_rename_tracks_track_and_more'),
     ]
 
     operations = [

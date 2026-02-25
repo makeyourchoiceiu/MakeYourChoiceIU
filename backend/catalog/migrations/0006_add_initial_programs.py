@@ -3,32 +3,32 @@
 from django.db import migrations
 
 def add_initial_programs(apps, schema_editor):
-    ProgramLanguages = apps.get_model('catalog', 'ProgramLanguages')
-    Programs = apps.get_model('catalog', 'Programs')
+    ProgramLanguage = apps.get_model('catalog', 'ProgramLanguage')
+    Program = apps.get_model('catalog', 'Program')
 
-    russian = ProgramLanguages.objects.get(language='RUS')
-    english = ProgramLanguages.objects.get(language='ENG')
+    russian = ProgramLanguage.objects.get(language='RUS')
+    english = ProgramLanguage.objects.get(language='ENG')
 
     programs = [
-        Programs(
+        Program(
             name='CSE',
             language=english
         ),
-        Programs(
+        Program(
             name='DSAI',
             language=english
         ),
-        Programs(
+        Program(
             name='MFAI',
             language=russian
         ),
     ]
 
-    Programs.objects.bulk_create(programs)
+    Program.objects.bulk_create(programs)
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('catalog', '0004_add_initial_languages_degree_electivetypes'),
+        ('catalog', '0005_add_initial_languages_degree_electivetypes'),
     ]
 
     operations = [

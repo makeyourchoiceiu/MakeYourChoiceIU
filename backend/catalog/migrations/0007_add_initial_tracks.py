@@ -3,41 +3,41 @@
 from django.db import migrations
 
 def add_initial_tracks(apps, schema_editor):
-    Programs = apps.get_model('catalog', 'Programs')
-    Tracks = apps.get_model('catalog', 'Tracks')
+    Program = apps.get_model('catalog', 'Program')
+    Track = apps.get_model('catalog', 'Track')
 
-    cse = Programs.objects.get(name='CSE')
-    dsai = Programs.objects.get(name='DSAI')
+    cse = Program.objects.get(name='CSE')
+    dsai = Program.objects.get(name='DSAI')
 
     tracks = [
-        Tracks(
+        Track(
             name='DS',
             program=dsai
         ),
-        Tracks(
+        Track(
             name='AI',
             program=dsai
         ),
-        Tracks(
+        Track(
             name='RO',
             program=dsai
         ),
-        Tracks(
+        Track(
             name='SD',
             program=cse
         ),
-        Tracks(
+        Track(
             name='GD',
             program=cse
         ),
     ]
 
-    Tracks.objects.bulk_create(tracks)
+    Track.objects.bulk_create(tracks)
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('catalog', '0005_add_initial_programs'),
+        ('catalog', '0006_add_initial_programs'),
     ]
 
     operations = [
