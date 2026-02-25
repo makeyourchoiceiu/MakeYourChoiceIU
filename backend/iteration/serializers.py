@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import Stream
-from catalog.models import Programs
+from catalog.models import Program
 
 class StreamSerializer(serializers.ModelSerializer):
     class Meta:
@@ -9,5 +9,5 @@ class StreamSerializer(serializers.ModelSerializer):
 
 class ProgramSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Programs
+        model = Program
         fields = '__all__'

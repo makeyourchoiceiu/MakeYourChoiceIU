@@ -1,14 +1,14 @@
 from rest_framework import serializers
-from .models import Electives, Programs
+from .models import Elective, Program
 
 class ElectiveSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = Electives
+        model = Elective
         fields = '__all__'
 
 class ProgramSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = Programs
+        model = Program
         fields = '__all__'

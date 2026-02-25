@@ -9,6 +9,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ('iteration', '0002_rename_stream_id_iteration_streams_and_more'),
         ('catalog', '0003_rename_program_id_tracks_program'),
+        ('catalog', '0004_alter_electives_degree_year'),
     ]
 
     operations = [

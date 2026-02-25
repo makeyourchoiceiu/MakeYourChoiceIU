@@ -28,7 +28,7 @@ def add_initial_programs(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('catalog', '0005_add_initial_languages_degree_electivetypes'),
+        ('catalog', '0006_add_initial_languages_degree_electivetypes'),
     ]
 
     operations = [

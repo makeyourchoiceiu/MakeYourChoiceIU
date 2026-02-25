@@ -359,7 +359,7 @@ def add_initial_electives(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('catalog', '0007_add_initial_tracks'),
+        ('catalog', '0008_add_initial_tracks'),
     ]
 
     operations = [

@@ -5,20 +5,20 @@ from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter
 
-from .models import Electives, Programs
+from .models import Elective, Program
 from .serializers import ElectiveSerializer, ProgramSerializer
 
 # Create your views here.
 class ProgramViewSet(viewsets.ModelViewSet):
-    queryset = Programs.objects.all()
+    queryset = Program.objects.all()
     serializer_class = ProgramSerializer
 
 class ElectiveViewSet(viewsets.ModelViewSet):
     serializer_class = ElectiveSerializer
-    queryset = Electives.objects.all()
+    queryset = Elective.objects.all()
 
     def get_queryset(self):
-        queryset = Electives.objects.all()
+        queryset = Elective.objects.all()
         status = self.request.query_params.get('status')
 
         if status:
@@ -34,7 +34,7 @@ class ElectiveViewSet(viewsets.ModelViewSet):
     filterset_fields = [
         'status',
         'elective_type',
-        'language'
+        'program_language'
     ]
 
     search_fields = [

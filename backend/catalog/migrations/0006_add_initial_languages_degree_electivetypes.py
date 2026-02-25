@@ -38,7 +38,7 @@ def add_initial_elective_types(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('catalog', '0004_elective_rename_programs_program_rename_tracks_track_and_more'),
+        ('catalog', '0005_elective_rename_programs_program_rename_tracks_track_and_more'),
     ]
 
     operations = [

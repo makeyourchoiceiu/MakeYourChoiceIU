@@ -4,13 +4,13 @@ from rest_framework.response import Response
 
 from .models import Stream
 from .serializers import StreamSerializer
-from catalog.models import Electives
+from catalog.models import Elective
 from catalog.serializers import ElectiveSerializer
 
 
 class StreamViewSet(viewsets.ModelViewSet):
     serializer_class = StreamSerializer
-    queryset = Electives.objects.all()
+    queryset = Elective.objects.all()
 
     def get_queryset(self):
 
@@ -24,39 +24,39 @@ class StreamViewSet(viewsets.ModelViewSet):
         return queryset
 
 
-    # GET /streams/{id}/electives
-    @action(detail=True,methods=['get'],url_path='electives')
-    def get_electives(self, request, pk=None):
+    # GET /streams/{id}/elective
+    @action(detail=True,methods=['get'],url_path='elective')
+    def get_elective(self, request, pk=None):
 
         stream = self.get_object()
 
-        electives = stream.electives.all()
+        elective = stream.elective.all()
 
-        serializer = ElectiveSerializer(electives, many=True)
+        serializer = ElectiveSerializer(elective, many=True)
 
         return Response(serializer.data)
 
 
-    # POST /streams/{id}/electives
-    @action(detail=True,methods=['post'],url_path='electives')
-    def add_electives(self, request, pk=None):
+    # POST /streams/{id}/elective
+    @action(detail=True,methods=['post'],url_path='elective')
+    def add_elective(self, request, pk=None):
         stream = self.get_object()
 
         elective_ids = request.data.get('electiveIds', [])
 
-        electives = Electives.objects.filter(id__in=elective_ids)
+        elective = Elective.objects.filter(id__in=elective_ids)
 
-        stream.electives.add(*electives)
+        stream.elective.add(*elective)
 
         return Response({"status": "added"})
 
 
-    # DELETE /streams/{id}/electives/{electiveId}
-    @action(detail=True,methods=['delete'],url_path='electives/(?P<elective_id>[^/.]+)')
+    # DELETE /streams/{id}/elective/{electiveId}
+    @action(detail=True,methods=['delete'],url_path='elective/(?P<elective_id>[^/.]+)')
     def remove_elective(self, request, pk=None, elective_id=None):
 
         stream = self.get_object()
 
-        stream.electives.remove(elective_id)
+        stream.elective.remove(elective_id)
 
         return Response({"status": "removed"})
