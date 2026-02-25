@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLocalStorage } from '../../../hooks/useLocalStorage';
 import styles from './VotingForm.module.css';
 
 export interface ElectiveOption {
@@ -14,6 +15,7 @@ export interface VotingFormProps {
     isSubmitting?: boolean;
     className?: string;
     locale: 'en' | 'ru';
+    storageKey?: string;
 }
 
 const TEXT = {
@@ -33,6 +35,7 @@ const TEXT = {
     },
 } as const;
 
+const DEFAULT_STORAGE_KEY = 'voting_form_selections';
 
 export default function VotingForm({
                                        electives,
@@ -41,14 +44,43 @@ export default function VotingForm({
                                        onClear,
                                        isSubmitting = false,
                                        className = '',
-                                        locale
+                                       locale,
+                                       storageKey = DEFAULT_STORAGE_KEY
                                    }: VotingFormProps) {
 
-    const [selectedIds, setSelectedIds] = useState<(number | undefined)[]>([]);
+    const [selectedIds, setSelectedIds] = useLocalStorage<(number | undefined)[]>(
+        storageKey,
+        Array(requiredCount).fill(undefined)
+    );
+
+    const [isInitialized, setIsInitialized] = useState(false);
     const t = TEXT[locale];
+
+    // Синхронизация с requiredCount
     useEffect(() => {
-        setSelectedIds(Array(requiredCount).fill(undefined));
-    }, [electives, requiredCount]);
+        if (selectedIds.length !== requiredCount) {
+            // Если количество приоритетов изменилось, сбрасываем
+            setSelectedIds(Array(requiredCount).fill(undefined));
+        }
+        setIsInitialized(true);
+    }, [requiredCount, selectedIds.length, setSelectedIds]);
+
+    // Валидация выбранных ID (удаляем несуществующие элективы)
+    useEffect(() => {
+        if (!isInitialized || !electives.length) return;
+
+        const existingIds = new Set(electives.map(e => e.id));
+        const hasInvalidSelections = selectedIds.some(id =>
+            id !== undefined && !existingIds.has(id)
+        );
+
+        if (hasInvalidSelections) {
+            const validSelections = selectedIds.map(id =>
+                id !== undefined && existingIds.has(id) ? id : undefined
+            );
+            setSelectedIds(validSelections);
+        }
+    }, [electives, isInitialized, selectedIds, setSelectedIds]);
 
     const handleSelect = (position: number, electiveId: number) => {
         const newSelected = [...selectedIds];
@@ -58,17 +90,16 @@ export default function VotingForm({
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        // Фильтруем undefined и отправляем только числа
         const validIds = selectedIds.filter((id): id is number => id !== undefined);
         onSubmit(validIds);
     };
 
     const handleClear = () => {
         setSelectedIds(Array(requiredCount).fill(undefined));
+        localStorage.removeItem(storageKey);
         onClear?.();
     };
 
-    // Проверяем что все позиции заполнены
     const isFilled = selectedIds.every(id => id !== undefined);
 
     if (!electives.length) {
@@ -83,17 +114,13 @@ export default function VotingForm({
         );
     }
 
-
     return (
         <div className={`${styles.wrapper} ${className}`}>
             <div className={styles.container}>
                 <form onSubmit={handleSubmit} className={styles.form}>
                     <div className={styles.fieldsColumn}>
                         {Array.from({ length: requiredCount }, (_, i) => {
-                            // Получаем список ID уже выбранных элективов (кроме текущего)
                             const selectedOthers = selectedIds.filter((_, index) => index !== i);
-
-                            // Фильтруем элективы - показываем только те, которые не выбраны в других позициях
                             const availableElectives = electives.filter(elective =>
                                 !selectedOthers.includes(elective.id)
                             );
@@ -101,7 +128,7 @@ export default function VotingForm({
                             return (
                                 <div key={i} className={styles.field}>
                                     <label htmlFor={`elective-${i}`}>
-                                        {t.priority}  {i + 1}
+                                        {t.priority} {i + 1}
                                     </label>
                                     <select
                                         id={`elective-${i}`}
