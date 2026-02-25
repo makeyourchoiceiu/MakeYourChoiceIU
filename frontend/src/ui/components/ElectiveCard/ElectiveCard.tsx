@@ -1,4 +1,5 @@
 import { useMemo, useState, useRef, useEffect } from 'react';
+import type { ReactNode } from 'react';
 import styles from './ElectiveCard.module.css';
 import { Modal } from '../Modal/Modal';
 
@@ -18,7 +19,10 @@ type Locale = 'en' | 'ru';
 type ElectiveCardProps = {
     role: Role;
     elective: Elective;
-    locale: Locale; // ✅ добавили
+    locale: Locale;
+
+    /** текущий запрос поиска — нужен только для подсветки совпадений */
+    query?: string;
 
     // Student
     isFavourite?: boolean;
@@ -63,10 +67,43 @@ const TEXT = {
     },
 } as const;
 
+function escapeRegExp(s: string) {
+    return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function highlight(text: string, query: string): ReactNode {
+    const q = query.trim();
+    if (!q) return text;
+
+    const re = new RegExp(`(${escapeRegExp(q)})`, 'ig');
+    const parts = text.split(re);
+
+    // split с capturing group: совпадения попадают на нечётные индексы
+    return parts.map((part, i) => (i % 2 === 1 ? <mark key={i}>{part}</mark> : part));
+}
+
+function findSnippet(text: string, query: string, radius = 80) {
+    const q = query.trim();
+    if (!q) return null;
+
+    const lower = text.toLowerCase();
+    const idx = lower.indexOf(q.toLowerCase());
+    if (idx === -1) return null;
+
+    const start = Math.max(0, idx - radius);
+    const end = Math.min(text.length, idx + q.length + radius);
+
+    const prefix = start > 0 ? '…' : '';
+    const suffix = end < text.length ? '…' : '';
+
+    return prefix + text.slice(start, end) + suffix;
+}
+
 export function ElectiveCard({
                                  role,
                                  elective,
                                  locale,
+                                 query = '',
                                  isFavourite = false,
                                  onToggleFavourite,
                                  onEdit,
@@ -79,10 +116,11 @@ export function ElectiveCard({
 
     const t = TEXT[locale];
 
-    // ✅ meta делаем с ключами, а label подставляем из t (так проще и безопаснее)
+    // ✅ meta делаем с ключами, а label подставляем из t
+    // ✅ value = ReactNode, чтобы можно было подсветить совпадения
     const meta = useMemo(
         () => [
-            { key: 'teacher', label: t.meta.teacher, value: elective.teacher }, // ✅
+            { key: 'teacher', label: t.meta.teacher, value: highlight(elective.teacher, query) },
             { key: 'language', label: t.meta.language, value: elective.language },
             { key: 'program', label: t.meta.program, value: elective.program },
             { key: 'year', label: t.meta.year, value: String(elective.year) },
@@ -96,9 +134,9 @@ export function ElectiveCard({
             elective.language,
             elective.program,
             elective.year,
+            query,
         ]
     );
-
 
     // close admin menu on outside click
     useEffect(() => {
@@ -176,11 +214,30 @@ export function ElectiveCard({
             </div>
         );
 
+    // чтобы не подсвечивать гигантский текст и не тормозить — подсветка только в превью
+    const q = query.trim();
+
+    const previewLimit = 240;
+    const previewRaw =
+        elective.description.length > previewLimit
+            ? elective.description.slice(0, previewLimit)
+            : elective.description;
+
+    const matchInTitle = q ? elective.title.toLowerCase().includes(q.toLowerCase()) : false;
+    const matchInTeacher = q ? elective.teacher.toLowerCase().includes(q.toLowerCase()) : false;
+    const matchInPreview = q ? previewRaw.toLowerCase().includes(q.toLowerCase()) : false;
+    const matchInLong = q ? elective.description.toLowerCase().includes(q.toLowerCase()) : false;
+
+// Совпало только в длинной части (не в title/teacher/preview)
+    const longOnly = q && matchInLong && !matchInTitle && !matchInTeacher && !matchInPreview;
+
+    const snippet = longOnly ? findSnippet(elective.description, q, 80) : null;
+
     return (
         <>
             <article className={styles.card}>
                 <header className={styles.header}>
-                    <h3 className={styles.title}>{elective.title}</h3>
+                    <h3 className={styles.title}>{highlight(elective.title, query)}</h3>
                     {actionNode}
                 </header>
 
@@ -193,14 +250,25 @@ export function ElectiveCard({
                     ))}
                 </div>
 
-                <p className={styles.descriptionPreview}>{elective.description}</p>
+                <p className={styles.descriptionPreview}>
+                    {longOnly && snippet
+                        ? highlight(snippet, q)
+                        : highlight(
+                            elective.description.length > previewLimit
+                                ? `${previewRaw}…`
+                                : previewRaw,
+                            q
+                        )}
+                </p>
+
+                {longOnly ? (
+                    <div className={styles.matchHint}>
+                        Match found in full description
+                    </div>
+                ) : null}
 
                 <div className={styles.footer}>
-                    <button
-                        className="button button--primary button--lg"
-                        onClick={() => setOpen(true)}
-                        type="button"
-                    >
+                    <button className="button button--primary button--lg" onClick={() => setOpen(true)} type="button">
                         {t.seeMore}
                     </button>
                 </div>
@@ -243,7 +311,8 @@ export function ElectiveCard({
                     ))}
                 </div>
 
-                <div className={styles.modalDescription}>{elective.description}</div>
+                {/* В модалке тоже подсвечиваем — чтобы было понятно, где совпадение в длинном тексте */}
+                <div className={styles.modalDescription}>{highlight(elective.description, query)}</div>
             </Modal>
         </>
     );

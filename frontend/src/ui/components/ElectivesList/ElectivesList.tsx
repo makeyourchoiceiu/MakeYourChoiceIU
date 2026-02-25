@@ -135,6 +135,7 @@ export function ElectivesList({
                             <ElectiveCard
                                 role={role}
                                 locale={locale}
+                                query={query}
                                 elective={{
                                     id: e.id,
                                     title: e.title,

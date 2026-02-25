@@ -9,23 +9,16 @@ import { useVotingForm } from '../../hooks/useVotingForm.ts';
 import styles from './StudentElectivesByTypePage.module.css';
 import { useEffect, useMemo, useState } from 'react';
 
-
-
-
 export function StudentElectivesByTypePage() {
     const { user } = useAuth();
     const { locale } = useLocale();
     const params = useParams();
 
-
     const type = params.type as ElectiveType; // tech/hum/math/custom
-
     const groupId = 'mock-group';
 
     const favKey = useMemo(() => {
-        // лучше использовать user.id если он есть, иначе email
         const userKey = user?.id ? String(user.id) : (user?.email ?? 'anon');
-        // храним избранное отдельно по группе и по типу элективов
         return `favs:${userKey}:${groupId}:${type}`;
     }, [user, groupId, type]);
 
@@ -65,30 +58,48 @@ export function StudentElectivesByTypePage() {
         setFavs((prev) => ({ ...prev, [id]: !prev[id] }));
     };
 
-
-    const { items, loading, error, query, setQuery } = useElectives({
+    // ⚠️ ВАЖНО:
+    // items = отфильтрованные по query (для списка карточек)
+    // rawItems = полный список без фильтра (для формы!)
+    const { items, rawItems, loading, error, query, setQuery } = useElectives({
         groupId,
         type,
     });
 
+    // Список карточек: поиск влияет, избранные сверху
     const sortedItems = useMemo(() => {
-        // стабильная сортировка: сначала fav=true, потом остальные
-        // внутри групп порядок сохраняем как был (в том числе после поиска)
         return [...items].sort((a, b) => {
             const af = !!favs[a.id];
             const bf = !!favs[b.id];
-            return Number(bf) - Number(af); // true(1) идет раньше false(0)
+            return Number(bf) - Number(af);
         });
     }, [items, favs]);
 
-
     const { handleSubmit, handleClear } = useVotingForm();
 
-// преобразуем карточки в options для селектов
-    const options: ElectiveOption[] = items.map((e, idx) => ({
-        id: idx + 1,          // временно number, пока бэк не готов
-        name: e.title,        // можно `${e.title} — ${e.teacher}` если хочешь
-    }));
+    // Для формы: ВСЕ элективы этого типа (без поиска), избранные сверху
+    const sortedForForm = useMemo(() => {
+        return [...rawItems].sort((a, b) => {
+            const af = !!favs[a.id];
+            const bf = !!favs[b.id];
+            return Number(bf) - Number(af);
+        });
+    }, [rawItems, favs]);
+
+    // Стабильный number-id для VotingForm, НЕ зависящий от поиска/сортировки
+    const optionIdByElectiveId = useMemo(() => {
+        const m = new Map<string, number>();
+        rawItems.forEach((e, i) => m.set(e.id, i + 1));
+        return m;
+    }, [rawItems]);
+
+    // options для селектов — из полного списка (sortedForForm), а не из items
+    const options: ElectiveOption[] = useMemo(() => {
+        return sortedForForm.map((e) => ({
+            id: optionIdByElectiveId.get(e.id)!, // стабильно
+            name: e.title,
+        }));
+    }, [sortedForForm, optionIdByElectiveId]);
 
     return (
         <div className={styles.page}>
@@ -115,5 +126,4 @@ export function StudentElectivesByTypePage() {
             />
         </div>
     );
-
 }

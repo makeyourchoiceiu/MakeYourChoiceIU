@@ -2,7 +2,6 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 
 import LoginPage from './pages/LoginPage/LoginPage.tsx';
 import { AdminElectivesPage } from './pages/AdminElectivesPage/AdminElectivesPage.tsx';
-import { StudentElectivesPage } from './pages/StudentElectivesPage/StudentElectivePage.tsx';
 
 import ProtectedRoute from './routes/ProtectedRoute';
 import { LogoutRoute } from './routes/LogoutRoute';

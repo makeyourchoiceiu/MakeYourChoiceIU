@@ -1,145 +1,204 @@
 // src/api/electives.ts
-import type { Elective, ElectiveType } from '../types/electives';
+// Мок для getElectives({ groupId, type })
 
-// Когда появится бэк — можно будет использовать ваш общий API_URL и axios.
-// import axios from 'axios';
-// const API_URL = 'http://localhost:8000/api';
+export type ElectiveType = 'tech' | 'hum' | 'math' | 'custom';
 
-export type GetElectivesParams = {
-    groupId: string;         // учебная группа / поток студента
-    type?: ElectiveType;     // 'tech' | 'hum' | 'math' | 'custom'
+export type Elective = {
+    id: string;
+    type: ElectiveType;
+    title: string;
+    teacher: string;
+    language: 'EN' | 'RU';
+    program: string;
+    year: number;
+    description: string;
 };
 
-// временный мок (пока бэка нет)
-const MOCK: Elective[] = [
-    {
-        id: 'rbt-101',
-        title: 'Intro into Robotics',
-        teacher: 'Ivan Petrov',
-        language: 'RU',
-        program: 'BS1 DSAI, BS1 CSE',
-        year: 1,
-        description: 'Robots, sensors, control… ' + 'Long text '.repeat(20),
-        type: 'tech',
-    },
-    {
-        id: 'psy-201',
-        title: 'Psychology of Decision Making',
-        teacher: 'Anna Smirnova',
-        language: 'EN',
-        program: 'BS1 DSAI',
-        year: 1,
-        description: 'Biases, heuristics, experiments, Kahneman & Tversky. ' + 'Long text '.repeat(10),
-        type: 'hum',
-    },
-    {
-        id: 'lin-110',
-        title: 'Linear Algebra',
-        teacher: 'Sergey Ivanov',
-        language: 'EN',
-        program: 'BS1',
-        year: 1,
-        description: 'Vectors, matrices, eigenvalues, SVD. ' + 'Long text '.repeat(10),
-        type: 'math',
-    },
+type GetElectivesParams = {
+    groupId: string;
+    type?: ElectiveType;
+};
 
-    // --- добавила ещё ---
-    {
-        id: 'ds-210',
-        title: 'Data Visualization',
-        teacher: 'Maria Volkova',
-        language: 'EN',
-        program: 'BS1 DSAI',
-        year: 1,
-        description: 'Charts, dashboards, storytelling with data.',
-        type: 'tech',
-    },
-    {
-        id: 'web-120',
-        title: 'Web Development Fundamentals',
-        teacher: 'Denis Karimov',
-        language: 'RU',
-        program: 'BS1 CSE',
-        year: 1,
-        description: 'HTML/CSS, React basics, client-server communication.',
-        type: 'tech',
-    },
-    {
-        id: 'ml-330',
-        title: 'Machine Learning Basics',
-        teacher: 'Elena Sokolova',
-        language: 'EN',
-        program: 'BS1 DSAI',
-        year: 1,
-        description: 'Supervised learning, regression, classification, evaluation.',
-        type: 'tech',
-    },
-    {
-        id: 'eth-140',
-        title: 'Ethics in AI',
-        teacher: 'Olga Kuznetsova',
-        language: 'EN',
-        program: 'BS1',
-        year: 1,
-        description: 'Fairness, accountability, transparency. Real-world cases.',
-        type: 'hum',
-    },
-    {
-        id: 'com-160',
-        title: 'Academic Communication',
-        teacher: 'John Smith',
-        language: 'EN',
-        program: 'BS1',
-        year: 1,
-        description: 'Presentations, writing, argumentation, peer review.',
-        type: 'hum',
-    },
-    {
-        id: 'his-170',
-        title: 'History of Technology',
-        teacher: 'Irina Pavlova',
-        language: 'RU',
-        program: 'BS1',
-        year: 1,
-        description: 'From steam engines to computers. Social impact of tech.',
-        type: 'hum',
-    },
-    {
-        id: 'prob-220',
-        title: 'Probability and Statistics',
-        teacher: 'Alexey Morozov',
-        language: 'EN',
-        program: 'BS1',
-        year: 1,
-        description: 'Random variables, distributions, hypothesis testing.',
-        type: 'math',
-    },
-    {
-        id: 'opt-240',
-        title: 'Optimization Methods',
-        teacher: 'Nikolay Fedorov',
-        language: 'EN',
-        program: 'BS1',
-        year: 1,
-        description: 'Gradient descent, convex optimization, constrained problems.',
-        type: 'math',
-    },
+// --- helpers ---
+const pick = <T,>(arr: T[], i: number) => arr[i % arr.length];
+
+function makeId(type: ElectiveType, n: number) {
+    return `${type}-${String(n).padStart(2, '0')}`;
+}
+
+function longDescription(topic: string, angle: string, outcomes: string[]) {
+    const p1 = `This elective explores ${topic} through the lens of ${angle}. We’ll start from first principles and quickly move to practical decision-making: how to frame the problem, choose the right tools, and evaluate trade-offs in real projects. Expect short lectures, lots of examples, and guided discussions that connect theory to “what you’d actually do” on a team.`;
+
+    const p2 = `By the end, you should be comfortable with: ${outcomes.join(
+        ', '
+    )}. The course is designed to be portfolio-friendly: each module ends with a small deliverable you can polish into a case study. If you like learning by building and reflecting on why things work, you’ll feel at home.`;
+
+    return `${p1}\n\n${p2}`;
+}
+
+// --- catalog seeds ---
+const PROGRAMS = ['MFAI', 'RO', 'AI360', 'DSAI', 'CSE'];
+const TEACHERS = [
+    'Dr. K. Orlov',
+    'A. Petrova',
+    'M. Chen',
+    'S. Nakamura',
+    'I. Karimov',
+    'E. Smirnova',
+    'J. Alvarez',
+    'N. Volkova',
+    'P. Singh',
+    'L. Johnson',
 ];
 
-/**
- * Получить список элективов по учебной группе (groupId) и типу (type).
- * Пока что возвращаем мок-данные. Когда появится бэк — заменишь реализацю на axios/fetch.
- */
+const TECH_TITLES = [
+    'Mobile Systems Design: From APIs to Offline',
+    'SwiftUI Animations & Interaction Patterns',
+    'Flutter Architecture: State, Layers, Testing',
+    'Backend for Mobile: Auth, Sync, Push',
+    'Product Analytics for Apps',
+    'Secure Coding & Threat Modeling',
+    'Performance Profiling: CPU, Memory, Network',
+    'Design Systems in Practice',
+    'CI/CD for Mobile Apps',
+    'Practical Accessibility (a11y) Engineering',
+    'Realtime Apps: WebSockets & Streaming UX',
+    'Data Storage: SQLite, Caches, Consistency',
+];
+
+const HUM_TITLES = [
+    'Critical Thinking for Engineers',
+    'Digital Ethics & Responsible Tech',
+    'Psychology of Attention and Habit',
+    'Writing for Tech: Clarity & Persuasion',
+    'Negotiation and Conflict for Teams',
+    'Storytelling with Data',
+    'Sociology of Platforms and Communities',
+    'Leadership Without Authority',
+    'Philosophy of Technology',
+    'Cross-cultural Communication',
+    'Law Basics for IT Projects',
+    'Design Critique: How to Give Feedback',
+];
+
+const MATH_TITLES = [
+    'Linear Algebra for ML Engineers',
+    'Optimization: From Gradients to Constraints',
+    'Probability for Real-World Modeling',
+    'Discrete Math for CS: Graphs & Logic',
+    'Statistics: Inference and Uncertainty',
+    'Numerical Methods for Computing',
+    'Time Series Fundamentals',
+    'Information Theory: Signals and Compression',
+    'Geometry for Computer Vision',
+    'Game Theory and Decision Models',
+    'Matrix Factorization & Recommenders',
+    'Stochastic Processes',
+];
+
+const CUSTOM_TITLES = [
+    'Cozy App Design: Dreamy Interfaces & Motion',
+    'Fairy Garden Focus: Behavioral Design Studio',
+    'Creative Coding for UI (Generative Patterns)',
+    'Sound & Haptics: Emotional Feedback',
+    'Product Craft: Small Details, Big Impact',
+    'Human-Centered AI in Consumer Apps',
+    'Building Communities Around Products',
+    'Designing for Calm: Anti-Doomscroll UX',
+    'Experimental Prototyping Sprint',
+    'Micro-interactions Masterclass',
+    'Visual Identity for Digital Products',
+    'Narrative UX: Interfaces as Stories',
+];
+
+function buildElectives(type: ElectiveType, titles: string[]) {
+    return titles.map((title, idx) => {
+        const i = idx + 1;
+
+        const teacher = pick(TEACHERS, idx);
+        const program = pick(PROGRAMS, idx);
+        const language: 'EN' | 'RU' = idx % 3 === 0 ? 'RU' : 'EN';
+        const year = (idx % 4) + 1;
+
+        // type-specific description ingredients
+        const desc =
+            type === 'tech'
+                ? longDescription(
+                    title.toLowerCase(),
+                    'hands-on engineering constraints (latency, reliability, maintainability)',
+                    [
+                        'designing clean interfaces',
+                        'debugging and profiling bottlenecks',
+                        'making pragmatic architecture choices',
+                        'writing tests that catch regressions',
+                        'documenting decisions for future you',
+                    ]
+                )
+                : type === 'hum'
+                    ? longDescription(
+                        title.toLowerCase(),
+                        'how people think, communicate, and coordinate',
+                        [
+                            'structuring arguments',
+                            'spotting common reasoning errors',
+                            'giving and receiving feedback',
+                            'navigating ethical dilemmas in product work',
+                            'writing with clarity under time pressure',
+                        ]
+                    )
+                    : type === 'math'
+                        ? longDescription(
+                            title.toLowerCase(),
+                            'mathematical intuition that supports engineering decisions',
+                            [
+                                'reading formulas without fear',
+                                'translating assumptions into models',
+                                'sanity-checking results',
+                                'understanding limits of methods',
+                                'connecting theory to implementation details',
+                            ]
+                        )
+                        : longDescription(
+                            title.toLowerCase(),
+                            'creative product craft and experimentation',
+                            [
+                                'building a small but polished prototype',
+                                'iterating via critique',
+                                'using motion/visuals intentionally',
+                                'balancing “cute” with usability',
+                                'telling a strong story in your portfolio',
+                            ]
+                        );
+
+        return {
+            id: makeId(type, i),
+            type,
+            title,
+            teacher,
+            language,
+            program,
+            year,
+            description: desc,
+        } satisfies Elective;
+    });
+}
+
+const MOCK_ELECTIVES: Elective[] = [
+    ...buildElectives('tech', TECH_TITLES),
+    ...buildElectives('hum', HUM_TITLES),
+    ...buildElectives('math', MATH_TITLES),
+    ...buildElectives('custom', CUSTOM_TITLES),
+];
+
+// --- api mock ---
 export async function getElectives(params: GetElectivesParams): Promise<Elective[]> {
-    // TODO: заменить на реальный запрос:
-    // return axios
-    //   .get<Elective[]>(`${API_URL}/electives`, { params })
-    //   .then((r) => r.data);
+    const { type } = params;
 
     // имитация сети
     await new Promise((r) => setTimeout(r, 250));
 
-    const { type } = params;
+    const data = type ? MOCK_ELECTIVES.filter((e) => e.type === type) : MOCK_ELECTIVES;
 
-    return type ? MOCK.filter((e) => e.type === type) : MOCK;
+    // можно, если надо, ещё сортировать/фильтровать по groupId (пока игнорируем)
+    return data;
 }
