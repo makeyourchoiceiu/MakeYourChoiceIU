@@ -4,9 +4,9 @@ from catalog import models as catalog_models
 class Stream(models.Model):
     id = models.BigAutoField(primary_key=True)
     degree_year = models.ForeignKey(catalog_models.Degree, on_delete=models.CASCADE)
-    program_lang = models.ForeignKey(catalog_models.ProgramLanguages, on_delete=models.RESTRICT)
-    elective_type = models.ForeignKey(catalog_models.ElectiveTypes, on_delete=models.CASCADE)
-    programs = models.ManyToManyField(catalog_models.Programs)
+    program_lang = models.ForeignKey(catalog_models.ProgramLanguage, on_delete=models.RESTRICT)
+    elective_type = models.ForeignKey(catalog_models.ElectiveType, on_delete=models.CASCADE)
+    programs = models.ManyToManyField(catalog_models.Program)
     priorities = models.IntegerField(default=5)
 
 class Iteration(models.Model):
