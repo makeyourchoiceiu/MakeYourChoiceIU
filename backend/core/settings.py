@@ -34,6 +34,7 @@ ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
 
 INSTALLED_APPS = [
     'voting',
+    'login',
     'catalog',
     'iteration',
     'rest_framework',
