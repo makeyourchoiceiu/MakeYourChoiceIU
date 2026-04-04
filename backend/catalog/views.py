@@ -5,12 +5,8 @@ from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter
 
-from .models import Elective, Program
-from .serializers import ElectiveSerializer, ProgramSerializer
-
-class ProgramViewSet(viewsets.ModelViewSet):
-    queryset = Program.objects.all()
-    serializer_class = ProgramSerializer
+from .models import Elective, Program, ElectiveType, Track
+from .serializers import ElectiveSerializer
 
 class ElectiveViewSet(viewsets.ModelViewSet):
     serializer_class = ElectiveSerializer
@@ -87,3 +83,52 @@ class ElectiveViewSet(viewsets.ModelViewSet):
         elective.save()
 
         return Response({"status" : "archived"})
+    
+class SettingsViewSet(viewsets.ViewSet):
+    @action(detail=False, methods=['post'], url_path='program')
+    def create_program(self, request):
+        name = request.data.get("name")
+        language = request.data.get("language")
+
+        if not name or not language:
+            return Response({"status": "error"}, status=400)
+
+        try:
+            Program.objects.create(
+                name=name,
+                language=language
+            )
+            return Response({"status": "success"}, status=201)
+        except:
+            return Response({"status": "error"}, status=400)
+
+    @action(detail=False, methods=['post'], url_path='elective_type')
+    def create_elective_type(self, request):
+        name = request.data.get("elective_type_name")
+
+        if not name:
+            return Response({"status": "error"}, status=400)
+        
+        try:
+            ElectiveType.objects.create(elective_type_name=name)
+            return Response({"status": "success"}, status=201)
+        except:
+            return Response({"status": "error"}, status=400)
+            
+
+    @action(detail=False, methods=['post'], url_path='track')
+    def create_track(self, request):
+        name = request.data.get("name")
+        program = request.data.get("program")
+
+        if not name or not program:
+            return Response({"status": "error"}, status=400)
+        
+        try:
+            program_obj = Program.objects.get(name=program)
+            Track.objects.create(
+                name=name,
+                program=program_obj)
+            return Response({"status": "success"}, status=201)
+        except Exception as e:
+            return Response({"status": "error"}, status=400)

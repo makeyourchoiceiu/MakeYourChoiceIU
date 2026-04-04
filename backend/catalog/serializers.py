@@ -6,9 +6,3 @@ class ElectiveSerializer(serializers.ModelSerializer):
     class Meta:
         model = Elective
         fields = '__all__'
-
-class ProgramSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Program
-        fields = '__all__'
