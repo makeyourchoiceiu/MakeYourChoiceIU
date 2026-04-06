@@ -85,6 +85,7 @@ class ElectiveViewSet(viewsets.ModelViewSet):
         return Response({"status" : "archived"})
     
 class SettingsViewSet(viewsets.ViewSet):
+    # POST command
     @action(detail=False, methods=['post'], url_path='program')
     def create_program(self, request):
         name = request.data.get("name")
@@ -96,7 +97,7 @@ class SettingsViewSet(viewsets.ViewSet):
         try:
             Program.objects.create(
                 name=name,
-                language=language
+                language_id=language
             )
             return Response({"status": "success"}, status=201)
         except:
@@ -131,4 +132,98 @@ class SettingsViewSet(viewsets.ViewSet):
                 program=program_obj)
             return Response({"status": "success"}, status=201)
         except Exception as e:
-            return Response({"status": "error"}, status=400)
+            return Response({"status": "error","error": str(e)}, status=400)
+    
+    # PATCH command
+    @action(detail=True, methods=['patch'], url_path='program')
+    def update_program(self, request, pk=None):
+        try:
+            program = Program.objects.get(id=pk)
+            name = request.data.get('name')
+            language = request.data.get('language')
+
+            if name:
+                program.name = name
+            if language:
+                program.language_id = language
+            program.save()
+            return Response({"status": "success"})
+        
+        except Program.DoesNotExist:
+            return Response({"status": "error"}, status=404)
+        except Exception as e:
+            return Response({
+                'status' : 'error',
+                'error' : str(e)
+            }, status=400)
+
+
+    @action(detail=True, methods=['patch'], url_path='elective_type')
+    def update_elective_type(self, request, pk=None):
+        try:
+            elective_type = ElectiveType.objects.get(elective_type_name = pk)
+            new_name = request.data.get('elective_type_name')
+
+            if new_name:
+                elective_type.elective_type_name = new_name
+            elective_type.save()
+            return Response({"status": "success"})
+
+        except ElectiveType.DoesNotExist:
+            return Response({"status": "error"}, status=404)
+        except Exception as e:
+            return Response({"status": "error", "error": str(e)}, status=400)
+    
+
+    @action(detail=True, methods=['patch'], url_path='track')
+    def update_track(self, request, pk=None):
+        try:
+            track = Track.objects.get(id=pk)
+            name = request.data.get('name')
+            program = request.data.get('program')
+
+            if name:
+                track.name = name
+            if program:
+                program_obj = Program.objects.get(name=program)
+                track.program = program_obj
+            track.save()
+            return Response({"status": "success"})
+        
+        except Track.DoesNotExist:
+            return Response({"status": "error"}, status=404)
+        except Program.DoesNotExist:
+            return Response({"status": "error", "error": "Program not found"}, status=404)
+        except Exception as e:
+            return Response({"status": "error", "error": str(e)}, status=400)
+        
+    
+    # DELETE command
+    @action(detail=True, methods=['delete'], url_path='program')
+    def delete_program(self, request, pk=None):
+        try:
+            program = Program.objects.get(id=pk)
+            program.delete()
+            return Response({"status": "success"})
+        except Program.DoesNotExist:
+            return Response({"status": "error"}, status=404)
+    
+
+    @action(detail=True, methods=['delete'], url_path='track')
+    def delete_track(self, request, pk=None):
+        try:
+            track = Track.objects.get(id=pk)
+            track.delete()
+            return Response({"status": "success"})
+        except Track.DoesNotExist:
+            return Response({"status": "error"}, status=404)
+    
+
+    @action(detail=True, methods=['delete'], url_path='elective_type')
+    def delete_elective_type(self, request, pk=None):
+        try:
+            elective_type = ElectiveType.objects.get(elective_type_name = pk)
+            elective_type.delete()
+            return Response({"status": "success"})
+        except ElectiveType.DoesNotExist:
+            return Response({"status": "error"}, status=404)
