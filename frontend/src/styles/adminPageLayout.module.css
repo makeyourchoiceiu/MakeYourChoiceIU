@@ -1,14 +1,9 @@
 .wrap {
     display: grid;
-    grid-template-columns: 180px minmax(0, 1fr);
+    grid-template-columns: 220px minmax(0, 1fr);
     gap: 24px;
-
-    /*
-      Высота области под header.
-      Если header занимает около 88px, вычитаем его.
-    */
-    height: calc(100vh - 88px);
     align-items: stretch;
+    height: calc(100vh - 88px);
 }
 
 .sidebar {

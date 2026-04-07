@@ -77,6 +77,9 @@ function App() {
             setActionLoadingId(null);
         }
     }
+    function handleAddElective() {
+        console.log('open add elective flow');
+    }
 
     async function handleEdit(elective: Elective) {
         const nextName = window.prompt('Edit elective name', elective.name);
@@ -174,6 +177,7 @@ function App() {
                     onEdit={handleEdit}
                     onArchive={handleArchive}
                     onDelete={handleDelete}
+                    onAddElective={handleAddElective}
                 />
             )}
         </AppShell>
