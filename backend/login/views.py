@@ -1,10 +1,12 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.utils import timezone
+from django.db.models import Max
 
 from .models import Admin, Student
 from catalog.models import Elective
 from iteration.models import Iteration, StreamElectiveRelation
+from voting.models import History
 
 from .serializers import (
     StudentResponseSerializer,
@@ -42,7 +44,8 @@ def auth_email(request):
 
         student_data = {
             "deadline": None,
-            "available_electives": []
+            "available_electives": [],
+            "chosen_electives": []
         }
 
         student_response_data = {
@@ -82,6 +85,46 @@ def auth_email(request):
                     "priorities": stream.priorities,
                     "electives": electives
                 })
+
+            chosen_electives = []
+
+            latest_dates = (
+                History.objects
+                .filter(student=student, iteration=iteration)
+                .values("elective_type")
+                .annotate(last_date=Max("date"))
+            )
+
+            for item in latest_dates:
+                elective_type_id = item["elective_type"]
+                last_date = item["last_date"]
+
+                records = History.objects.filter(
+                    student=student,
+                    iteration=iteration,
+                    elective_type=elective_type_id,
+                    date=last_date
+                ).select_related("elective", "elective_type")
+
+                chosen_electives.append({
+                    "elective_type": records[0].elective_type.elective_type_name if records else None,
+                    "electives": [
+                        {
+                            "priority": r.priority,
+                            "elective": {
+                                "id": r.elective.id,
+                                "name": r.elective.name,
+                                "instructor": r.elective.instructor,
+                                "description": r.elective.description,
+                                "elective_language": r.elective.elective_language,
+                                "prerequisite": r.elective.prerequisite
+                            }
+                        }
+                        for r in records
+                    ]
+                })
+
+                student_data["chosen_electives"] = chosen_electives
 
             student_response_data["student_data"] = student_data
         

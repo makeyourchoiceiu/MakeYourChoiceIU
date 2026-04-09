@@ -2,7 +2,7 @@ from rest_framework import serializers
 from .models import Admin, Student
 from catalog.models import Elective
 from iteration.models import Stream, Iteration, StreamElectiveRelation
-# from voting.models import StudentChoice
+from voting.models import History
 
 class AdminElectiveSerializer(serializers.ModelSerializer):
     class Meta:
@@ -26,10 +26,18 @@ class AvailableElectivesSerializer(serializers.Serializer):
     priorities = serializers.IntegerField()
     electives = StudentElectiveSerializer(many=True)
 
+class ChosenConcreteTypeElectivesSerializer(serializers.Serializer):
+    priority = serializers.IntegerField()
+    elective = StudentElectiveSerializer()
+
+class ChosenElectivesSerializer(serializers.Serializer):
+    elective_type = serializers.CharField()
+    electives = ChosenConcreteTypeElectivesSerializer(many=True)
+
 class StudentDataSerializer(serializers.Serializer):
     deadline = serializers.DateTimeField(allow_null=True)
     available_electives = AvailableElectivesSerializer(many=True)
-#    choice
+    chosen_electives = ChosenElectivesSerializer(many=True)
 
 class StudentResponseSerializer(serializers.Serializer):
     role = serializers.CharField()
