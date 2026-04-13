@@ -9,7 +9,5 @@ class AdminAdmin(admin.ModelAdmin):
 
 @admin.register(Student)
 class StudentAdmin(admin.ModelAdmin):
-    list_display = ('mail', 'degree_year', 'program')
+    list_display = ('id', 'mail', 'degree_year', 'program',)
     search_fields = ('mail',)
-
-

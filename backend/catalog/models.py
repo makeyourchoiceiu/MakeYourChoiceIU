@@ -19,7 +19,7 @@ class Elective(models.Model):
     elective_language = models.CharField(max_length=20)
     status = models.IntegerField(default=0) # 0 - archived, 1 - active
     degree_year = models.ManyToManyField(Degree, blank=True)
-    prerequisite = models.TextField()
+    prerequisite = models.TextField(blank=True)
 
 class Program(models.Model):
     id = models.BigAutoField(primary_key=True)

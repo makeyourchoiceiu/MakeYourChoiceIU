@@ -23,8 +23,8 @@ class ProgramsAdmin(admin.ModelAdmin):
 
 @admin.register(Elective)
 class ElectivesAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'instructor', 'elective_type', 'program_language', 'elective_language', 'status', 'degrees')
-    search_fields = ('name', 'instructor')
+    list_display = ('id', 'name', 'instructor', 'elective_type', 'program_language', 'elective_language', 'status',)
+    search_fields = ('name', 'instructor',)
     filter_horizontal = ('degree_year',)  # для ManyToManyField удобный виджет
 
     def degrees(self, obj):
@@ -32,6 +32,6 @@ class ElectivesAdmin(admin.ModelAdmin):
 
 @admin.register(Track)
 class TracksAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'program')
+    list_display = ('id', 'name', 'program',)
     list_filter = ('program',)
     search_fields = ('name',)
