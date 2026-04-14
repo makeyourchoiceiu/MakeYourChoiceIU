@@ -35,11 +35,13 @@ class ChosenElectivesSerializer(serializers.Serializer):
     electives = ChosenConcreteTypeElectivesSerializer(many=True)
 
 class StudentDataSerializer(serializers.Serializer):
+    iteration_id = serializers.IntegerField()
     deadline = serializers.DateTimeField(allow_null=True)
     available_electives = AvailableElectivesSerializer(many=True)
     chosen_electives = ChosenElectivesSerializer(many=True)
 
 class StudentResponseSerializer(serializers.Serializer):
+    student_id = serializers.IntegerField()
     role = serializers.CharField()
     email = serializers.CharField()
     student_data = StudentDataSerializer()

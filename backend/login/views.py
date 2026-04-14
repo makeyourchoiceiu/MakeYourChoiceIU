@@ -43,18 +43,21 @@ def auth_email(request):
         ).prefetch_related("streams").first()
 
         student_data = {
+            "iteration_id": None,
             "deadline": None,
             "available_electives": [],
             "chosen_electives": []
         }
 
         student_response_data = {
+            "student_id": student.id,
             "role": "student",
             "email": student.mail,
             "student_data": student_data
         }
 
         if iteration:
+            student_data["iteration_id"] = iteration.id
             student_data["deadline"] = iteration.deadline
 
             streams = iteration.streams.filter(
