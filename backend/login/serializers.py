@@ -1,8 +1,5 @@
 from rest_framework import serializers
-from .models import Admin, Student
 from catalog.models import Elective
-from iteration.models import Stream, Iteration, StreamElectiveRelation
-from voting.models import History
 
 class AdminElectiveSerializer(serializers.ModelSerializer):
     class Meta:
