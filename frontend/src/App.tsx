@@ -1,34 +1,42 @@
-import { useState } from 'react';
-import { useElectives } from './hooks/useElectives';
+import { useMemo, useState } from 'react';
+import { LoginPage } from './pages/LoginPage';
+import { useAuth } from './hooks/useAuth';
 import { StudentElectivesPage } from './pages/StudentElectivesPage';
 import { AdminElectivesPage } from './pages/AdminElectivesPage';
 import { AppShell } from './components/AppShell';
-import { archiveElective, deleteElective, updateElective, createElective } from './api/electives';
+import { useElectives } from './hooks/useElectives';
+import { createElective, archiveElective, deleteElective, updateElective } from './api/electives';
 import type { Elective } from './types/elective';
-import type { StudentProfileElectiveType } from './types/studentSidebar';
-import type { AuthUser } from './types/auth';
-import buttonStyles from './styles/button.module.css';
 import type { UpdateElectivePayload } from './api/electives';
-
-const MOCK_STUDENT_ELECTIVE_TYPES: StudentProfileElectiveType[] = [
-    { type: 'TECH', label: 'Tech', requiredCount: 2 },
-    { type: 'HUM', label: 'Hum', requiredCount: 1 },
-];
-
-const MOCK_USER: AuthUser = {
-    email: 'student.admin@university.edu',
-    group: 'BS1-ENG-MFAI',
-    role: 'admin-student',
-};
+import { mapStudentDataToElectives } from './utils/authElectives';
 
 function App() {
-    const { electives, loading, error, refetch } = useElectives();
+    const auth = useAuth();
 
-    const [mode, setMode] = useState<'student' | 'admin'>('student');
-    const [query, setQuery] = useState('');
     const [favouriteIds, setFavouriteIds] = useState<number[]>([]);
+    const [query, setQuery] = useState('');
     const [actionError, setActionError] = useState<string | null>(null);
     const [actionLoadingId, setActionLoadingId] = useState<number | null>(null);
+
+    /**
+     * admin catalogue всё ещё удобно refetch-ить отдельным хуком,
+     * потому что add/edit/archive/delete работают по общему каталогу.
+     *
+     * Для student mode этот каталог не используем.
+     */
+    const adminCatalogue = useElectives();
+
+    const studentElectives = useMemo(() => {
+        if (!auth.authResponse) {
+            return [];
+        }
+
+        if (auth.authResponse.role === 'admin') {
+            return [];
+        }
+
+        return mapStudentDataToElectives(auth.authResponse.student_data);
+    }, [auth.authResponse]);
 
     function handleToggleFavourite(elective: Elective) {
         setFavouriteIds((prev) => {
@@ -37,20 +45,41 @@ function App() {
         });
     }
 
-    function handleLogout() {
-        console.log('logout');
+    async function handleCreateElective(payload: UpdateElectivePayload) {
+        try {
+            setActionError(null);
+            setActionLoadingId(-1);
+
+            await createElective(payload);
+            await adminCatalogue.refetch();
+        } catch (err) {
+            setActionError(err instanceof Error ? err.message : 'Failed to create elective');
+        } finally {
+            setActionLoadingId(null);
+        }
     }
 
-    function handleSwitchToStudent() {
-        setMode('student');
+    async function handleUpdateElective(id: number, payload: UpdateElectivePayload) {
+        try {
+            setActionError(null);
+            setActionLoadingId(id);
+
+            await updateElective(id, payload);
+            await adminCatalogue.refetch();
+        } catch (err) {
+            setActionError(err instanceof Error ? err.message : 'Failed to update elective');
+        } finally {
+            setActionLoadingId(null);
+        }
     }
 
     async function handleArchive(elective: Elective) {
         try {
             setActionError(null);
             setActionLoadingId(elective.id);
+
             await archiveElective(elective.id);
-            await refetch();
+            await adminCatalogue.refetch();
         } catch (err) {
             setActionError(err instanceof Error ? err.message : 'Failed to archive elective');
         } finally {
@@ -70,145 +99,73 @@ function App() {
         try {
             setActionError(null);
             setActionLoadingId(elective.id);
+
             await deleteElective(elective.id);
-            await refetch();
+            await adminCatalogue.refetch();
         } catch (err) {
             setActionError(err instanceof Error ? err.message : 'Failed to delete elective');
         } finally {
             setActionLoadingId(null);
         }
     }
-    function handleAddElective() {
-        console.log('open add elective flow');
-    }
 
-    async function handleEdit(elective: Elective) {
-        const nextName = window.prompt('Edit elective name', elective.name);
-        if (nextName === null) return;
-
-        const nextInstructor = window.prompt('Edit instructor', elective.instructor);
-        if (nextInstructor === null) return;
-
-        const nextDescription = window.prompt('Edit description', elective.description);
-        if (nextDescription === null) return;
-
-        try {
-            setActionError(null);
-            setActionLoadingId(elective.id);
-
-            await updateElective(elective.id, {
-                name: nextName,
-                instructor: nextInstructor,
-                description: nextDescription,
-            });
-
-            await refetch();
-        } catch (err) {
-            setActionError(err instanceof Error ? err.message : 'Failed to update elective');
-        } finally {
-            setActionLoadingId(null);
-        }
-    }
-
-    async function handleCreateElective(payload: UpdateElectivePayload) {
-        try {
-            setActionError(null);
-            setActionLoadingId(-1);
-
-            await createElective(payload);
-            await refetch();
-        } catch (err) {
-            setActionError(err instanceof Error ? err.message : 'Failed to create elective');
-        } finally {
-            setActionLoadingId(null);
-        }
-    }
-
-    async function handleUpdateElective(id: number, payload: UpdateElectivePayload) {
-        try {
-            setActionError(null);
-            setActionLoadingId(id);
-
-            await updateElective(id, payload);
-            await refetch();
-        } catch (err) {
-            setActionError(err instanceof Error ? err.message : 'Failed to update elective');
-        } finally {
-            setActionLoadingId(null);
-        }
-    }
-
-    if (loading) {
-        return <div>Loading electives...</div>;
-    }
-
-    if (error) {
+    if (!auth.authResponse || !auth.user || !auth.effectiveMode) {
         return (
-            <main>
-                <h1>Electives test</h1>
-                <p>Failed to load electives: {error}</p>
-                <button type="button" onClick={refetch}>
-                    Retry
-                </button>
-            </main>
+            <LoginPage
+                loading={auth.loading}
+                error={auth.error}
+                onSubmit={auth.login}
+            />
         );
     }
 
+    const isAdminMode = auth.effectiveMode === 'admin';
+    const isStudentMode = auth.effectiveMode === 'student';
+
     return (
         <AppShell
-            user={MOCK_USER}
+            user={auth.user}
             searchValue={query}
             onSearchChange={setQuery}
-            onLogout={handleLogout}
-            onSwitchToStudent={MOCK_USER.role === 'admin-student' ? handleSwitchToStudent : undefined}
+            onLogout={auth.logout}
+            onSwitchToStudent={auth.user.role === 'admin-student' ? auth.switchToStudent : undefined}
         >
-            <div>
-                <button
-                    type="button"
-                    onClick={() => setMode('student')}
-                    aria-pressed={mode === 'student'}
-                    className={`${buttonStyles.button} ${buttonStyles.sizeMd} ${
-                        mode === 'student' ? buttonStyles.variantPrimary : buttonStyles.variantGhost
-                    }`}
-                >
-                    Student mode
-                </button>
-
-                <button
-                    type="button"
-                    onClick={() => setMode('admin')}
-                    aria-pressed={mode === 'admin'}
-                    className={`${buttonStyles.button} ${buttonStyles.sizeMd} ${
-                        mode === 'admin' ? buttonStyles.variantPrimary : buttonStyles.variantGhost
-                    }`}
-                >
-                    Admin mode
-                </button>
-            </div>
-
             {actionError ? <p>Action failed: {actionError}</p> : null}
             {actionLoadingId !== null ? <p>Processing elective id: {actionLoadingId}</p> : null}
 
-            {mode === 'student' ? (
+            {isStudentMode ? (
                 <StudentElectivesPage
-                    electives={electives}
+                    electives={studentElectives}
                     locale="en"
                     favouriteIds={favouriteIds}
-                    availableElectiveTypes={MOCK_STUDENT_ELECTIVE_TYPES}
+                    availableElectiveTypes={auth.studentData?.availableElectiveTypes ?? []}
                     query={query}
                     onToggleFavourite={handleToggleFavourite}
                 />
-            ) : (
-                <AdminElectivesPage
-                    electives={electives}
-                    locale="en"
-                    query={query}
-                    onCreateElective={handleCreateElective}
-                    onUpdateElective={handleUpdateElective}
-                    onArchive={handleArchive}
-                    onDelete={handleDelete}
-                />
-            )}
+            ) : null}
+
+            {isAdminMode ? (
+                adminCatalogue.loading ? (
+                    <div>Loading admin electives...</div>
+                ) : adminCatalogue.error ? (
+                    <div>
+                        <p>Failed to load admin electives: {adminCatalogue.error}</p>
+                        <button type="button" onClick={adminCatalogue.refetch}>
+                            Retry
+                        </button>
+                    </div>
+                ) : (
+                    <AdminElectivesPage
+                        electives={adminCatalogue.electives}
+                        locale="en"
+                        query={query}
+                        onCreateElective={handleCreateElective}
+                        onUpdateElective={handleUpdateElective}
+                        onArchive={handleArchive}
+                        onDelete={handleDelete}
+                    />
+                )
+            ) : null}
         </AppShell>
     );
 }
