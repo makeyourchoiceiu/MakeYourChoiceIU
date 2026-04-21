@@ -17,7 +17,7 @@ class Elective(models.Model):
     elective_type = models.ForeignKey(ElectiveType, null=True, on_delete=models.RESTRICT)
     program_language = models.ForeignKey(ProgramLanguage, on_delete=models.CASCADE)
     elective_language = models.CharField(max_length=20)
-    status = models.IntegerField(default=0) # 0 - archived, 1 - active
+    status = models.IntegerField(default=0) # 0 - archived, 1 - active, -1 - deleted
     degree_year = models.ManyToManyField(Degree, blank=True)
     prerequisite = models.TextField(blank=True)
 
