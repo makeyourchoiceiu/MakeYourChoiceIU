@@ -1,11 +1,11 @@
 from rest_framework import viewsets
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter
 from django.db.models import ProtectedError
 
-from .models import Elective, Program, ElectiveType, Track
+from .models import Elective, Program, ElectiveType, Track, ProgramLanguage
 from .serializers import ElectiveSerializer, ProgramSerializer, TrackSerializer, ElectiveTypeSerializer
 
 class ElectiveViewSet(viewsets.ModelViewSet):
@@ -150,3 +150,43 @@ class ElectiveTypeViewSet(viewsets.ModelViewSet):
             return Response({"status": "success"})
         except ProtectedError:
             return Response({"status": "error"}, status=400)
+
+@api_view(['GET'])
+def settings(request):
+    languages = ProgramLanguage.objects.all()
+
+    result = []
+
+    for lang in languages:
+        programs = Program.objects.filter(language=lang)
+
+        result.append({
+            "code": lang.language,
+            "name": lang.language,
+
+            "elective_types": [
+                {"name": et.elective_type_name}
+                for et in ElectiveType.objects.all()
+            ],
+
+            "programs": [
+                {
+                    "id": program.id,
+                    "name": program.name,
+                    "language": program.language.language,
+                    "tracks": [
+                        {
+                            "id": track.id,
+                            "name": track.name
+                        }
+                        for track in program.track_set.all()
+                    ],
+                    "elective_type_settings": []  # пока заглушка
+                }
+                for program in programs
+            ]
+        })
+
+    return Response({
+        "languages": result
+    })

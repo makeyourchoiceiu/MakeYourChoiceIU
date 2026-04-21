@@ -1,5 +1,6 @@
 from rest_framework.routers import DefaultRouter
-from .views import ElectiveViewSet, ProgramViewSet, TrackViewSet, ElectiveTypeViewSet
+from django.urls import path
+from .views import ElectiveViewSet, ProgramViewSet, TrackViewSet, ElectiveTypeViewSet, settings
 
 router = DefaultRouter()
 
@@ -8,4 +9,6 @@ router.register('programs', ProgramViewSet)
 router.register('tracks', TrackViewSet)
 router.register('elective_types', ElectiveTypeViewSet)
 
-urlpatterns = router.urls
+urlpatterns = router.urls + [
+    path('settings/', settings),
+]
