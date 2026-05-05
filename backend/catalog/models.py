@@ -21,6 +21,9 @@ class Elective(models.Model):
     degree_year = models.ManyToManyField(Degree, blank=True)
     prerequisite = models.TextField(blank=True)
 
+    def __str__(self):
+        return self.name
+
 class Program(models.Model):
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=200)
@@ -30,3 +33,15 @@ class Track(models.Model):
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=10)
     program = models.ForeignKey(Program, on_delete=models.CASCADE) # if a program is deleted, track is deleted, too
+
+    def __str__(self):
+        return self.name
+
+class ElectiveTrackException(models.Model):
+    elective = models.ForeignKey('Elective', on_delete=models.CASCADE)
+    track = models.ForeignKey('Track', on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = [['elective', 'track']]  # to avoid duplicates
+        db_table = 'catalog_elective_track_exception'

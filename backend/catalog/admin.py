@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import ProgramLanguage, Degree, ElectiveType, Elective, Program, Track
+from .models import ProgramLanguage, Degree, ElectiveType, Elective, Program, Track, ElectiveTrackException
 
 @admin.register(ProgramLanguage)
 class LanguageAdmin(admin.ModelAdmin):
@@ -35,3 +35,9 @@ class TracksAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'program',)
     list_filter = ('program',)
     search_fields = ('name',)
+
+@admin.register(ElectiveTrackException)
+class ElectiveTrackExceptionsAdmin(admin.ModelAdmin):
+    list_display = ('id', 'elective', 'track', 'created_at',)
+    list_filter = ('created_at', 'elective',)
+    search_fields = ('elective__name', 'track__name',)
