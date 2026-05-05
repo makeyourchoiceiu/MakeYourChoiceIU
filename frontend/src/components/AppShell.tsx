@@ -5,8 +5,6 @@ import styles from '../styles/appShell.module.css';
 
 interface AppShellProps {
     user: AuthUser;
-    searchValue: string;
-    onSearchChange: (value: string) => void;
     onLogout: () => void;
     onSwitchToStudent?: () => void;
     children: ReactNode;
@@ -14,8 +12,6 @@ interface AppShellProps {
 
 export function AppShell({
                              user,
-                             searchValue,
-                             onSearchChange,
                              onLogout,
                              onSwitchToStudent,
                              children,
@@ -24,8 +20,6 @@ export function AppShell({
         <div className={styles.shell}>
             <AppHeader
                 user={user}
-                searchValue={searchValue}
-                onSearchChange={onSearchChange}
                 onLogout={onLogout}
                 onSwitchToStudent={onSwitchToStudent}
             />

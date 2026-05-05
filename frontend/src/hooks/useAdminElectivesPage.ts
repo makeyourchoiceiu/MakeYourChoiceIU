@@ -5,6 +5,7 @@ import {
     electiveMatchesQuery,
     filterAdminElectives,
     getAdminFilterOptions,
+    prioritizeAdminElectivesByDegreeYears,
 } from '../utils/electivesList';
 
 interface UseAdminElectivesPageParams {
@@ -34,7 +35,8 @@ export function useAdminElectivesPage({
 
     const visibleElectives = useMemo(() => {
         const byQuery = electives.filter((elective) => electiveMatchesQuery(elective, query));
-        return filterAdminElectives(byQuery, filters);
+        const filtered = filterAdminElectives(byQuery, filters);
+        return prioritizeAdminElectivesByDegreeYears(filtered, filters.degreeYears);
     }, [electives, query, filters]);
 
     return { visibleElectives, filterOptions };

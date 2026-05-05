@@ -2,37 +2,34 @@
     display: grid;
     grid-template-columns: 220px minmax(0, 1fr);
     gap: 24px;
-    align-items: stretch;
-    height: calc(100vh - 88px);
+    align-items: start;
+    padding: 0 0 24px;
 }
 
 .sidebar {
-    height: 100%;
-    overflow: hidden;
+    min-width: 0;
+    position: sticky;
+    top: 88px;
+    align-self: start;
 }
 
 .content {
     min-width: 0;
-    height: 100%;
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding-right: 8px;
+    overflow: visible;
 }
 
 @media (max-width: 900px) {
     .wrap {
         grid-template-columns: 1fr;
-        height: auto;
     }
 
     .sidebar {
-        height: auto;
+        position: static;
+        top: auto;
         overflow: visible;
     }
 
     .content {
-        height: auto;
         overflow: visible;
-        padding-right: 0;
     }
 }

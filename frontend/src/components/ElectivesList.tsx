@@ -2,12 +2,15 @@ import type { Elective } from '../types/elective';
 import type { Locale } from '../utils/electiveText';
 import { StudentElectiveCard } from './StudentElectiveCard';
 import { AdminElectiveCard } from './AdminElectiveCard';
+import { AdminElectiveGridCard } from './AdminElectiveGridCard';
+import styles from './ElectivesList.module.css';
 
 interface ElectivesListProps {
     role: 'student' | 'admin';
     electives: Elective[];
     locale: Locale;
     query?: string;
+    adminViewMode?: 'list' | 'grid';
 
     favouriteIds?: number[];
     onToggleFavourite?: (elective: Elective) => void;
@@ -35,6 +38,7 @@ export function ElectivesList({
                                   electives,
                                   locale,
                                   query = '',
+                                  adminViewMode = 'list',
                                   favouriteIds = [],
                                   onToggleFavourite,
                                   onEdit,
@@ -49,10 +53,12 @@ export function ElectivesList({
         return <p>{emptyText}</p>;
     }
 
+    const isAdminGrid = role === 'admin' && adminViewMode === 'grid';
+
     return (
-        <div>
+        <div className={isAdminGrid ? styles.grid : styles.list}>
             {electives.map((elective) => (
-                <div key={elective.id}>
+                <div key={elective.id} className={styles.item}>
                     {role === 'student' ? (
                         <StudentElectiveCard
                             elective={elective}
@@ -60,6 +66,16 @@ export function ElectivesList({
                             query={query}
                             isFavourite={favouriteSet.has(elective.id)}
                             onToggleFavourite={onToggleFavourite}
+                        />
+                    ) : isAdminGrid ? (
+                        <AdminElectiveGridCard
+                            elective={elective}
+                            locale={locale}
+                            query={query}
+                            onEdit={onEdit}
+                            onArchive={onArchive}
+                            onDelete={onDelete}
+                            onRestore={onRestore}
                         />
                     ) : (
                         <AdminElectiveCard

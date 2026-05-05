@@ -1,6 +1,6 @@
 import * as React from 'react';
+import ReactMarkdown from 'react-markdown';
 import type { Elective } from '../types/elective';
-import { ElectiveCardBase } from './ElectiveCardBase';
 import { ElectiveModal } from './ElectiveModal';
 import { AdminElectiveActionsMenu } from './AdminElectiveActionsMenu';
 import { useDisclosure } from '../hooks/useDisclosure';
@@ -9,15 +9,14 @@ import { ELECTIVE_TEXT, type Locale } from '../utils/electiveText';
 import { highlight } from '../utils/electiveSearch';
 import { getAdminElectiveStatusPresentation } from '../utils/adminElectiveStatus';
 import buttonStyles from '../styles/button.module.css';
-import ReactMarkdown from 'react-markdown';
-import styles from './AdminElectiveCard.module.css';
+import styles from './AdminElectiveGridCard.module.css';
 import markdownStyles from './ElectiveCardMarkdown.module.css';
 
 const MarkdownRenderer = ReactMarkdown as unknown as React.ComponentType<{
     children: string;
 }>;
 
-interface AdminElectiveCardProps {
+interface AdminElectiveGridCardProps {
     elective: Elective;
     locale: Locale;
     query?: string;
@@ -27,44 +26,35 @@ interface AdminElectiveCardProps {
     onRestore?: (elective: Elective) => void;
 }
 
-export function AdminElectiveCard({
-                                      elective,
-                                      locale,
-                                      query = '',
-                                      onEdit,
-                                      onArchive,
-                                      onDelete,
-                                      onRestore,
-                                  }: AdminElectiveCardProps) {
+export function AdminElectiveGridCard({
+                                          elective,
+                                          locale,
+                                          query = '',
+                                          onEdit,
+                                          onArchive,
+                                          onDelete,
+                                          onRestore,
+                                      }: AdminElectiveGridCardProps) {
     const { isOpen, open, close } = useDisclosure(false);
     const text = ELECTIVE_TEXT[locale];
     const statusPresentation = getAdminElectiveStatusPresentation(elective.status, locale);
-    const statusClassName =
-        statusPresentation.tone === 'active'
-            ? `${styles.statusBadge} ${styles.statusActive}`
-            : statusPresentation.tone === 'archived'
-                ? `${styles.statusBadge} ${styles.statusArchived}`
-                : `${styles.statusBadge} ${styles.statusDeleted}`;
-
     const { normalizedQuery } = useElectiveSearch(elective, query);
-    const previewLimit = 240;
-    const isCollapsed = !normalizedQuery && elective.description.length > previewLimit;
 
     return (
         <>
-            <ElectiveCardBase
-                elective={elective}
-                muted={elective.status === 0}
-                titleContent={highlight(elective.name, normalizedQuery)}
-                titleMeta={
-                    <span className={statusClassName}>
-                        {statusPresentation.label}
-                    </span>
-                }
-                instructorContent={highlight(elective.instructor, normalizedQuery)}
-                languageContent={highlight(elective.electiveLanguage, normalizedQuery)}
-                prerequisiteContent={highlight(elective.prerequisite, normalizedQuery)}
-                headerAction={
+            <article
+                className={[
+                    styles.card,
+                    statusPresentation.tone === 'active' ? styles.active : '',
+                    statusPresentation.tone === 'archived' ? styles.archived : '',
+                    statusPresentation.tone === 'deleted' ? styles.deleted : '',
+                ].join(' ').trim()}
+            >
+                <div className={styles.header}>
+                    <h3 className={styles.title}>
+                        {highlight(elective.name, normalizedQuery)}
+                    </h3>
+
                     <AdminElectiveActionsMenu
                         elective={elective}
                         openMenuLabel={text.actions.openMenu}
@@ -78,36 +68,9 @@ export function AdminElectiveCard({
                         onDelete={onDelete}
                         onRestore={onRestore}
                     />
-                }
-                descriptionContent={
-                    <div>
-                        <div
-                            className={[
-                                markdownStyles.markdown,
-                                isCollapsed ? markdownStyles.collapsed : '',
-                            ].join(' ').trim()}
-                        >
-                            <MarkdownRenderer>{elective.description}</MarkdownRenderer>
-                        </div>
-                    </div>
-                }
-                extraInfo={
-                    <div>
-                        <p>
-                            {text.meta.status}: {statusPresentation.label}
-                        </p>
-                        <p>
-                            {text.meta.type}: {elective.electiveType}
-                        </p>
-                        <p>
-                            {text.meta.program}: {elective.programLanguage}
-                        </p>
-                        <p>
-                            {text.meta.degreeYears}: {(elective.degreeYear ?? []).join(', ')}
-                        </p>
-                    </div>
-                }
-                footer={
+                </div>
+
+                <div className={styles.footer}>
                     <button
                         type="button"
                         onClick={open}
@@ -115,8 +78,8 @@ export function AdminElectiveCard({
                     >
                         {text.actions.seeMore}
                     </button>
-                }
-            />
+                </div>
+            </article>
 
             <ElectiveModal
                 open={isOpen}
@@ -189,10 +152,8 @@ export function AdminElectiveCard({
                         {text.meta.degreeYears}: {elective.degreeYear.join(', ')}
                     </p>
 
-                    <div>
-                        <div className={markdownStyles.markdown}>
-                            <MarkdownRenderer>{elective.description}</MarkdownRenderer>
-                        </div>
+                    <div className={markdownStyles.markdown}>
+                        <MarkdownRenderer>{elective.description}</MarkdownRenderer>
                     </div>
                 </div>
             </ElectiveModal>

@@ -1,5 +1,7 @@
+import type { ReactNode } from 'react';
 import type { AdminSidebarItem } from '../types/adminSidebar';
 import { AdminSidebarNav } from './AdminSidebarNav';
+import { SearchInput } from './SearchInput';
 import buttonStyles from '../styles/button.module.css';
 import styles from '../styles/adminElectivesSidebar.module.css';
 
@@ -10,6 +12,9 @@ interface AdminElectivesSidebarProps {
     onToggle: (item: AdminSidebarItem) => void;
     addLabel: string;
     onAdd: () => void;
+    searchValue: string;
+    onSearchChange: (value: string) => void;
+    filters?: ReactNode;
 }
 
 /**
@@ -27,9 +32,22 @@ export function AdminElectivesSidebar({
                                           onToggle,
                                           addLabel,
                                           onAdd,
+                                          searchValue,
+                                          onSearchChange,
+                                          filters,
                                       }: AdminElectivesSidebarProps) {
     return (
         <aside className={styles.sidebar}>
+            <div className={styles.search}>
+                <SearchInput
+                    id="admin-sidebar-search"
+                    label="Search electives"
+                    value={searchValue}
+                    onChange={onSearchChange}
+                    placeholder="Type to search"
+                />
+            </div>
+
             <button
                 type="button"
                 onClick={onAdd}
@@ -49,6 +67,8 @@ export function AdminElectivesSidebar({
                 selectedItemIds={selectedItemIds}
                 onToggle={onToggle}
             />
+
+            {filters ? <div className={styles.filters}>{filters}</div> : null}
         </aside>
     );
 }

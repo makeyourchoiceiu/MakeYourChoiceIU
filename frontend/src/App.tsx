@@ -41,8 +41,6 @@ function App() {
     return (
         <AppShell
             user={auth.user}
-            searchValue={query}
-            onSearchChange={setQuery}
             onLogout={handleLogout}
             onSwitchToStudent={auth.user.role === 'admin-student' ? auth.switchToStudent : undefined}
         >
@@ -58,6 +56,7 @@ function App() {
                     favouriteIds={studentFlow.favouriteIds}
                     availableElectiveTypes={auth.studentData?.availableElectiveTypes ?? []}
                     query={query}
+                    onQueryChange={setQuery}
                     onToggleFavourite={studentFlow.handleToggleFavourite}
                 />
             ) : null}
@@ -67,6 +66,7 @@ function App() {
                     electives={auth.adminElectives}
                     locale="en"
                     query={query}
+                    onQueryChange={setQuery}
                     onCreateElective={adminFlow.handleCreateElective}
                     onUpdateElective={adminFlow.handleUpdateElective}
                     onArchive={adminFlow.handleArchiveElective}

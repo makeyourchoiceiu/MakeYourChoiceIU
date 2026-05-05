@@ -149,7 +149,8 @@ export function filterAdminElectives(
             !filters.electiveLanguage || elective.electiveLanguage === filters.electiveLanguage;
 
         const matchesDegreeYear =
-            !filters.degreeYear || elective.degreeYear.includes(filters.degreeYear);
+            filters.degreeYears.length === 0 ||
+            filters.degreeYears.some((degreeYear) => elective.degreeYear.includes(degreeYear));
 
         const matchesType =
             filters.electiveTypes.length === 0 ||
@@ -170,6 +171,39 @@ export function filterAdminElectives(
             matchesStatus
         );
     });
+}
+
+export function prioritizeAdminElectivesByDegreeYears(
+    electives: Elective[],
+    degreeYears: string[]
+): Elective[] {
+    if (degreeYears.length === 0) {
+        return electives;
+    }
+
+    return electives
+        .map((elective, index) => {
+            const matchCount = degreeYears.filter((degreeYear) =>
+                elective.degreeYear.includes(degreeYear)
+            ).length;
+
+            return { elective, index, matchCount };
+        })
+        .sort((a, b) => {
+            const aHasFullMatch = a.matchCount === degreeYears.length;
+            const bHasFullMatch = b.matchCount === degreeYears.length;
+
+            if (aHasFullMatch !== bHasFullMatch) {
+                return aHasFullMatch ? -1 : 1;
+            }
+
+            if (a.matchCount !== b.matchCount) {
+                return b.matchCount - a.matchCount;
+            }
+
+            return a.index - b.index;
+        })
+        .map((item) => item.elective);
 }
 
 /**

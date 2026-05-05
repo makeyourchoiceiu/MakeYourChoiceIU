@@ -1,0 +1,52 @@
+.field {
+    display: grid;
+    gap: 4px;
+    width: 100%;
+}
+
+.label {
+    font-size: var(--sidebar-label-font-size, 0.6875rem);
+    line-height: 1.2;
+    font-weight: 600;
+    color: #555555;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.input {
+    min-height: 32px;
+    width: 100%;
+    padding: 0 9px;
+    border: 1px solid #d4d4d4;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #222222;
+    font-size: var(--sidebar-control-font-size, 0.875rem);
+    font-weight: var(--sidebar-control-font-weight, 500);
+    font-family: inherit;
+    line-height: 1.2;
+    outline: none;
+    box-sizing: border-box;
+    transition:
+            border-color 0.15s ease,
+            box-shadow 0.15s ease;
+}
+
+.input::placeholder {
+    color: #8a8a8a;
+}
+
+.input:hover {
+    border-color: #c2c2c2;
+}
+
+.input:focus {
+    border-color: #b5b5b5;
+    box-shadow: 0 0 0 3px rgba(120, 120, 120, 0.15);
+}
+
+@media (max-width: 1440px), (max-height: 920px) {
+    .input {
+        min-height: 30px;
+    }
+}

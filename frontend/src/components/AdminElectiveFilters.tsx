@@ -1,4 +1,6 @@
 import type { AdminElectiveFilters } from '../types/electivesList';
+import buttonStyles from '../styles/button.module.css';
+import styles from './AdminElectiveFilters.module.css';
 
 interface AdminElectiveFiltersProps {
     filters: AdminElectiveFilters;
@@ -7,6 +9,11 @@ interface AdminElectiveFiltersProps {
         degreeYears: string[];
         programLanguages: string[];
     };
+    viewMode: 'list' | 'grid';
+    hasActiveFilters?: boolean;
+    visibleCount?: number;
+    totalCount?: number;
+    onViewModeChange: (mode: 'list' | 'grid') => void;
     onChange: <K extends keyof AdminElectiveFilters>(
         key: K,
         value: AdminElectiveFilters[K]
@@ -25,59 +32,147 @@ interface AdminElectiveFiltersProps {
 export function AdminElectiveFilters({
                                          filters,
                                          filterOptions,
+                                         viewMode,
+                                         hasActiveFilters = false,
+                                         visibleCount,
+                                         totalCount,
+                                         onViewModeChange,
                                          onChange,
                                          onReset,
                                      }: AdminElectiveFiltersProps) {
+    function toggleDegreeYear(value: string) {
+        const nextDegreeYears = filters.degreeYears.includes(value)
+            ? filters.degreeYears.filter((degreeYear) => degreeYear !== value)
+            : [...filters.degreeYears, value];
+
+        onChange('degreeYears', nextDegreeYears);
+    }
+
     return (
-        <div>
-            <label>
-                Learning language:
-                <select
-                    value={filters.electiveLanguage}
-                    onChange={(event) => onChange('electiveLanguage', event.target.value)}
-                >
-                    <option value="">All</option>
-                    {filterOptions.electiveLanguages.map((value) => (
-                        <option key={`language-${value}`} value={value}>
-                            {value}
-                        </option>
-                    ))}
-                </select>
-            </label>
+        <div className={styles.panel}>
+            <div className={styles.summaryBlock}>
+                <div className={styles.summaryText}>
+                    <p className={styles.summaryLabel}>Electives</p>
+                    <p className={styles.summaryValue}>
+                        {visibleCount ?? 0}
+                        {typeof totalCount === 'number' ? ` / ${totalCount}` : ''}
+                    </p>
+                </div>
 
-            <label>
-                Degree year:
-                <select
-                    value={filters.degreeYear}
-                    onChange={(event) => onChange('degreeYear', event.target.value)}
-                >
-                    <option value="">All</option>
-                    {filterOptions.degreeYears.map((value) => (
-                        <option key={`degree-${value}`} value={value}>
-                            {value}
-                        </option>
-                    ))}
-                </select>
-            </label>
+                <div className={styles.viewToggle} aria-label="Elective view mode">
+                    <button
+                        type="button"
+                        onClick={() => onViewModeChange('list')}
+                        aria-pressed={viewMode === 'list'}
+                        className={[
+                            buttonStyles.button,
+                            buttonStyles.sizeSm,
+                            viewMode === 'list'
+                                ? buttonStyles.variantSecondary
+                                : buttonStyles.variantGhost,
+                            styles.viewModeButton,
+                        ].join(' ')}
+                    >
+                        List
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => onViewModeChange('grid')}
+                        aria-pressed={viewMode === 'grid'}
+                        className={[
+                            buttonStyles.button,
+                            buttonStyles.sizeSm,
+                            viewMode === 'grid'
+                                ? buttonStyles.variantSecondary
+                                : buttonStyles.variantGhost,
+                            styles.viewModeButton,
+                        ].join(' ')}
+                    >
+                        Grid
+                    </button>
+                </div>
+            </div>
 
-            <label>
-                Program language:
-                <select
-                    value={filters.programLanguage}
-                    onChange={(event) => onChange('programLanguage', event.target.value)}
-                >
-                    <option value="">All</option>
-                    {filterOptions.programLanguages.map((value) => (
-                        <option key={`program-${value}`} value={value}>
-                            {value}
-                        </option>
-                    ))}
-                </select>
-            </label>
+            <div className={styles.section}>
+                <p className={styles.sectionTitle}>Learning language</p>
+                <label className={styles.field}>
+                    <select
+                        className={styles.select}
+                        value={filters.electiveLanguage}
+                        onChange={(event) => onChange('electiveLanguage', event.target.value)}
+                    >
+                        <option value="">All</option>
+                        {filterOptions.electiveLanguages.map((value) => (
+                            <option key={`language-${value}`} value={value}>
+                                {value}
+                            </option>
+                        ))}
+                    </select>
+                </label>
+            </div>
 
-            <button type="button" onClick={onReset}>
-                Reset filters
-            </button>
+            <div className={styles.section}>
+                <p className={styles.sectionTitle}>Program language</p>
+                <label className={styles.field}>
+                    <select
+                        className={styles.select}
+                        value={filters.programLanguage}
+                        onChange={(event) => onChange('programLanguage', event.target.value)}
+                    >
+                        <option value="">All</option>
+                        {filterOptions.programLanguages.map((value) => (
+                            <option key={`program-${value}`} value={value}>
+                                {value}
+                            </option>
+                        ))}
+                    </select>
+                </label>
+            </div>
+
+            <div className={styles.section}>
+                <p className={styles.sectionTitle}>Degree year</p>
+
+                <div className={styles.degreeGrid}>
+                    {filterOptions.degreeYears.map((value) => {
+                        const isSelected = filters.degreeYears.includes(value);
+
+                        return (
+                            <button
+                                key={`degree-${value}`}
+                                type="button"
+                                onClick={() => toggleDegreeYear(value)}
+                                aria-pressed={isSelected}
+                                className={[
+                                    buttonStyles.button,
+                                    buttonStyles.sizeSm,
+                                    isSelected
+                                        ? buttonStyles.variantSecondary
+                                        : buttonStyles.variantGhost,
+                                    styles.degreeButton,
+                                ].join(' ')}
+                            >
+                                {value}
+                            </button>
+                        );
+                    })}
+                </div>
+            </div>
+
+            <div className={styles.actions}>
+                <button
+                    type="button"
+                    onClick={onReset}
+                    disabled={!hasActiveFilters}
+                    className={[
+                        buttonStyles.button,
+                        buttonStyles.sizeMd,
+                        buttonStyles.variantGhost,
+                        styles.resetButton,
+                    ].join(' ')}
+                >
+                    Reset filters
+                </button>
+            </div>
         </div>
     );
 }

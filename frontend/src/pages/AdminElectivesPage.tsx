@@ -12,11 +12,13 @@ import { AdminPageLayout } from '../components/AdminPageLayout';
 import { ElectiveEditorModal } from '../components/ElectiveEditorModal';
 import { mapDraftToElectivePayload } from '../utils/electiveEditor';
 import type { UpdateElectivePayload } from '../api/electives';
+import styles from './AdminElectivesPage.module.css';
 
 interface AdminElectivesPageProps {
     electives: Elective[];
     locale: Locale;
     query: string;
+    onQueryChange: (value: string) => void;
     onCreateElective: (payload: UpdateElectivePayload) => Promise<void>;
     onUpdateElective: (id: number, payload: UpdateElectivePayload) => Promise<void>;
     onArchive?: (elective: Elective) => void;
@@ -26,7 +28,7 @@ interface AdminElectivesPageProps {
 
 const INITIAL_FILTERS: AdminElectiveFilters = {
     electiveLanguage: '',
-    degreeYear: '',
+    degreeYears: [],
     electiveTypes: [],
     programLanguage: '',
     statuses: [],
@@ -36,6 +38,7 @@ export function AdminElectivesPage({
                                        electives,
                                        locale,
                                        query,
+                                       onQueryChange,
                                        onCreateElective,
                                        onUpdateElective,
                                        onArchive,
@@ -43,6 +46,7 @@ export function AdminElectivesPage({
                                        onRestore,
                                    }: AdminElectivesPageProps) {
     const [filters, setFilters] = useState<AdminElectiveFilters>(INITIAL_FILTERS);
+    const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
     const [saving, setSaving] = useState(false);
 
     const editor = useAdminElectiveEditor();
@@ -56,7 +60,7 @@ export function AdminElectivesPage({
 
     const isAllElectivesSelected =
         filters.electiveLanguage === '' &&
-        filters.degreeYear === '' &&
+        filters.degreeYears.length === 0 &&
         filters.programLanguage === '' &&
         sidebar.selectedElectiveTypes.length === 0 &&
         sidebar.selectedStatuses.length === 0;
@@ -134,30 +138,39 @@ export function AdminElectivesPage({
                         }}
                         addLabel="Add elective"
                         onAdd={handleAddElective}
+                        searchValue={query}
+                        onSearchChange={onQueryChange}
+                        filters={
+                            <AdminElectiveFiltersPanel
+                                filters={filters}
+                                filterOptions={filterOptions}
+                                viewMode={viewMode}
+                                hasActiveFilters={!isAllElectivesSelected}
+                                visibleCount={visibleElectives.length}
+                                totalCount={electives.length}
+                                onViewModeChange={setViewMode}
+                                onChange={updateFilter}
+                                onReset={resetAllFilters}
+                            />
+                        }
                     />
                 }
                 content={
-                    <section>
-                        <h1>Admin electives</h1>
-
-                        <AdminElectiveFiltersPanel
-                            filters={filters}
-                            filterOptions={filterOptions}
-                            onChange={updateFilter}
-                            onReset={resetAllFilters}
-                        />
-
-                        <ElectivesList
-                            role="admin"
-                            electives={visibleElectives}
-                            locale={locale}
-                            query={query}
-                            onEdit={handleEditElective}
-                            onArchive={onArchive}
-                            onDelete={onDelete}
-                            onRestore={onRestore}
-                            emptyText="No electives match the current admin filters"
-                        />
+                    <section className={styles.page}>
+                        <div className={styles.list}>
+                            <ElectivesList
+                                role="admin"
+                                electives={visibleElectives}
+                                locale={locale}
+                                query={query}
+                                adminViewMode={viewMode}
+                                onEdit={handleEditElective}
+                                onArchive={onArchive}
+                                onDelete={onDelete}
+                                onRestore={onRestore}
+                                emptyText="No electives match the current admin filters"
+                            />
+                        </div>
                     </section>
                 }
             />

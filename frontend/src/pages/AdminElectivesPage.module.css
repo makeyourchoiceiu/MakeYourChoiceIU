@@ -1,0 +1,8 @@
+.page {
+    min-width: 0;
+}
+
+.list {
+    display: grid;
+    gap: 16px;
+}

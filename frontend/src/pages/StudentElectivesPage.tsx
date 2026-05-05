@@ -15,6 +15,7 @@ interface StudentElectivesPageProps {
     favouriteIds: number[];
     availableElectiveTypes: StudentProfileElectiveType[];
     query: string;
+    onQueryChange: (value: string) => void;
     onToggleFavourite?: (elective: Elective) => void;
 }
 
@@ -24,6 +25,7 @@ export function StudentElectivesPage({
                                          favouriteIds,
                                          availableElectiveTypes,
                                          query,
+                                         onQueryChange,
                                          onToggleFavourite,
                                      }: StudentElectivesPageProps) {
     const {
@@ -102,6 +104,8 @@ export function StudentElectivesPage({
                 <StudentSidebar
                     sections={sections}
                     activeSectionKey={activeSectionKey}
+                    searchValue={query}
+                    onSearchChange={onQueryChange}
                     onChange={setActiveSectionKey}
                 />
             }

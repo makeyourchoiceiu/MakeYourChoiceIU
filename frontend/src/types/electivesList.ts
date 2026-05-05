@@ -7,7 +7,7 @@ export interface StudentElectiveTypeTab {
 
 export interface AdminElectiveFilters {
     electiveLanguage: string;
-    degreeYear: string;
+    degreeYears: string[];
     electiveTypes: string[];
     programLanguage: string;
     statuses: ElectiveStatus[];

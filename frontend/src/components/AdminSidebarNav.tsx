@@ -34,6 +34,9 @@ export function AdminSidebarNav({
                             buttonStyles.sizeMd,
                             isActive ? buttonStyles.variantPrimary : buttonStyles.variantGhost,
                             styles.navButton,
+                            item.kind === 'reset' ? styles.resetButton : '',
+                            item.kind === 'status' ? styles.statusButton : '',
+                            item.kind === 'type' ? styles.typeButton : '',
                         ].join(' ')}
                     >
                         {item.title}

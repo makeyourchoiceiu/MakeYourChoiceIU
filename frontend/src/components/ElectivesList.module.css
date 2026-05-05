@@ -1,0 +1,30 @@
+.list {
+    display: grid;
+    gap: 16px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    column-gap: 12px;
+    row-gap: 18px;
+    align-items: start;
+}
+
+.item {
+    min-width: 0;
+    position: relative;
+    z-index: 0;
+}
+
+.item:has([role='menu']) {
+    z-index: 30;
+}
+
+@media (max-width: 1280px), (max-height: 840px) {
+    .grid {
+        grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+        column-gap: 10px;
+        row-gap: 14px;
+    }
+}

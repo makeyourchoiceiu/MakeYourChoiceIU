@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { getElectives } from '../api/electives';
 import type { Elective } from '../types/elective';
 
@@ -23,7 +23,7 @@ export function useElectives(): UseElectivesResult {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    async function refetch() {
+    const refetch = useCallback(async () => {
         try {
             setLoading(true);
             setError(null);
@@ -35,10 +35,36 @@ export function useElectives(): UseElectivesResult {
         } finally {
             setLoading(false);
         }
-    }
+    }, []);
 
     useEffect(() => {
-        refetch();
+        let cancelled = false;
+
+        async function load() {
+            try {
+                setError(null);
+
+                const data = await getElectives();
+
+                if (!cancelled) {
+                    setElectives(data);
+                }
+            } catch (err) {
+                if (!cancelled) {
+                    setError(err instanceof Error ? err.message : 'Unknown error');
+                }
+            } finally {
+                if (!cancelled) {
+                    setLoading(false);
+                }
+            }
+        }
+
+        void load();
+
+        return () => {
+            cancelled = true;
+        };
     }, []);
 
     return { electives, loading, error, refetch };

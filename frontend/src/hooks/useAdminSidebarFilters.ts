@@ -19,9 +19,9 @@ interface UseAdminSidebarFiltersResult {
 }
 
 const STATUS_ITEMS: AdminSidebarItem[] = [
-    { id: 'status:1', kind: 'status', title: 'Active electives', status: 1 },
-    { id: 'status:0', kind: 'status', title: 'Archived electives', status: 0 },
-    { id: 'status:-1', kind: 'status', title: 'Deleted electives', status: -1 },
+    { id: 'status:1', kind: 'status', title: 'Active', status: 1 },
+    { id: 'status:0', kind: 'status', title: 'Archived', status: 0 },
+    { id: 'status:-1', kind: 'status', title: 'Deleted', status: -1 },
 ];
 
 function getFallbackTypeNames(electives: Elective[]): string[] {

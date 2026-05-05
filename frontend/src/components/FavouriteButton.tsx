@@ -1,4 +1,3 @@
-import styles from './FavouriteButton.module.css';
 import buttonStyles from '../styles/button.module.css';
 
 interface FavouriteButtonProps {
