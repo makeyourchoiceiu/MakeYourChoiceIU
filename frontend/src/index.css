@@ -1,12 +1,17 @@
 :root {
   --app-header-offset: 3.25rem;
+  --admin-accent: #3fbc2b;
+  --admin-accent-dark: #2f9d20;
+  --admin-bg: #d9d9d9;
+  --admin-card: #f7f7f7;
+  --admin-border: #bfc1bf;
 
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
   color: #213547;
-  background-color: #ffffff;
+  background-color: var(--admin-bg);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -33,7 +38,7 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background: #ffffff;
+  background: var(--admin-bg);
   color: #213547;
 }
 

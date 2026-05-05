@@ -1,4 +1,5 @@
 import type { ReactNode, MouseEvent } from 'react';
+import { createPortal } from 'react-dom';
 import styles from './ElectiveModal.module.css';
 import buttonStyles from '../styles/button.module.css';
 interface ElectiveModalProps {
@@ -28,7 +29,7 @@ export function ElectiveModal({
         event.stopPropagation();
     }
 
-    return (
+    return createPortal(
         <div
             className={styles.overlay}
             role="dialog"
@@ -54,8 +55,9 @@ export function ElectiveModal({
 
                 <div className={styles.body}>{children}</div>
 
-                {footer ? <div className={styles.footer}>{footer}</div> : null}
+            {footer ? <div className={styles.footer}>{footer}</div> : null}
             </div>
-        </div>
+        </div>,
+        document.body
     );
 }

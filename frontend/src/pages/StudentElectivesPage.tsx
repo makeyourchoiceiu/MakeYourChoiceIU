@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useMemo, useState } from 'react';
 import type { Elective } from '../types/elective';
 import type { Locale } from '../utils/electiveText';
 import type { StudentProfileElectiveType } from '../types/studentSidebar';
@@ -7,13 +7,25 @@ import { useStudentSidebar } from '../hooks/useStudentSidebar';
 import { StudentSidebar } from '../components/StudentSidebar';
 import { StudentPageLayout } from '../components/StudentPageLayout';
 import { ElectivesList } from '../components/ElectivesList';
-import { StudentElectiveSelectionForm } from '../components/StudentElectiveSelectionForm';
+import {
+    StudentElectiveSelectionForm,
+    type StudentSelectionOption,
+} from '../components/StudentElectiveSelectionForm';
+import type { StudentSelectionByTypeHandle } from '../types/studentVoting';
+import type { StudentChosenGroup } from '../hooks/useStudentElectivesFlow';
 
 interface StudentElectivesPageProps {
     electives: Elective[];
     locale: Locale;
     favouriteIds: number[];
     availableElectiveTypes: StudentProfileElectiveType[];
+    chosenByType: StudentChosenGroup[];
+    getSelections: StudentSelectionByTypeHandle['getSelections'];
+    setSelection: StudentSelectionByTypeHandle['setSelection'];
+    resetSelections: StudentSelectionByTypeHandle['resetSelections'];
+    submitSelections: StudentSelectionByTypeHandle['submitSelections'];
+    savingType: string | null;
+    saveError: string | null;
     query: string;
     onQueryChange: (value: string) => void;
     onToggleFavourite?: (elective: Elective) => void;
@@ -24,10 +36,20 @@ export function StudentElectivesPage({
                                          locale,
                                          favouriteIds,
                                          availableElectiveTypes,
+                                         chosenByType,
+                                         getSelections,
+                                         setSelection,
+                                         resetSelections,
+                                         submitSelections,
+                                         savingType,
+                                         saveError,
                                          query,
                                          onQueryChange,
                                          onToggleFavourite,
                                      }: StudentElectivesPageProps) {
+    const [languageFilter, setLanguageFilter] = useState('');
+    const [yearFilters, setYearFilters] = useState<string[]>([]);
+
     const {
         sections,
         activeSectionKey,
@@ -42,24 +64,79 @@ export function StudentElectivesPage({
             ? activeSection.electiveType
             : 'all';
 
-    const { tabs, visibleElectives } = useStudentElectivesPage({
+    const { visibleElectives } = useStudentElectivesPage({
         electives,
         query,
         favouriteIds,
         activeType,
     });
 
-    useEffect(() => {
-        if (activeSection?.kind !== 'elective-type') {
-            return;
+    const languageOptions = useMemo(() => {
+        return Array.from(new Set(electives.map((item) => item.electiveLanguage))).sort();
+    }, [electives]);
+
+    const yearOptions = useMemo(() => {
+        return Array.from(new Set(electives.flatMap((item) => item.degreeYear))).sort();
+    }, [electives]);
+
+    const filteredElectives = useMemo(() => {
+        return visibleElectives.filter((item) => {
+            const languageMatches =
+                !languageFilter || item.electiveLanguage === languageFilter;
+            const yearMatches =
+                yearFilters.length === 0 ||
+                yearFilters.some((year) => item.degreeYear.includes(year));
+
+            return languageMatches && yearMatches;
+        });
+    }, [visibleElectives, languageFilter, yearFilters]);
+
+    const activeTypeConfig = useMemo(
+        () =>
+            availableElectiveTypes.find((item) => item.type === activeType) ?? null,
+        [availableElectiveTypes, activeType]
+    );
+
+    const activeTypeElectives = useMemo(() => {
+        if (!activeTypeConfig) {
+            return [];
         }
 
-        const exists = tabs.some((tab) => tab.value === activeSection.electiveType);
+        return electives.filter((item) => item.electiveType === activeTypeConfig.type);
+    }, [electives, activeTypeConfig]);
 
-        if (!exists) {
-            setActiveSectionKey('main');
+    const currentSelections = useMemo(() => {
+        if (!activeTypeConfig) {
+            return [];
         }
-    }, [tabs, activeSection, setActiveSectionKey]);
+
+        return getSelections(activeTypeConfig.type, activeTypeConfig.requiredCount);
+    }, [activeTypeConfig, getSelections]);
+
+    const formOptions = useMemo<StudentSelectionOption[]>(() => {
+        const favouriteSet = new Set(favouriteIds);
+        return [...activeTypeElectives]
+            .sort((a, b) => {
+                const aFav = favouriteSet.has(a.id);
+                const bFav = favouriteSet.has(b.id);
+
+                if (aFav !== bFav) {
+                    return aFav ? -1 : 1;
+                }
+
+                return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' });
+            })
+            .map((item) => ({
+                id: item.id,
+                name: item.name,
+                isFavourite: favouriteSet.has(item.id),
+            }));
+    }, [activeTypeElectives, favouriteIds]);
+
+    const chosenSummary = useMemo(
+        () => chosenByType.filter((group) => group.electiveIds.length > 0),
+        [chosenByType]
+    );
 
     function renderContent() {
         if (!activeSection) {
@@ -69,9 +146,31 @@ export function StudentElectivesPage({
         if (activeSection.kind === 'main') {
             return (
                 <section>
-                    <h1>Student electives</h1>
-                    <p>Main page placeholder.</p>
-                    <p>Here we will later show the latest submitted elective choices.</p>
+                    <h1>Main</h1>
+                    {chosenSummary.length === 0 ? (
+                        <p>No submission yet. Choose an elective type and save your priorities.</p>
+                    ) : (
+                        <div>
+                            <p>Your latest submitted choices:</p>
+                            {chosenSummary.map((group) => (
+                                <section key={`chosen-${group.type}`}>
+                                    <h3>{group.type}</h3>
+                                    <ol>
+                                        {group.electiveIds.map((electiveId, index) => {
+                                            const matched = electives.find(
+                                                (item) => item.id === electiveId
+                                            );
+                                            return (
+                                                <li key={`${group.type}-${index}-${electiveId}`}>
+                                                    {matched?.name ?? `Elective #${electiveId}`}
+                                                </li>
+                                            );
+                                        })}
+                                    </ol>
+                                </section>
+                            ))}
+                        </div>
+                    )}
                 </section>
             );
         }
@@ -80,14 +179,9 @@ export function StudentElectivesPage({
             <section>
                 <h1>{activeSection.label}</h1>
 
-                <StudentElectiveSelectionForm
-                    electiveType={activeSection.electiveType ?? ''}
-                    requiredCount={activeSection.requiredCount ?? 0}
-                />
-
                 <ElectivesList
                     role="student"
-                    electives={visibleElectives}
+                    electives={filteredElectives}
                     locale={locale}
                     query={query}
                     favouriteIds={favouriteIds}
@@ -106,6 +200,56 @@ export function StudentElectivesPage({
                     activeSectionKey={activeSectionKey}
                     searchValue={query}
                     onSearchChange={onQueryChange}
+                    languageFilter={languageFilter}
+                    languageOptions={languageOptions}
+                    onLanguageFilterChange={setLanguageFilter}
+                    yearFilters={yearFilters}
+                    yearOptions={yearOptions}
+                    onToggleYearFilter={(value) => {
+                        setYearFilters((prev) =>
+                            prev.includes(value)
+                                ? prev.filter((item) => item !== value)
+                                : [...prev, value]
+                        );
+                    }}
+                    onResetFilters={() => {
+                        setLanguageFilter('');
+                        setYearFilters([]);
+                    }}
+                    selectionForm={
+                        activeSection && activeSection.kind === 'elective-type' && activeTypeConfig ? (
+                            <>
+                                <StudentElectiveSelectionForm
+                                    electiveType={activeTypeConfig.type}
+                                    requiredCount={activeTypeConfig.requiredCount}
+                                    selections={currentSelections}
+                                    options={formOptions}
+                                    saving={savingType === activeTypeConfig.type}
+                                    onChange={(index, electiveId) => {
+                                        setSelection(
+                                            activeTypeConfig.type,
+                                            activeTypeConfig.requiredCount,
+                                            index,
+                                            electiveId
+                                        );
+                                    }}
+                                    onSave={async () => {
+                                        await submitSelections(
+                                            activeTypeConfig.type,
+                                            activeTypeConfig.requiredCount
+                                        );
+                                    }}
+                                    onReset={() => {
+                                        resetSelections(
+                                            activeTypeConfig.type,
+                                            activeTypeConfig.requiredCount
+                                        );
+                                    }}
+                                />
+                                {saveError ? <p>{saveError}</p> : null}
+                            </>
+                        ) : null
+                    }
                     onChange={setActiveSectionKey}
                 />
             }

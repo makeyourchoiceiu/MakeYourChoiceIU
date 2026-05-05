@@ -54,7 +54,7 @@ export function mapStudentDataToElectives(studentData: StudentDataResponse): Ele
             instructor: elective.instructor,
             description: normalizeStoredMarkdown(elective.description),
             electiveLanguage: elective.elective_language,
-            status: 0,
+            status: 1,
             prerequisite: elective.prerequisite,
             electiveType: group.elective_type,
             programLanguage: '',

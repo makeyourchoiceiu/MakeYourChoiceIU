@@ -4,10 +4,10 @@
     justify-content: center;
     gap: 8px;
 
-    border: 1px solid #d0d0d0;
+    border: 1px solid #b8bdb8;
     border-radius: 10px;
-    background: #f6f6f6;
-    color: #222222;
+    background: #f3f3f3;
+    color: #1f1f1f;
 
     font: inherit;
     cursor: pointer;
@@ -19,7 +19,7 @@
 }
 
 .button:hover {
-    background: #ededed;
+    background: #ebebeb;
 }
 
 .button:focus-visible {
@@ -58,7 +58,7 @@
 
 .variantSecondary {
     background: #f6f6f6;
-    border-color: #d0d0d0;
+    border-color: #b8bdb8;
     color: #222222;
 }
 
@@ -67,8 +67,8 @@
 }
 
 .variantGhost {
-    background: #ffffff;
-    border-color: #d8d8d8;
+    background: #f7f7f7;
+    border-color: #b8bdb8;
     color: #222222;
 }
 
@@ -84,4 +84,14 @@
 
 .variantDanger:hover {
     background: #f1e8e8;
+}
+
+.variantPrimary {
+    background: var(--admin-accent);
+    border-color: var(--admin-accent-dark);
+    color: #ffffff;
+}
+
+.variantPrimary:hover {
+    background: var(--admin-accent-dark);
 }

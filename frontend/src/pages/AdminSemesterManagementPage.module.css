@@ -1,0 +1,247 @@
+.page {
+    padding: 0 8px 24px 0;
+    overflow-x: hidden;
+}
+
+.layout {
+    display: grid;
+    grid-template-columns: 232px minmax(0, 1fr);
+    gap: 20px;
+    align-items: start;
+}
+
+.history {
+    position: sticky;
+    top: 88px;
+    width: 100%;
+    min-width: 0;
+    border: 1px solid var(--admin-border);
+    border-radius: 12px;
+    background: #f7f7f7;
+    padding: 8px;
+    overflow: visible;
+}
+
+.historyList {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 8px;
+}
+
+.historyItem {
+    width: 100%;
+    text-align: left;
+    border: 1px solid #cfd1cf;
+    border-radius: 10px;
+    background: #fcfcfc;
+    padding: 8px;
+    cursor: pointer;
+    display: grid;
+    gap: 2px;
+}
+
+.historyItemActive {
+    border-color: var(--admin-accent);
+    background: #eef9ea;
+}
+
+.historyItem span,
+.empty {
+    font-size: 0.82rem;
+    color: #666;
+}
+
+.historyItem em {
+    font-style: normal;
+    color: var(--admin-accent);
+    font-weight: 600;
+    font-size: 0.82rem;
+}
+
+.formWrap {
+    border: 1px solid var(--admin-border);
+    border-radius: 14px;
+    background: #f7f7f7;
+    padding: 12px;
+    width: 100%;
+    min-width: 0;
+    overflow-x: clip;
+}
+
+.title {
+    margin: 0 0 10px;
+    font-size: 2.4rem;
+    color: var(--admin-accent);
+}
+
+.error {
+    color: #8a2d2d;
+}
+
+.headerRow {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    align-items: end;
+}
+
+.headerRow label,
+.grid label {
+    display: grid;
+    gap: 4px;
+    font-size: 0.9rem;
+    min-width: 0;
+}
+
+.headerRow input,
+.headerRow select,
+.grid select {
+    width: 100%;
+    max-width: 100%;
+    border: 1px solid #d4d4d4;
+    border-radius: 8px;
+    min-height: 36px;
+    padding: 0 10px;
+    font: inherit;
+    background: #fff;
+}
+
+.grid select[multiple] {
+    min-height: 90px;
+    padding: 6px;
+}
+
+.streams {
+    margin-top: 12px;
+    display: grid;
+    gap: 10px;
+}
+
+.streamCard {
+    border: 1px solid #cfd1cf;
+    border-radius: 10px;
+    background: #ffffff;
+    padding: 10px;
+}
+
+.streamHead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.streamHead h2 {
+    margin: 0;
+    font-size: 1rem;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.grid > * {
+    min-width: 0;
+}
+
+.fullWidth {
+    grid-column: 1 / -1;
+}
+
+.electivePickerRow {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px;
+}
+
+.selectedElectives {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-height: 44px;
+}
+
+.selectedElectiveChip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid #d8d8d8;
+    border-radius: 999px;
+    background: #f8f8f8;
+    padding: 5px 10px;
+    max-width: 100%;
+}
+
+.selectedElectiveChip span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.removeChipButton {
+    border: 0;
+    background: transparent;
+    font-size: 1rem;
+    line-height: 1;
+    cursor: pointer;
+    color: #555;
+}
+
+.emptySelection {
+    margin: 0;
+    color: #666;
+    font-size: 0.86rem;
+}
+
+.preview {
+    margin: 10px 0 0;
+    padding: 8px;
+    border: 1px dashed #d4d4d4;
+    border-radius: 8px;
+    background: #fff;
+    font-size: 0.88rem;
+    overflow-wrap: anywhere;
+}
+
+.actions {
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+@media (max-width: 1024px) {
+    .layout {
+        grid-template-columns: 1fr;
+    }
+
+    .history {
+        position: static;
+        max-height: none;
+    }
+}
+
+@media (max-width: 1280px) {
+    .layout {
+        grid-template-columns: 216px minmax(0, 1fr);
+        gap: 14px;
+    }
+
+    .headerRow {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 760px) {
+    .grid,
+    .headerRow {
+        grid-template-columns: 1fr;
+    }
+}
