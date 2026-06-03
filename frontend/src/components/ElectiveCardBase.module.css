@@ -1,0 +1,75 @@
+.card {
+    display: grid;
+    gap: 16px;
+
+    padding: 20px;
+    border: 1px solid #d8d8d8;
+    border-radius: 16px;
+    background: #ffffff;
+}
+
+.muted {
+    opacity: 0.7;
+    background: #f5f5f5;
+}
+
+.header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.titleBlock {
+    display: grid;
+    gap: 8px;
+    min-width: 0;
+}
+
+.title {
+    margin: 0;
+    font-size: 24px;
+    line-height: 1.2;
+    color: #222222;
+}
+
+.titleMeta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.meta {
+    display: grid;
+    gap: 8px;
+}
+
+.metaRow {
+    margin: 0;
+    color: #333333;
+    line-height: 1.4;
+}
+
+.description {
+    color: #2f2f2f;
+    line-height: 1.5;
+}
+
+.extraInfo {
+    display: grid;
+    gap: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #ececec;
+}
+
+.footer {
+    display: flex;
+    justify-content: flex-start;
+    padding-top: 4px;
+}
+
+.mark {
+    background: #dcdcdc;
+    border-radius: 3px;
+    padding: 0 2px;
+}

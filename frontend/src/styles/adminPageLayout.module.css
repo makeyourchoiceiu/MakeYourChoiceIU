@@ -1,0 +1,35 @@
+.wrap {
+    display: grid;
+    grid-template-columns: 244px minmax(0, 1fr);
+    gap: 16px;
+    align-items: start;
+    padding: 0 0 24px;
+}
+
+.sidebar {
+    min-width: 0;
+    position: sticky;
+    top: 88px;
+    align-self: start;
+}
+
+.content {
+    min-width: 0;
+    overflow: visible;
+}
+
+@media (max-width: 900px) {
+    .wrap {
+        grid-template-columns: 1fr;
+    }
+
+    .sidebar {
+        position: static;
+        top: auto;
+        overflow: visible;
+    }
+
+    .content {
+        overflow: visible;
+    }
+}

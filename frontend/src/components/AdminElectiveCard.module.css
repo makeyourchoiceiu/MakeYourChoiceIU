@@ -1,0 +1,31 @@
+.statusBadge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 28px;
+    padding: 4px 10px;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    font-size: 13px;
+    line-height: 1.2;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.statusActive {
+    color: #155724;
+    background: #e6f6ea;
+    border-color: #b9e4c4;
+}
+
+.statusArchived {
+    color: #725400;
+    background: #fff6d8;
+    border-color: #ead28b;
+}
+
+.statusDeleted {
+    color: #8f1d1d;
+    background: #fde8e8;
+    border-color: #f5b5b5;
+}

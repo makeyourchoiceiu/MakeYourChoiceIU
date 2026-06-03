@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter
 from django.db.models import ProtectedError, Q
+from django.db.models.deletion import RestrictedError
 from rest_framework.views import APIView
 
 
@@ -126,9 +127,15 @@ class TrackViewSet(viewsets.ModelViewSet):
         return Response({"status": "error"}, status=400)
     
     def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        instance.delete()
-        return Response({"status": "success"}, status=200)
+        try:
+            instance = self.get_object()
+            instance.delete()
+            return Response({"status": "success"}, status=200)
+        except (ProtectedError, RestrictedError):
+            return Response(
+                {"status": "error", "message": "Track is used by existing students"},
+                status=400
+            )
 
 class ElectiveTypeViewSet(viewsets.ModelViewSet):
     serializer_class = ElectiveTypeSerializer
@@ -150,8 +157,11 @@ class ElectiveTypeViewSet(viewsets.ModelViewSet):
             instance = self.get_object()
             instance.delete()
             return Response({"status": "success"})
-        except ProtectedError:
-            return Response({"status": "error"}, status=400)
+        except (ProtectedError, RestrictedError):
+            return Response(
+                {"status": "error", "message": "Elective type is used by existing electives"},
+                status=400
+            )
 
 @api_view(['GET'])
 def settings(request):
@@ -361,5 +371,4 @@ class ExceptionsView(APIView):
         return Response({
             "status": "success",
             "message": f"Exception with id {pk} deleted successfully"
-            # "deleted_exception": exception_data
         }, status=200)

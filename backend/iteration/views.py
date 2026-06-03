@@ -2,7 +2,7 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from .models import Stream
+from .models import Stream, StreamElectiveRelation
 from .serializers import StreamSerializer
 from catalog.models import Elective
 from catalog.serializers import ElectiveSerializer
@@ -10,43 +10,32 @@ from catalog.serializers import ElectiveSerializer
 
 class StreamViewSet(viewsets.ModelViewSet):
     serializer_class = StreamSerializer
-    queryset = Elective.objects.all()
+    queryset = Stream.objects.all()
 
     def get_queryset(self):
-
-        semester_id = self.request.query_params.get('semesterId')
-
-        queryset = Stream.objects.all()
-
-        if semester_id:
-            queryset = queryset.filter(semester_id=semester_id)
-
-        return queryset
+        return Stream.objects.all()
 
 
-    # GET /streams/{id}/elective
-    @action(detail=True,methods=['get'],url_path='elective')
-    def get_elective(self, request, pk=None):
-
+    # GET/POST /streams/{id}/elective
+    @action(detail=True, methods=['get', 'post'], url_path='elective')
+    def elective(self, request, pk=None):
         stream = self.get_object()
-
-        elective = stream.elective.all()
-
-        serializer = ElectiveSerializer(elective, many=True)
-
-        return Response(serializer.data)
-
-
-    # POST /streams/{id}/elective
-    @action(detail=True,methods=['post'],url_path='elective')
-    def add_elective(self, request, pk=None):
-        stream = self.get_object()
+        if request.method.lower() == 'get':
+            elective_ids = StreamElectiveRelation.objects.filter(
+                stream_id=stream
+            ).values_list('elective_id', flat=True)
+            electives = Elective.objects.filter(id__in=elective_ids)
+            serializer = ElectiveSerializer(electives, many=True)
+            return Response(serializer.data)
 
         elective_ids = request.data.get('electiveIds', [])
 
-        elective = Elective.objects.filter(id__in=elective_ids)
-
-        stream.elective.add(*elective)
+        electives = Elective.objects.filter(id__in=elective_ids)
+        for elective in electives:
+            StreamElectiveRelation.objects.get_or_create(
+                stream_id=stream,
+                elective_id=elective,
+            )
 
         return Response({"status": "added"})
 
@@ -54,9 +43,10 @@ class StreamViewSet(viewsets.ModelViewSet):
     # DELETE /streams/{id}/elective/{electiveId}
     @action(detail=True,methods=['delete'],url_path='elective/(?P<elective_id>[^/.]+)')
     def remove_elective(self, request, pk=None, elective_id=None):
-
         stream = self.get_object()
-
-        stream.elective.remove(elective_id)
+        StreamElectiveRelation.objects.filter(
+            stream_id=stream,
+            elective_id_id=elective_id,
+        ).delete()
 
         return Response({"status": "removed"})

@@ -1,0 +1,64 @@
+.formWrap {
+    display: grid;
+    gap: 8px;
+    padding-top: 4px;
+    border-top: 1px solid #e9e9e9;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.title {
+    margin: 0;
+    font-size: 0.6875rem;
+    line-height: 1.2;
+    font-weight: 600;
+    color: #555555;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.form {
+    display: grid;
+    gap: 8px;
+}
+
+.fields {
+    display: grid;
+    gap: 6px;
+}
+
+.field {
+    display: grid;
+    gap: 4px;
+}
+
+.label {
+    font-size: 0.6875rem;
+    line-height: 1.2;
+    font-weight: 600;
+    color: #666666;
+}
+
+.select {
+    min-height: 2rem;
+    width: 100%;
+    padding: 0 10px;
+    border: 1px solid #d4d4d4;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #222222;
+    font: inherit;
+    font-size: 0.8125rem;
+    outline: none;
+}
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+}

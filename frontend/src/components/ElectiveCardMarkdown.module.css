@@ -1,0 +1,84 @@
+.markdown {
+    color: #2f2f2f;
+    line-height: 1.5;
+}
+
+.collapsed {
+    position: relative;
+    max-height: 220px;
+    overflow: hidden;
+}
+
+.collapsed::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 56px;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0), #ffffff);
+    pointer-events: none;
+}
+
+.markdown :global(*:first-child) {
+    margin-top: 0;
+}
+
+.markdown :global(*:last-child) {
+    margin-bottom: 0;
+}
+
+.markdown :global(p),
+.markdown :global(ul),
+.markdown :global(ol),
+.markdown :global(blockquote),
+.markdown :global(pre) {
+    margin: 0 0 12px;
+}
+
+.markdown :global(ul),
+.markdown :global(ol) {
+    padding-left: 20px;
+}
+
+.markdown :global(li + li) {
+    margin-top: 4px;
+}
+
+.markdown :global(h1),
+.markdown :global(h2),
+.markdown :global(h3),
+.markdown :global(h4) {
+    margin: 0 0 10px;
+    line-height: 1.25;
+    color: #222222;
+}
+
+.markdown :global(h1) {
+    font-size: 1.3rem;
+}
+
+.markdown :global(h2) {
+    font-size: 1.15rem;
+}
+
+.markdown :global(h3),
+.markdown :global(h4) {
+    font-size: 1rem;
+}
+
+.markdown :global(a) {
+    color: #2f5fe3;
+    text-decoration: underline;
+}
+
+.markdown :global(code) {
+    padding: 1px 4px;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.06);
+    font-size: 0.95em;
+}
+
+.markdown :global(pre code) {
+    display: block;
+    padding: 12px;
+    overflow-x: auto;
+}

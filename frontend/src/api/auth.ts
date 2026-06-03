@@ -1,76 +1,62 @@
-import type { User, AuthResponse } from '../types/user';
+import type {
+    AuthResponse,
+    AuthUser,
+    NormalizedStudentData,
+    StudentAvailableElectiveGroupResponse,
+} from '../types/auth';
 
-const API_URL = 'http://localhost:8000/api';
+const API_BASE_URL = '/api/auth';
 
-export const STORAGE_KEYS = {
-    TOKEN: 'electives_token',
-    USER: 'electives_user',
-    EMAIL: 'electives_remembered_email'
-};
-
-export const login = async (credentials: { email: string }): Promise<AuthResponse> => {
-    // Мок-данные, пока бэкенд не готов
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            const role: 'admin' | 'student' =
-                credentials.email === 'admin@innopolis.university' ? 'admin' : 'student';
-
-            const name = credentials.email.split('@')[0];
-
-            resolve({
-                token: 'mock-token-' + Date.now(),
-                user: {
-                    id: 1,
-                    email: credentials.email,
-                    name: name,
-                    role: role,
-                    ...(role === 'student' && {
-                        program: 'MFAI',
-                        year: 'BS1',
-                        language: 'EN'
-                    })
-                }
-            });
-        }, 500);
-    });
-};
-
-export const getMe = async (token: string): Promise<User> => {
-    // ВРЕМЕННО: мок
-    return {
-        id: 1,
-        email: 'student@innopolis.university',
-        name: 'student',
-        role: 'student',
-        program: 'MFAI',
-        year: 'BS1',
-        language: 'EN'
-    };
-};
-
-export const saveAuth = (token: string, user: User, email?: string) => {
-    localStorage.setItem(STORAGE_KEYS.TOKEN, token);
-    localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
-
-    if (email) {
-        localStorage.setItem(STORAGE_KEYS.EMAIL, email);
+async function handleResponse<T>(response: Response): Promise<T> {
+    if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
     }
-};
 
-export const getStoredUser = (): User | null => {
-    const userStr = localStorage.getItem(STORAGE_KEYS.USER);
-    return userStr ? JSON.parse(userStr) : null;
-};
+    return response.json() as Promise<T>;
+}
 
-export const getStoredToken = (): string | null => {
-    return localStorage.getItem(STORAGE_KEYS.TOKEN);
-};
+export async function loginByEmail(email: string): Promise<AuthResponse> {
+    const encodedEmail = encodeURIComponent(email.trim());
 
-export const getStoredEmail = (): string => {
-    return localStorage.getItem(STORAGE_KEYS.EMAIL) || '';
-};
+    const response = await fetch(`${API_BASE_URL}/email?email=${encodedEmail}`, {
+        method: 'GET',
+        headers: {
+            Accept: 'application/json',
+        },
+    });
 
-export const logout = () => {
-    localStorage.removeItem(STORAGE_KEYS.TOKEN);
-    localStorage.removeItem(STORAGE_KEYS.USER);
-};
+    return handleResponse<AuthResponse>(response);
+}
+
+export function mapAuthResponseToUser(response: AuthResponse): AuthUser {
+    return {
+        email: response.email,
+        role: response.role,
+        group: null,
+    };
+}
+
+function mapStudentElectiveType(
+    item: StudentAvailableElectiveGroupResponse
+) {
+    return {
+        type: item.elective_type,
+        label: item.elective_type,
+        requiredCount: item.priorities,
+    };
+}
+
+export function mapStudentData(
+    response: AuthResponse
+): NormalizedStudentData | null {
+    if (response.role === 'admin') {
+        return null;
+    }
+
+    return {
+        deadline: response.student_data.deadline,
+        availableElectiveTypes: response.student_data.available_electives.map(
+            mapStudentElectiveType
+        ),
+    };
+}

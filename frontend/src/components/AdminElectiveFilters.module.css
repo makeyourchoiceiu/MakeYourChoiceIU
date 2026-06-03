@@ -1,0 +1,172 @@
+.panel {
+    display: grid;
+    gap: 10px;
+}
+
+.summaryBlock {
+    display: grid;
+    gap: 8px;
+}
+
+.summaryText {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.summaryLabel {
+    margin: 0;
+    font-size: var(--sidebar-label-font-size, 0.6875rem);
+    line-height: 1.2;
+    font-weight: 600;
+    color: #666666;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.summaryValue {
+    margin: 0;
+    font-size: var(--sidebar-summary-font-size, 1rem);
+    line-height: 1.1;
+    font-weight: 600;
+    color: #1f1f1f;
+}
+
+.viewToggle {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4px;
+}
+
+.viewModeButton {
+    min-height: 1.75rem;
+    padding: 0 0.5rem;
+    font-size: var(--sidebar-control-font-size, 0.875rem);
+    font-weight: var(--sidebar-control-font-weight, 500);
+}
+
+.section {
+    display: grid;
+    gap: 6px;
+}
+
+.sectionTitle {
+    margin: 0;
+    font-size: var(--sidebar-label-font-size, 0.6875rem);
+    line-height: 1.2;
+    font-weight: 600;
+    color: #555555;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.field {
+    display: grid;
+    min-width: 0;
+}
+
+.select {
+    appearance: none;
+    min-height: 32px;
+    width: 100%;
+    padding: 0 32px 0 10px;
+    border: 1px solid #d4d4d4;
+    border-radius: 10px;
+    background: #ffffff;
+    background-image:
+            linear-gradient(45deg, transparent 50%, #6f6f6f 50%),
+            linear-gradient(135deg, #6f6f6f 50%, transparent 50%);
+    background-position:
+            calc(100% - 18px) calc(50% - 2px),
+            calc(100% - 12px) calc(50% - 2px);
+    background-size: 6px 6px;
+    background-repeat: no-repeat;
+    color: #222222;
+    font-size: var(--sidebar-control-font-size, 0.875rem);
+    font-weight: var(--sidebar-control-font-weight, 500);
+    font-family: inherit;
+    line-height: 1.2;
+    outline: none;
+    transition:
+            border-color 0.15s ease,
+            box-shadow 0.15s ease,
+            background-color 0.15s ease;
+}
+
+.select:hover {
+    border-color: #c2c2c2;
+}
+
+.select:focus {
+    border-color: #b5b5b5;
+    box-shadow: 0 0 0 3px rgba(120, 120, 120, 0.15);
+}
+
+.degreeGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4px;
+}
+
+.degreeButton {
+    justify-content: center;
+    min-height: 1.75rem;
+}
+
+.actions {
+    display: flex;
+    justify-content: stretch;
+}
+
+.resetButton {
+    width: 100%;
+}
+
+@media (max-width: 900px) {
+    .panel {
+        gap: 10px;
+    }
+
+    .degreeGrid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 1440px), (max-height: 920px) {
+    .panel {
+        gap: 8px;
+    }
+
+    .section {
+        gap: 5px;
+    }
+
+    .select {
+        min-height: 30px;
+    }
+}
+
+@media (max-width: 1280px), (max-height: 840px) {
+    .panel {
+        gap: 7px;
+    }
+
+    .summaryBlock {
+        gap: 6px;
+    }
+
+    .degreeGrid {
+        gap: 4px;
+    }
+
+    .viewModeButton {
+        min-height: 1.625rem;
+    }
+}
+
+@media (max-width: 560px) {
+    .degreeGrid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}

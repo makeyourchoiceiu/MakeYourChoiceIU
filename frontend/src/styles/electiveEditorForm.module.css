@@ -1,0 +1,27 @@
+.form {
+    display: grid;
+    gap: 16px;
+}
+
+.field {
+    display: grid;
+    gap: 6px;
+}
+
+.toggleGroup {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.toolbar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 4px;
+}
+
+.hint {
+    font-size: 12px;
+    opacity: 0.75;
+}

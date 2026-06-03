@@ -1,0 +1,166 @@
+.page {
+    padding: 0 4px 24px 0;
+}
+
+.head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 6px;
+}
+
+.title {
+    display: none;
+}
+
+.meta {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.error {
+    color: #8a2d2d;
+}
+
+.columns {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+}
+
+.column {
+    border: 1px solid var(--admin-border);
+    border-radius: 22px;
+    background: #f6f6f6;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    padding: 14px;
+    min-height: 460px;
+}
+
+.columnHead,
+.rowHead,
+.programHead,
+.trackRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.columnHead h2,
+.programHead h3 {
+    margin: 0;
+    color: var(--admin-accent);
+}
+
+.columnHead h2 {
+    font-size: 2rem;
+}
+
+.typeSection {
+    margin-top: 12px;
+}
+
+.inlineRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.inlineInput {
+    min-width: 180px;
+    min-height: 32px;
+    border: 1px solid var(--admin-border);
+    border-radius: 8px;
+    padding: 0 10px;
+    font: inherit;
+}
+
+.chip {
+    border: 2px solid var(--admin-accent);
+    border-radius: 999px;
+    background: #ffffff;
+    padding: 4px 10px;
+    font-size: 0.82rem;
+    color: var(--admin-accent);
+    font-weight: 700;
+}
+
+.typeList {
+    margin-top: 8px;
+    display: grid;
+    gap: 6px;
+}
+
+.typeItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    border: 1px solid #d9d9d9;
+    border-radius: 8px;
+    padding: 6px 8px;
+    background: #fff;
+}
+
+.programs {
+    margin-top: 10px;
+    display: grid;
+    gap: 8px;
+}
+
+.programCard {
+    border: 1px solid #c8c8c8;
+    border-radius: 10px;
+    background: #ffffff;
+    padding: 10px 10px 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.tracks {
+    list-style: none;
+    margin: 8px 0 10px;
+    padding: 0;
+    display: grid;
+    gap: 6px;
+}
+
+.trackRow {
+    border: 0;
+    border-radius: 8px;
+    padding: 4px 0;
+    background: #fff;
+    justify-content: flex-start;
+    gap: 12px;
+}
+
+.actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.iconButton {
+    border: 1px solid #c7c7c7;
+    border-radius: 8px;
+    background: #fff;
+    min-width: 56px;
+    height: 28px;
+    padding: 0 8px;
+    font-size: 0.78rem;
+    text-transform: lowercase;
+    cursor: pointer;
+}
+
+.programCard .inlineRow {
+    margin: 10px -12px 0;
+    padding: 10px 12px;
+    border-top: 1px solid #d7d7d7;
+}
+
+@media (max-width: 1000px) {
+    .columns {
+        grid-template-columns: 1fr;
+    }
+}

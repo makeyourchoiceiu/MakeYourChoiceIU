@@ -1,0 +1,122 @@
+.page {
+    padding: 0 4px 24px 0;
+}
+
+.title {
+    display: none;
+}
+
+.error {
+    color: #8a2d2d;
+}
+
+.createCard {
+    border: 1px solid var(--admin-border);
+    border-radius: 14px;
+    background: #f6f6f6;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    padding: 14px 16px;
+}
+
+.createCard h2 {
+    margin: 0 0 14px;
+    text-align: center;
+    color: var(--admin-accent);
+    font-size: 1.55rem;
+}
+
+.createRow {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+}
+
+.createRow select {
+    min-width: 260px;
+    min-height: 44px;
+    border: 1px solid #cfcfcf;
+    border-radius: 12px;
+    padding: 0 12px;
+    font: inherit;
+    background: #ececec;
+}
+
+.createRow strong {
+    font-size: 1.35rem;
+    color: #202020;
+}
+
+.chip {
+    border: 2px solid var(--admin-accent);
+    color: var(--admin-accent);
+    font-weight: 700;
+    border-radius: 12px;
+    padding: 7px 18px;
+    background: #fff;
+}
+
+.createButton {
+    display: block;
+    width: min(220px, 100%);
+    margin: 14px auto 0;
+    min-height: 40px;
+    border: 0;
+    border-radius: 12px;
+    background: var(--admin-accent);
+    color: #fff;
+    font-size: 1.4rem;
+    font-weight: 700;
+}
+
+.note {
+    margin: 12px 0 0;
+    text-align: center;
+    color: #5f5f5f;
+}
+
+.listBlock {
+    margin-top: 16px;
+    display: grid;
+    gap: 12px;
+}
+
+.exceptionRow {
+    border: 1px solid var(--admin-border);
+    border-radius: 12px;
+    background: #f8f8f8;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    min-height: 56px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 0 14px;
+}
+
+.green {
+    color: var(--admin-accent);
+}
+
+.menuButton {
+    margin-left: auto;
+    border: 0;
+    background: transparent;
+    font-size: 1.8rem;
+    cursor: pointer;
+    color: #202020;
+}
+
+@media (max-width: 1000px) {
+    .title {
+        font-size: 2.2rem;
+    }
+
+    .createCard h2 {
+        font-size: 1.6rem;
+    }
+
+    .createRow strong {
+        font-size: 1.35rem;
+    }
+}
