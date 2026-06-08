@@ -968,6 +968,7 @@ paths:
               instructor: Alice Ivanova
               description: Курс об основах квантовых вычислений
               elective_language: english
+              format: online
               prerequisite: Linear Algebra, Probability Theory
               contact: alice@example.com
       responses:
@@ -1003,24 +1004,6 @@ paths:
         "403":
           $ref: "#/components/responses/Forbidden"
 
-  /suggestions/{id}:
-    get:
-      tags: [Suggestions]
-      summary: Детали предложения (только для админа)
-      parameters:
-        - $ref: "#/components/parameters/id"
-      responses:
-        "200":
-          description: Предложение
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Suggestion"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-
   /suggestions/{id}/approve:
     post:
       tags: [Suggestions]
@@ -1051,11 +1034,6 @@ paths:
       summary: Отклонить предложение (только для админа)
       parameters:
         - $ref: "#/components/parameters/id"
-      requestBody:
-        content:
-          application/json:
-            example:
-              admin_comment: Похожий курс уже есть в каталоге
       responses:
         "200":
           description: Предложение отклонено
@@ -1379,7 +1357,7 @@ components:
 
     SuggestionCreate:
       type: object
-      required: [name, instructor, description, elective_language, contact]
+      required: [name, instructor, description, elective_language, format, contact]
       properties:
         name:
           type: string
@@ -1389,6 +1367,9 @@ components:
           type: string
         elective_language:
           type: string
+        format:
+          type: string
+          enum: [online, offline]
         prerequisite:
           type: string
         contact:
@@ -1408,6 +1389,9 @@ components:
           type: string
         elective_language:
           type: string
+        format:
+          type: string
+          enum: [online, offline]
         prerequisite:
           type: string
         contact:
@@ -1415,9 +1399,6 @@ components:
         status:
           type: string
           enum: [pending, approved, rejected]
-        admin_comment:
-          type: string
-          nullable: true
         created_at:
           type: string
           format: date-time
