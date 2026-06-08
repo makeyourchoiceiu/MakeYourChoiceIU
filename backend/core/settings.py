@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'catalog',
     'iteration',
     'rest_framework',
+    'drf_spectacular',
     'django_filters',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -63,9 +64,17 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'core.urls'
 
 REST_FRAMEWORK = {
-'DEFAULT_FILTER_BACKENDS': [
-'django_filters.rest_framework.DjangoFilterBackend'
-]
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend'
+    ],
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'MakeYourChoice IU API',
+    'DESCRIPTION': 'API для системы выбора элективов Иннополиса',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
 }
 
 TEMPLATES = [

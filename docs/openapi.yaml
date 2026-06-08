@@ -1,0 +1,1474 @@
+openapi: 3.0.3
+info:
+  title: MakeYourChoice IU API
+  version: 1.0.0
+  description: API для системы выбора элективов Иннополиса
+
+servers:
+  - url: http://localhost:8000/api
+    description: Local development
+
+tags:
+  - name: Auth
+  - name: Electives
+  - name: Programs
+  - name: Tracks
+  - name: Elective Types
+  - name: Settings
+  - name: Exceptions
+  - name: Semesters
+  - name: Streams
+  - name: Voting
+  - name: Suggestions
+
+paths:
+
+  # ─── Auth ────────────────────────────────────────────────────────────────────
+
+  /auth/email:
+    get:
+      tags: [Auth]
+      summary: Аутентификация по email
+      description: >
+        Загружается один раз при входе в сессию. Last submissions загружаются
+        здесь же — отдельного эндпоинта нет, фронт обновляет данные локально
+        в рамках сессии.
+      parameters:
+        - in: query
+          name: email
+          required: true
+          schema:
+            type: string
+            example: a.kalashnikova@innopolis.university
+      responses:
+        "200":
+          description: Данные пользователя в зависимости от роли
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/StudentResponse"
+                  - $ref: "#/components/schemas/AdminResponse"
+                  - $ref: "#/components/schemas/AdminStudentResponse"
+              examples:
+                student:
+                  summary: role — student
+                  value:
+                    student_id: 1
+                    role: student
+                    email: a.kalashnikova@innopolis.university
+                    student_data:
+                      iteration_id: 4
+                      deadline: "2026-05-01T12:00:00Z"
+                      available_electives:
+                        - elective_type: TECH
+                          priorities: 7
+                          electives:
+                            - id: 6
+                              name: "Golang & Flutter: Rapid Cross-Platform Development"
+                              instructor: Kharin Timur
+                              description: "..."
+                              elective_language: english
+                              prerequisite: "Non"
+                        - elective_type: HUM
+                          priorities: 6
+                          electives:
+                            - id: 13
+                              name: Branding & Marketing in IT Industry
+                              instructor: Marko Pezer
+                              description: "..."
+                              elective_language: english
+                              prerequisite: "Non"
+                      chosen_electives:
+                        - elective_type: TECH
+                          electives:
+                            - priority: 1
+                              elective:
+                                id: 6
+                                name: "Golang & Flutter: Rapid Cross-Platform Development"
+                                instructor: Kharin Timur
+                                description: "..."
+                                elective_language: english
+                                prerequisite: "Non"
+                admin:
+                  summary: role — admin
+                  value:
+                    role: admin
+                    email: admin@innopolis.university
+                    all_electives:
+                      - id: 1
+                        name: Machine Learning
+                        instructor: John Doe
+                        description: "..."
+                        elective_type: TECH
+                        program_language: ENG
+                        elective_language: english
+                        status: 1
+                        degree_year: ["BS-1"]
+                        prerequisite: Linear Algebra
+        "404":
+          description: Пользователь не найден
+          content:
+            application/json:
+              example:
+                error: User not found
+
+  # ─── Electives ───────────────────────────────────────────────────────────────
+
+  /electives:
+    get:
+      tags: [Electives]
+      summary: Список элективов
+      parameters:
+        - in: query
+          name: status
+          schema:
+            type: integer
+            enum: [0, 1, -1]
+          description: "0 — архив, 1 — активный, -1 — удалён"
+        - in: query
+          name: elective_type
+          schema:
+            type: string
+            example: TECH
+        - in: query
+          name: program_language
+          schema:
+            type: string
+            example: ENG
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Поиск по name, description, instructor
+      responses:
+        "200":
+          description: Список элективов
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Elective"
+
+    post:
+      tags: [Electives]
+      summary: Создать электив
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ElectiveCreate"
+            example:
+              name: New elective
+              instructor: Test instructor
+              description: Example of POST elective command
+              elective_language: english
+              program_language: ENG
+      responses:
+        "201":
+          $ref: "#/components/responses/Success"
+        "400":
+          $ref: "#/components/responses/Error"
+
+  /electives/{id}:
+    get:
+      tags: [Electives]
+      summary: Получить электив по id
+      parameters:
+        - $ref: "#/components/parameters/id"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Elective"
+          description: Электив
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    patch:
+      tags: [Electives]
+      summary: Изменить поля электива (включая удаление через status -1)
+      description: >
+        Удаление реализовано через PATCH — передаём `{"status": -1}`.
+        Возвращает `{"status": "archived"}`.
+      parameters:
+        - $ref: "#/components/parameters/id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ElectiveUpdate"
+            examples:
+              update_fields:
+                summary: Изменить поля
+                value:
+                  elective_language: russian
+                  prerequisite: Example prerequisite
+                  status: 1
+              delete:
+                summary: Удалить (мягкое удаление)
+                value:
+                  status: -1
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "400":
+          $ref: "#/components/responses/Error"
+
+  /electives/{id}/archive:
+    post:
+      tags: [Electives]
+      summary: Архивировать электив (status → 0)
+      parameters:
+        - $ref: "#/components/parameters/id"
+      responses:
+        "200":
+          description: Электив архивирован
+          content:
+            application/json:
+              example:
+                status: archived
+
+  # ─── Programs ────────────────────────────────────────────────────────────────
+
+  /programs:
+    get:
+      tags: [Programs]
+      summary: Список программ
+      responses:
+        "200":
+          description: Список программ
+          content:
+            application/json:
+              example:
+                - id: 1
+                  language: ENG
+                  name: CSE
+                - id: 2
+                  language: ENG
+                  name: DSAI
+                - id: 3
+                  language: RUS
+                  name: MFAI
+
+    post:
+      tags: [Programs]
+      summary: Создать программу
+      requestBody:
+        required: true
+        content:
+          application/json:
+            example:
+              name: DSAI2
+              language: RUS
+      responses:
+        "201":
+          $ref: "#/components/responses/Success"
+        "400":
+          $ref: "#/components/responses/Error"
+
+  /programs/{id}:
+    patch:
+      tags: [Programs]
+      summary: Изменить программу
+      parameters:
+        - $ref: "#/components/parameters/id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                language:
+                  type: string
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "400":
+          $ref: "#/components/responses/Error"
+
+    delete:
+      tags: [Programs]
+      summary: Удалить программу
+      parameters:
+        - $ref: "#/components/parameters/id"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  # ─── Tracks ──────────────────────────────────────────────────────────────────
+
+  /tracks:
+    get:
+      tags: [Tracks]
+      summary: Список треков
+      responses:
+        "200":
+          description: Список треков
+          content:
+            application/json:
+              example:
+                - id: 1
+                  program: 2
+                  name: DS
+                - id: 2
+                  program: 2
+                  name: AI
+                - id: 4
+                  program: 1
+                  name: SD
+
+    post:
+      tags: [Tracks]
+      summary: Создать трек
+      requestBody:
+        required: true
+        content:
+          application/json:
+            example:
+              name: AAI2
+              program: "2"
+      responses:
+        "201":
+          $ref: "#/components/responses/Success"
+        "400":
+          $ref: "#/components/responses/Error"
+
+  /tracks/{id}:
+    patch:
+      tags: [Tracks]
+      summary: Изменить трек
+      parameters:
+        - $ref: "#/components/parameters/id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            example:
+              program: 1
+              name: AAI3
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "400":
+          $ref: "#/components/responses/Error"
+
+    delete:
+      tags: [Tracks]
+      summary: Удалить трек
+      description: Возвращает 400 если трек используется студентами.
+      parameters:
+        - $ref: "#/components/parameters/id"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "400":
+          description: Трек используется студентами
+          content:
+            application/json:
+              example:
+                status: error
+                message: Track is used by existing students
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  # ─── Elective Types ──────────────────────────────────────────────────────────
+
+  /elective_types:
+    get:
+      tags: [Elective Types]
+      summary: Список типов элективов
+      responses:
+        "200":
+          description: Список типов
+          content:
+            application/json:
+              example:
+                - elective_type_name: TECH
+                - elective_type_name: HUM
+                - elective_type_name: MATH
+
+    post:
+      tags: [Elective Types]
+      summary: Создать тип электива
+      requestBody:
+        required: true
+        content:
+          application/json:
+            example:
+              elective_type_name: TEST
+      responses:
+        "201":
+          $ref: "#/components/responses/Success"
+        "400":
+          $ref: "#/components/responses/Error"
+
+  /elective_types/{name}:
+    delete:
+      tags: [Elective Types]
+      summary: Удалить тип электива
+      description: >
+        PATCH недоступен — elective_type_name является Primary Key.
+        Возвращает 400 если тип используется в элективах.
+      parameters:
+        - in: path
+          name: name
+          required: true
+          schema:
+            type: string
+          example: TEST
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "400":
+          description: Тип используется в элективах
+          content:
+            application/json:
+              example:
+                status: error
+                message: Elective type is used by existing electives
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /types_by_language:
+    get:
+      tags: [Elective Types]
+      summary: Кол-во элективов по языкам программ
+      responses:
+        "200":
+          description: Статистика по языкам
+          content:
+            application/json:
+              example:
+                status: success
+                types_by_language:
+                  - language: ENG
+                    count: 2
+                  - language: RUS
+                    count: 2
+
+  # ─── Settings ────────────────────────────────────────────────────────────────
+
+  /settings:
+    get:
+      tags: [Settings]
+      summary: Все настройки одним запросом
+      description: >
+        Возвращает языки, типы элективов, программы с треками и кол-вом
+        приоритетов. Поле elective_type_settings пока заглушка — приоритеты
+        не подтягиваются.
+      responses:
+        "200":
+          description: Настройки
+          content:
+            application/json:
+              examples:
+                target:
+                  summary: Целевой формат
+                  value:
+                    languages:
+                      - code: ENG
+                        name: ENG
+                        elective_types:
+                          - name: HUM
+                          - name: TECH
+                        programs:
+                          - id: 1
+                            name: DSAI
+                            language: ENG
+                            tracks:
+                              - id: 11
+                                name: DS
+                              - id: 12
+                                name: AI
+                            elective_type_settings:
+                              - elective_type_name: HUM
+                                priorities: 6
+                              - elective_type_name: TECH
+                                priorities: 7
+                current:
+                  summary: Текущий формат (elective_type_settings — заглушка)
+                  value:
+                    languages:
+                      - code: ENG
+                        name: ENG
+                        elective_types:
+                          - name: TECH
+                          - name: HUM
+                          - name: MATH
+                        programs:
+                          - id: 1
+                            name: CSE
+                            language: ENG
+                            tracks:
+                              - id: 4
+                                name: SD
+                              - id: 5
+                                name: GD
+                            elective_type_settings: []
+
+  # ─── Exceptions ──────────────────────────────────────────────────────────────
+
+  /exceptions:
+    get:
+      tags: [Exceptions]
+      summary: Все исключения + все треки + доступные элективы
+      description: >
+        Формат исключения — [электив] запрещён для [трек].
+        Доступные элективы — те, у которых нет ни одного исключения.
+      responses:
+        "200":
+          description: Данные для страницы исключений
+          content:
+            application/json:
+              example:
+                exceptions:
+                  - id: 2
+                    elective:
+                      id: 6
+                      name: "Golang & Flutter: Rapid Cross-Platform Development"
+                    track:
+                      id: 1
+                      name: DS
+                    created_at: "2026-05-05T20:13:27.153481Z"
+                all_tracks:
+                  - id: 1
+                    name: DS
+                  - id: 2
+                    name: AI
+                available_electives:
+                  - id: 7
+                    name: How to Launch the Robot?
+
+    post:
+      tags: [Exceptions]
+      summary: Создать исключение
+      requestBody:
+        required: true
+        content:
+          application/json:
+            example:
+              elective_id: 6
+              track_id: 2
+      responses:
+        "201":
+          description: Исключение создано
+          content:
+            application/json:
+              example:
+                status: success
+                message: Exception created successfully
+                data:
+                  id: 1
+                  elective:
+                    id: 6
+                    name: "Golang & Flutter: Rapid Cross-Platform Development"
+                  track:
+                    id: 2
+                    name: AI
+                  created_at: "2026-05-05T19:12:00Z"
+        "400":
+          description: >
+            elective_id и track_id не переданы /
+            исключение уже существует /
+            электив архивирован или удалён
+        "404":
+          description: Электив или трек не найден
+
+  /exceptions/{id}:
+    patch:
+      tags: [Exceptions]
+      summary: Изменить исключение
+      parameters:
+        - $ref: "#/components/parameters/id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            examples:
+              change_track:
+                summary: Изменить трек
+                value:
+                  track_id: 3
+              change_both:
+                summary: Изменить электив и трек
+                value:
+                  elective_id: 7
+                  track_id: 1
+      responses:
+        "200":
+          description: Исключение обновлено
+          content:
+            application/json:
+              example:
+                status: success
+                message: Exception updated successfully
+                data:
+                  id: 1
+                  elective:
+                    id: 7
+                    name: How to Launch the Robot?
+                  track:
+                    id: 3
+                    name: DS
+                  created_at: "2026-05-05T19:12:00Z"
+        "400":
+          description: >
+            Не передано ни одно поле /
+            комбинация (электив, трек) уже существует /
+            электив архивирован
+        "404":
+          description: Exception, электив или трек не найден
+
+    delete:
+      tags: [Exceptions]
+      summary: Удалить исключение
+      parameters:
+        - $ref: "#/components/parameters/id"
+      responses:
+        "200":
+          description: Исключение удалено
+          content:
+            application/json:
+              example:
+                status: success
+                message: Exception deleted successfully
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  # ─── Semesters ───────────────────────────────────────────────────────────────
+
+  /semesters:
+    get:
+      tags: [Semesters]
+      summary: Список итераций + настройки активной/неактивированной
+      description: >
+        Запрашивается один раз при переходе на страницу Semesters Management
+        и после создания новой итерации.
+        Если есть итерация со статусом 0 или 1 — возвращаем её настройки и статус
+        (status 0 → кнопка "activate", status 1 → кнопка "deactivate").
+        Если таких нет — возвращаем пустую форму для заполнения.
+        Под настройками включаются все доступные элективы для разных языков программ и годов.
+      responses:
+        "200":
+          description: Список итераций и настройки текущей
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  iterations:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                          example: 26-SUM
+                        status:
+                          type: integer
+                  current:
+                    description: Настройки активной/неактивированной итерации. null если таких нет.
+                    nullable: true
+                    $ref: "#/components/schemas/SemesterDetail"
+
+    post:
+      tags: [Semesters]
+      summary: Создать итерацию с потоками
+      description: >
+        status 0 — сохранить без активации ("Save"),
+        status 1 — сохранить и сразу активировать ("Save and activate").
+      requestBody:
+        required: true
+        content:
+          application/json:
+            example:
+              iteration: 26-SUM
+              study_year: BS1
+              program_language: ENG
+              programs: [DSAI, CSE]
+              electives: [2, 65, 3, 8, 32, 16]
+              elective_types: [HUM, TECH]
+              status: 0
+      responses:
+        "201":
+          $ref: "#/components/responses/Success"
+        "400":
+          $ref: "#/components/responses/Error"
+
+  /semesters/{id}:
+    get:
+      tags: [Semesters]
+      summary: Настройки конкретной итерации
+      parameters:
+        - $ref: "#/components/parameters/id"
+      responses:
+        "200":
+          description: Настройки итерации
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SemesterDetail"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    patch:
+      tags: [Semesters]
+      summary: Редактировать итерацию (включая активацию/деактивацию)
+      description: >
+        Недоступен для итераций со статусом 2 (уже прошедшие).
+        Установить status 1 можно только если заполнены все поля: дедлайн, потоки, название.
+        Удаление через PATCH со status -1.
+      parameters:
+        - $ref: "#/components/parameters/id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            examples:
+              activate:
+                summary: Активировать
+                value:
+                  status: 1
+              deactivate:
+                summary: Деактивировать
+                value:
+                  status: 2
+              delete:
+                summary: Удалить
+                value:
+                  status: -1
+              update_fields:
+                summary: Изменить поля
+                value:
+                  deadline: "2026-12-01T23:59:00Z"
+                  programs: [DSAI, CSE, MFAI]
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "400":
+          description: >
+            Итерация уже завершена (статус 2) /
+            Не заполнены все поля для активации
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /semesters/excel/{id}:
+    get:
+      tags: [Semesters]
+      summary: Скачать Excel-файл итерации
+      description: >
+        Возвращает Excel-файл с тремя листами: легенда (краткие названия элективов),
+        история голосований студентов, последние голосования студентов.
+      parameters:
+        - $ref: "#/components/parameters/id"
+      responses:
+        "200":
+          description: Excel-файл
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  # ─── Streams ─────────────────────────────────────────────────────────────────
+
+  /streams:
+    get:
+      tags: [Streams]
+      summary: Список потоков
+      responses:
+        "200":
+          description: Список потоков
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Stream"
+
+    post:
+      tags: [Streams]
+      summary: Создать поток
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StreamCreate"
+      responses:
+        "201":
+          $ref: "#/components/responses/Success"
+        "400":
+          $ref: "#/components/responses/Error"
+
+  /streams/{id}:
+    get:
+      tags: [Streams]
+      summary: Получить поток по id
+      parameters:
+        - $ref: "#/components/parameters/id"
+      responses:
+        "200":
+          description: Поток
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Stream"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    patch:
+      tags: [Streams]
+      summary: Изменить поток
+      parameters:
+        - $ref: "#/components/parameters/id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StreamCreate"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "400":
+          $ref: "#/components/responses/Error"
+
+    delete:
+      tags: [Streams]
+      summary: Удалить поток
+      parameters:
+        - $ref: "#/components/parameters/id"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /streams/{id}/elective:
+    get:
+      tags: [Streams]
+      summary: Список элективов в потоке
+      parameters:
+        - $ref: "#/components/parameters/id"
+      responses:
+        "200":
+          description: Элективы потока
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Elective"
+
+    post:
+      tags: [Streams]
+      summary: Добавить элективы в поток
+      parameters:
+        - $ref: "#/components/parameters/id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            example:
+              electiveIds: [1, 2, 3]
+      responses:
+        "200":
+          description: Элективы добавлены
+          content:
+            application/json:
+              example:
+                status: added
+
+  /streams/{id}/elective/{electiveId}:
+    delete:
+      tags: [Streams]
+      summary: Удалить электив из потока
+      parameters:
+        - $ref: "#/components/parameters/id"
+        - in: path
+          name: electiveId
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Электив удалён из потока
+          content:
+            application/json:
+              example:
+                status: removed
+
+  # ─── Voting ──────────────────────────────────────────────────────────────────
+
+  /me/submissions:
+    post:
+      tags: [Voting]
+      summary: Отправить / перезаписать выбор элективов
+      description: >
+        Без авторизации. Каждый новый POST перезаписывает предыдущий выбор
+        студента для данного типа электива в данной итерации.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            example:
+              student_id: 1
+              iteration_id: 4
+              elective_type: TECH
+              electives:
+                - priority: 1
+                  elective_id: 6
+                - priority: 3
+                  elective_id: 7
+                - priority: 5
+                  elective_id: 8
+      responses:
+        "201":
+          $ref: "#/components/responses/Success"
+        "400":
+          description: >
+            Дублирующиеся элективы /
+            элективы неактивны /
+            элективы недоступны для студента
+        "404":
+          description: Студент, итерация или тип электива не найден
+
+  # ─── Suggestions ─────────────────────────────────────────────────────────────
+
+  /suggestions:
+    post:
+      tags: [Suggestions]
+      summary: Предложить курс (без авторизации)
+      description: >
+        Любой желающий может предложить свой курс. Авторизация не требуется.
+        Предложение получает статус pending и ждёт рассмотрения администратора.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SuggestionCreate"
+            example:
+              name: Introduction to Quantum Computing
+              instructor: Alice Ivanova
+              description: Курс об основах квантовых вычислений
+              elective_language: english
+              format: online
+              prerequisite: Linear Algebra, Probability Theory
+              contact: alice@example.com
+      responses:
+        "201":
+          description: Предложение принято
+          content:
+            application/json:
+              example:
+                status: success
+                message: Your suggestion has been submitted and is pending review
+        "400":
+          $ref: "#/components/responses/Error"
+
+    get:
+      tags: [Suggestions]
+      summary: Список предложений (только для админа)
+      parameters:
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [pending, approved, rejected]
+          description: Фильтр по статусу
+      responses:
+        "200":
+          description: Список предложений
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Suggestion"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /suggestions/{id}/approve:
+    post:
+      tags: [Suggestions]
+      summary: Одобрить предложение (только для админа)
+      description: >
+        Меняет статус на approved. Создаёт черновой электив (status=0) на основе
+        данных предложения. Далее админ заполняет недостающие поля через
+        PATCH /electives/{id} и активирует вручную — после этого курс становится
+        доступен для добавления в семестр.
+      parameters:
+        - $ref: "#/components/parameters/id"
+      responses:
+        "200":
+          description: Предложение одобрено, черновой электив создан
+          content:
+            application/json:
+              example:
+                status: success
+                message: Suggestion approved
+                elective_id: 42
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /suggestions/{id}/reject:
+    post:
+      tags: [Suggestions]
+      summary: Отклонить предложение (только для админа)
+      description: >
+        Меняет статус на rejected — предложение уходит в список отклонённых.
+        В ответе возвращается edit_link, который админ может отправить автору
+        (вручную — почта, телеграм и т.д.), чтобы тот мог исправить предложение.
+      parameters:
+        - $ref: "#/components/parameters/id"
+      responses:
+        "200":
+          description: Предложение отклонено
+          content:
+            application/json:
+              example:
+                status: success
+                message: Suggestion rejected
+                edit_link: http://localhost:3000/suggestions/edit/a1b2c3d4-e5f6-7890-abcd-ef1234567890
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /suggestions/edit/{token}:
+    get:
+      tags: [Suggestions]
+      summary: Получить предложение по токену (для автора)
+      description: >
+        Позволяет автору открыть своё предложение по уникальной ссылке без авторизации.
+        Доступно только для предложений со статусом pending или rejected.
+      parameters:
+        - in: path
+          name: token
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Данные предложения
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Suggestion"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    patch:
+      tags: [Suggestions]
+      summary: Редактировать предложение по токену (для автора)
+      description: >
+        Автор может исправить своё предложение по ссылке, полученной от админа.
+        Доступно только для предложений со статусом pending или rejected.
+        После редактирования статус автоматически меняется обратно на pending.
+      parameters:
+        - in: path
+          name: token
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SuggestionCreate"
+            example:
+              name: Introduction to Quantum Computing (updated)
+              instructor: Alice Ivanova
+              description: Обновлённое описание курса
+              elective_language: english
+              format: offline
+              prerequisite: Linear Algebra
+              contact: alice@example.com
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "400":
+          description: Предложение уже одобрено и не может быть изменено
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+# ─── Components ────────────────────────────────────────────────────────────────
+
+components:
+
+  parameters:
+    id:
+      in: path
+      name: id
+      required: true
+      schema:
+        type: integer
+
+  responses:
+    Success:
+      description: Операция выполнена успешно
+      content:
+        application/json:
+          example:
+            status: success
+    Error:
+      description: Ошибка валидации или бизнес-логики
+      content:
+        application/json:
+          example:
+            status: error
+    NotFound:
+      description: Объект не найден
+      content:
+        application/json:
+          example:
+            status: error
+            message: Not found
+    Forbidden:
+      description: Недостаточно прав
+      content:
+        application/json:
+          example:
+            status: error
+            message: Forbidden
+
+  schemas:
+
+    Elective:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        instructor:
+          type: string
+        description:
+          type: string
+        elective_type:
+          type: string
+          nullable: true
+          example: TECH
+        program_language:
+          type: string
+          example: ENG
+        elective_language:
+          type: string
+          example: english
+        status:
+          type: integer
+          description: "0 — архив, 1 — активный, -1 — удалён"
+        degree_year:
+          type: array
+          items:
+            type: string
+          example: ["BS-1", "BS-2"]
+        prerequisite:
+          type: string
+
+    ElectiveCreate:
+      type: object
+      required: [name, instructor, description, elective_language, program_language]
+      properties:
+        name:
+          type: string
+        instructor:
+          type: string
+        description:
+          type: string
+        elective_language:
+          type: string
+        program_language:
+          type: string
+        elective_type:
+          type: string
+          nullable: true
+        status:
+          type: integer
+          default: 0
+          description: "0 — архив (по умолчанию), 1 — активный"
+        degree_year:
+          type: array
+          items:
+            type: string
+        prerequisite:
+          type: string
+
+    ElectiveUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        instructor:
+          type: string
+        description:
+          type: string
+        elective_language:
+          type: string
+        program_language:
+          type: string
+        elective_type:
+          type: string
+        status:
+          type: integer
+          description: "0 — архивировать, 1 — активировать, -1 — удалить"
+        degree_year:
+          type: array
+          items:
+            type: string
+        prerequisite:
+          type: string
+
+    Stream:
+      type: object
+      properties:
+        id:
+          type: integer
+        degree_year:
+          type: string
+          example: BS-1
+        program_lang:
+          type: string
+          example: ENG
+        elective_type:
+          type: string
+          example: TECH
+        programs:
+          type: array
+          items:
+            type: integer
+        priorities:
+          type: integer
+          default: 5
+
+    StreamCreate:
+      type: object
+      required: [degree_year, program_lang, elective_type, programs]
+      properties:
+        degree_year:
+          type: string
+          example: BS-1
+        program_lang:
+          type: string
+          example: ENG
+        elective_type:
+          type: string
+          example: TECH
+        programs:
+          type: array
+          items:
+            type: integer
+        priorities:
+          type: integer
+          default: 5
+
+    StudentResponse:
+      type: object
+      properties:
+        student_id:
+          type: integer
+        role:
+          type: string
+          enum: [student]
+        email:
+          type: string
+        student_data:
+          $ref: "#/components/schemas/StudentData"
+
+    AdminResponse:
+      type: object
+      properties:
+        role:
+          type: string
+          enum: [admin]
+        email:
+          type: string
+        all_electives:
+          type: array
+          items:
+            $ref: "#/components/schemas/Elective"
+
+    AdminStudentResponse:
+      type: object
+      properties:
+        role:
+          type: string
+          enum: [admin-student]
+        email:
+          type: string
+        all_electives:
+          type: array
+          items:
+            $ref: "#/components/schemas/Elective"
+        student_data:
+          $ref: "#/components/schemas/StudentData"
+
+    StudentData:
+      type: object
+      properties:
+        iteration_id:
+          type: integer
+          nullable: true
+        deadline:
+          type: string
+          format: date-time
+          nullable: true
+        available_electives:
+          type: array
+          items:
+            $ref: "#/components/schemas/ElectiveGroup"
+        chosen_electives:
+          type: array
+          items:
+            $ref: "#/components/schemas/ChosenGroup"
+
+    ElectiveGroup:
+      type: object
+      properties:
+        elective_type:
+          type: string
+          example: TECH
+        priorities:
+          type: integer
+        electives:
+          type: array
+          items:
+            $ref: "#/components/schemas/StudentElective"
+
+    ChosenGroup:
+      type: object
+      properties:
+        elective_type:
+          type: string
+        electives:
+          type: array
+          items:
+            type: object
+            properties:
+              priority:
+                type: integer
+              elective:
+                $ref: "#/components/schemas/StudentElective"
+
+    StudentElective:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        instructor:
+          type: string
+        description:
+          type: string
+        elective_language:
+          type: string
+        prerequisite:
+          type: string
+
+    SemesterDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+          example: 26-SUM
+        study_year:
+          type: string
+          example: BS1
+        program_language:
+          type: string
+          example: ENG
+        programs:
+          type: array
+          items:
+            type: string
+        electives:
+          type: array
+          items:
+            type: integer
+        elective_types:
+          type: array
+          items:
+            type: string
+        deadline:
+          type: string
+          format: date-time
+          nullable: true
+        status:
+          type: integer
+          description: "0 — создана неактивна, 1 — активна, 2 — завершена, -1 — удалена"
+
+    SuggestionCreate:
+      type: object
+      required: [name, instructor, description, elective_language, format, contact]
+      properties:
+        name:
+          type: string
+        instructor:
+          type: string
+        description:
+          type: string
+        elective_language:
+          type: string
+        format:
+          type: string
+          enum: [online, offline]
+        prerequisite:
+          type: string
+        contact:
+          type: string
+          description: Email или иной контакт отправителя
+
+    Suggestion:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        instructor:
+          type: string
+        description:
+          type: string
+        elective_language:
+          type: string
+        format:
+          type: string
+          enum: [online, offline]
+        prerequisite:
+          type: string
+        contact:
+          type: string
+        status:
+          type: string
+          enum: [pending, approved, rejected]
+        edit_token:
+          type: string
+          format: uuid
+          description: UUID для генерации ссылки редактирования. Видит только админ.
+        created_at:
+          type: string
+          format: date-time
