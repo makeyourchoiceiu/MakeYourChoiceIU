@@ -3,7 +3,7 @@ from .models import Suggestion
 
 
 class SuggestionCreateSerializer(serializers.ModelSerializer):
-    """Используется для POST /suggestions и PATCH /suggestions/edit/{token}"""
+    """Used for POST /suggestions and PATCH /suggestions/edit/{token}"""
 
     class Meta:
         model = Suggestion
@@ -12,7 +12,7 @@ class SuggestionCreateSerializer(serializers.ModelSerializer):
 
 
 class SuggestionSerializer(serializers.ModelSerializer):
-    """Используется для GET-ответов. edit_token видит только админ — передаётся через контекст."""
+    """Used for GET responses. edit_token is only visible to admins — passed via request context."""
 
     edit_token = serializers.SerializerMethodField()
 
