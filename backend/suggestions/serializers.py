@@ -23,7 +23,7 @@ class SuggestionSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
     def get_edit_token(self, obj):
-        request = self.context.get('request')
-        if request and getattr(request, 'is_admin', False):
+        # is_admin is passed explicitly in context from the view
+        if self.context.get('is_admin'):
             return str(obj.edit_token)
         return None
