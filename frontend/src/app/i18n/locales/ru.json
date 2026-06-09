@@ -1,0 +1,31 @@
+{
+  "nav": {
+    "home": "Главная",
+    "courses": "Курсы",
+    "dashboard": "Панель",
+    "login": "Вход"
+  },
+  "pages": {
+    "home": {
+      "welcome": "Добро пожаловать на курсы по выбору"
+    },
+    "course_list": {
+      "title": "Список курсов"
+    },
+    "course_detail": {
+      "title": "Детали курса"
+    },
+    "dashboard": {
+      "title": "Моя панель"
+    },
+    "login": {
+      "title": "Страница входа"
+    }
+  },
+  "common": {
+    "login": "Войти",
+    "logout": "Выйти",
+    "enroll": "Записаться",
+    "my_courses": "Мои курсы"
+  }
+}

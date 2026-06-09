@@ -1,0 +1,31 @@
+{
+  "nav": {
+    "home": "Home",
+    "courses": "Courses",
+    "dashboard": "Dashboard",
+    "login": "Login"
+  },
+  "pages": {
+    "home": {
+      "welcome": "Welcome to Elective Courses"
+    },
+    "course_list": {
+      "title": "Course List"
+    },
+    "course_detail": {
+      "title": "Course Details"
+    },
+    "dashboard": {
+      "title": "My Dashboard"
+    },
+    "login": {
+      "title": "Login Page"
+    }
+  },
+  "common": {
+    "login": "Login",
+    "logout": "Logout",
+    "enroll": "Enroll Now",
+    "my_courses": "My Courses"
+  }
+}
