@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import ThemeToggle from '@/shared/components/ThemeToggle';
 import LanguageSwitcher from './shared/components/LanguageSwitcher';
 
 // Placeholder pages using translations
@@ -32,29 +33,38 @@ function App() {
   const { t } = useTranslation();
 
   return (
-    <BrowserRouter>
-      {/* Navigation bar with language switcher */}
-      <nav className="p-4 bg-gray-800 text-white flex justify-between items-center">
-        <div className="flex gap-4">
-          <Link to="/">{t('nav.home', 'Home')}</Link>
-          <Link to="/courses">{t('nav.courses', 'Courses')}</Link>
-          <Link to="/dashboard">{t('nav.dashboard', 'Dashboard')}</Link>
-          <Link to="/login">{t('nav.login', 'Login')}</Link>
-        </div>
-        <LanguageSwitcher />
-      </nav>
+    <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+      <BrowserRouter>
+        {/* Navigation bar with language switcher */}
+        <nav className="p-4 bg-gray-200 dark:bg-gray-800 text-black dark:text-white flex justify-between items-center">
+          <div className="flex gap-4">
+            <Link to="/">{t('nav.home', 'Home')}</Link>
+            <Link to="/courses">{t('nav.courses', 'Courses')}</Link>
+            <Link to="/dashboard">{t('nav.dashboard', 'Dashboard')}</Link>
+            <Link to="/login">{t('nav.login', 'Login')}</Link>
+          </div>
+          <div className="flex items-center gap-4">
+            <LanguageSwitcher />
+            <ThemeToggle />
+          </div>
+          {/*<div className="bg-gray-100 dark:bg-gray-900 text-black dark:text-white">*/}
+          {/*  <h1 className="text-2xl">This adapts to theme</h1>*/}
+          {/*</div>*/}
+        </nav>
 
-      {/* Routes */}
-      <div className="p-6">
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/courses" element={<CoursesPage />} />
-          <Route path="/courses/:id" element={<CourseDetailPage />} />
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/login" element={<LoginPage />} />
-        </Routes>
-      </div>
-    </BrowserRouter>
+
+        {/* Routes */}
+        <div className="p-6">
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/courses" element={<CoursesPage />} />
+            <Route path="/courses/:id" element={<CourseDetailPage />} />
+            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/login" element={<LoginPage />} />
+          </Routes>
+        </div>
+      </BrowserRouter>
+    </div>
   );
 }
 
