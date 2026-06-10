@@ -1,4 +1,4 @@
-.PHONY: up down build restart logs shell-backend shell-db migrate makemigrations test lint
+.PHONY: up down build restart logs shell-backend shell-db migrate makemigrations seed test lint
 
 up:
 	docker compose up -d
@@ -29,6 +29,9 @@ migrate:
 
 makemigrations:
 	docker compose exec backend python manage.py makemigrations
+
+seed:
+	docker compose exec backend python manage.py seed
 
 test:
 	docker compose exec backend python manage.py test
