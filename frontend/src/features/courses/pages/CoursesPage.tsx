@@ -21,7 +21,7 @@ const CoursesPage = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50 dark:bg-gray-950">
+    <div className="flex min-h-screen bg-gray-100 dark:bg-gray-900">
       {/* Left Sidebar */}
       <Sidebar deadline={deadline} />
 
@@ -29,10 +29,10 @@ const CoursesPage = () => {
       <div className="flex-1 p-8 max-w-5xl">
         {/* Top Toolbar */}
         <div className="flex justify-end gap-4 mb-6">
-          <button className="bg-green-500 p-2 rounded text-white hover:bg-green-600 transition-colors">
+          <button className="bg-green-iu p-2 rounded text-white hover:bg-green-iu transition-colors">
             <SearchIcon />
           </button>
-          <button className="bg-green-500 p-2 rounded text-white hover:bg-green-600 transition-colors">
+          <button className="bg-green-iu p-2 rounded text-white hover:bg-green-iu transition-colors">
             <FilterIcon />
           </button>
         </div>

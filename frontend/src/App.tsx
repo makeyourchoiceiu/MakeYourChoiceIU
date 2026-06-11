@@ -10,11 +10,6 @@ const HomePage = () => {
   return <h1 className="text-2xl">{t('pages.home.welcome', 'Welcome to Elective Courses')}</h1>;
 };
 
-// const CoursesPage = () => {
-//   const { t } = useTranslation();
-//   return <h1 className="text-2xl">{t('pages.course_list.title', 'Course List')}</h1>;
-// };
-
 const CourseDetailPage = () => {
   const { t } = useTranslation();
   return <h1 className="text-2xl">{t('pages.course_detail.title', 'Course Details')}</h1>;
@@ -34,10 +29,10 @@ function App() {
   const { t } = useTranslation();
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
       <BrowserRouter>
         {/* Navigation bar with language switcher */}
-        <nav className="p-4 bg-gray-200 dark:bg-gray-800 text-black dark:text-white flex justify-between items-center">
+        <nav className="p-4 bg-white dark:bg-gray-800 text-black dark:text-white flex justify-between items-center">
           <div className="flex gap-4">
             <Link to="/">{t('nav.home', 'Home')}</Link>
             <Link to="/courses">{t('nav.courses', 'Courses')}</Link>
