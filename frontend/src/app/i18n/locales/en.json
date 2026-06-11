@@ -3,7 +3,10 @@
     "home": "Home",
     "courses": "Courses",
     "dashboard": "Dashboard",
-    "login": "Login"
+    "login": "Login",
+    "main_menu": "Main menu",
+    "humanitarian": "Humanitarian electives",
+    "technical": "Technical electives"
   },
   "pages": {
     "home": {
@@ -27,5 +30,16 @@
     "logout": "Logout",
     "enroll": "Enroll Now",
     "my_courses": "My Courses"
+  },
+  "sidebar": {
+    "deadline": "Deadline",
+    "form": "Form",
+    "submit": "Submit tech electives"
+  },
+  "course": {
+    "language": "Language",
+    "format": "Format",
+    "instructor": "Instructor",
+    "see_more": "See more"
   }
 }

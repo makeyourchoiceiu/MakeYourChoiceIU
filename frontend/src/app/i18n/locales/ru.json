@@ -3,7 +3,10 @@
     "home": "Главная",
     "courses": "Курсы",
     "dashboard": "Панель",
-    "login": "Вход"
+    "login": "Вход",
+    "main_menu": "Главное меню",
+    "humanitarian": "Гуманитарные дисциплины",
+    "technical": "Технические дисциплины"
   },
   "pages": {
     "home": {
@@ -27,5 +30,16 @@
     "logout": "Выйти",
     "enroll": "Записаться",
     "my_courses": "Мои курсы"
+  },
+  "sidebar": {
+    "deadline": "Дедлайн",
+    "form": "Форма",
+    "submit": "Отправить заявку"
+  },
+  "course": {
+    "language": "Язык",
+    "format": "Формат",
+    "instructor": "Преподаватель",
+    "see_more": "Подробнее"
   }
 }

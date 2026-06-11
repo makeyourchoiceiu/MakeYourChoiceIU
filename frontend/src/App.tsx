@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import ThemeToggle from '@/shared/components/ThemeToggle';
 import LanguageToggle from '@/shared/components/LanguageToggle';
+import CoursesPage from '@/features/courses/pages/CoursesPage';
 
 // Placeholder pages using translations
 const HomePage = () => {
@@ -9,10 +10,10 @@ const HomePage = () => {
   return <h1 className="text-2xl">{t('pages.home.welcome', 'Welcome to Elective Courses')}</h1>;
 };
 
-const CoursesPage = () => {
-  const { t } = useTranslation();
-  return <h1 className="text-2xl">{t('pages.course_list.title', 'Course List')}</h1>;
-};
+// const CoursesPage = () => {
+//   const { t } = useTranslation();
+//   return <h1 className="text-2xl">{t('pages.course_list.title', 'Course List')}</h1>;
+// };
 
 const CourseDetailPage = () => {
   const { t } = useTranslation();
@@ -54,7 +55,7 @@ function App() {
 
 
         {/* Routes */}
-        <div className="p-6">
+        <div className="p-0">
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/courses" element={<CoursesPage />} />
