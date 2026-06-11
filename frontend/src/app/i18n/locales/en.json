@@ -40,6 +40,7 @@
     "language": "Language",
     "format": "Format",
     "instructor": "Instructor",
-    "see_more": "See more"
+    "see_more": "See more",
+    "see_less": "Hide"
   }
 }

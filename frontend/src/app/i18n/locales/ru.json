@@ -40,6 +40,7 @@
     "language": "Язык",
     "format": "Формат",
     "instructor": "Преподаватель",
-    "see_more": "Подробнее"
+    "see_more": "Подробнее",
+    "see_less": "Скрыть"
   }
 }

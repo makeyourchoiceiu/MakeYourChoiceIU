@@ -26,7 +26,7 @@ const CoursesPage = () => {
       <Sidebar deadline={deadline} />
 
       {/* Main Content Area */}
-      <div className="flex-1 p-8 max-w-5xl">
+      <div className="flex-1 p-3 max-w-5xl">
         {/* Top Toolbar */}
         <div className="flex justify-end gap-4 mb-6">
           <button className="bg-green-iu p-2 rounded text-white hover:bg-green-iu transition-colors">
@@ -38,7 +38,7 @@ const CoursesPage = () => {
         </div>
 
         {/* Course List */}
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-3">
           {courses.map((course) => (
             <CourseCard
               key={course.id}

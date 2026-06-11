@@ -16,6 +16,25 @@ export interface Course {
 export const mockCourses: Course[] = [
   {
     id: '1',
+    title: 'AARF – All About Radio Frequencies',
+    language: 'English',
+    format: 'online',
+    instructor: 'Pierre-Philipp Braun',
+    description: 'Wireless technologies play an important role in modern computing systems. Devices communicate using radio frequencies in applications ranging from wireless networking to embedded and IoT systems. Understanding how these technologies operate helps students better understand how modern devices communicate and interact.\n' +
+      '\n' +
+      'This course introduces the basic concepts of radio frequency communication and explores common wireless technologies used in everyday systems. The course will focus on practical understanding and demonstrations of how wireless communication works.\n' +
+      '\n' +
+      'The course will be centered around four main areas:\n' +
+      'Radio Frequencies\n' +
+      'Bluetooth\n' +
+      'Wi-Fi\n' +
+      'Embedded Systems\n',
+    credits: 4,
+    totalSeats: 40,
+    enrolled: 25,
+  },
+  {
+    id: '2',
     title: 'Haskell',
     language: 'English',
     format: 'offline',
@@ -26,7 +45,7 @@ export const mockCourses: Course[] = [
     enrolled: 12,
   },
   {
-    id: '2',
+    id: '3',
     title: 'Introduction to Music Generation',
     language: 'English',
     format: 'offline',
@@ -37,7 +56,7 @@ export const mockCourses: Course[] = [
     enrolled: 8,
   },
   {
-    id: '3',
+    id: '4',
     title: 'Advanced React Patterns',
     language: 'English',
     format: 'online',
