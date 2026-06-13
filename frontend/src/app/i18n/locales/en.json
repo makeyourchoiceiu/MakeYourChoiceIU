@@ -6,7 +6,8 @@
     "login": "Login",
     "main_menu": "Main menu",
     "humanitarian": "Humanitarian electives",
-    "technical": "Technical electives"
+    "technical": "Technical electives",
+    "mathematical": "Mathematical electives"
   },
   "pages": {
     "home": {

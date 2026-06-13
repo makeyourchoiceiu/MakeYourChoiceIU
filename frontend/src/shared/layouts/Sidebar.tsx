@@ -1,7 +1,13 @@
 import { useTranslation } from 'react-i18next';
 import LanguageToggle from '@/shared/components/LanguageToggle';
 
-export const Sidebar = ({ deadline }: { deadline: string }) => {
+interface SidebarProps {
+  deadline: string;
+  activeType: 'main_menu' | 'tech' | 'hum' | 'math' | 'all';
+  onSelectType: (type: 'main_menu' | 'tech' | 'hum' | 'math' | 'all') => void;
+}
+
+export const Sidebar = ({ deadline, activeType, onSelectType }: SidebarProps) => {
   const { t } = useTranslation();
 
   return (
@@ -10,11 +16,54 @@ export const Sidebar = ({ deadline }: { deadline: string }) => {
       <div className="text-3xl font-bold text-green-iu">IU</div>
       <hr className="border-t-2 border-green-iu -mx-5" />
       <nav className="space-y-3 text-bold font-medium">
-        <div className="font-bold text-gray-800 dark:text-gray-200">{t('nav.main_menu')}</div>
-        <div className="font-bold text-green-iu hover:text-hover-green-iu dark:text-green-iu dark:hover:hover:text-dark-hover-green-iu cursor-pointer">{t('nav.humanitarian')}</div>
-        <div className="font-bold text-green-iu hover:text-hover-green-iu dark:text-green-iu dark:hover:hover:text-dark-hover-green-iu cursor-pointer">{t('nav.technical')}</div>
-      </nav>
+        {/*<div className="font-bold text-gray-800 dark:text-gray-200">{t('nav.main_menu')}</div>*/}
+        <button
+          onClick={() => onSelectType('main_menu')}
+          className={`w-full text-left font-bold cursor-pointer transition-colors ${
+            activeType === 'main_menu'
+              ? 'text-gray-800 dark:text-gray-200'
+              : 'text-green-iu hover:text-hover-green-iu dark:text-green-iu dark:hover:text-dark-hover-green-iu'
+          }`}
+        >
+          {t('nav.main_menu')}
+        </button>
 
+        {/* Technical button - updates filter to 'tech' */}
+        <button
+          onClick={() => onSelectType('tech')}
+          className={`w-full text-left font-bold cursor-pointer transition-colors ${
+            activeType === 'tech'
+              ? 'text-gray-800 dark:text-gray-200'
+              : 'text-green-iu hover:text-hover-green-iu dark:text-green-iu dark:hover:text-dark-hover-green-iu'
+          }`}
+        >
+          {t('nav.technical')}
+        </button>
+
+        {/* Humanitarian button - updates filter to 'hum' */}
+        <button
+          onClick={() => onSelectType('hum')}
+          className={`w-full text-left font-bold cursor-pointer transition-colors ${
+            activeType === 'hum'
+              ? 'text-gray-800 dark:text-gray-200'
+              : 'text-green-iu hover:text-hover-green-iu dark:text-green-iu dark:hover:text-dark-hover-green-iu'
+          }`}
+        >
+          {t('nav.humanitarian')}
+        </button>
+
+        {/* Mathematical button - updates filter to 'math' */}
+        <button
+          onClick={() => onSelectType('math')}
+          className={`w-full text-left font-bold cursor-pointer transition-colors ${
+            activeType === 'math'
+              ? 'text-gray-800 dark:text-gray-200'
+              : 'text-green-iu hover:text-hover-green-iu dark:text-green-iu dark:hover:text-dark-hover-green-iu'
+          }`}
+        >
+          {t('nav.mathematical')}
+        </button>
+      </nav>
 
       {/* Form */}
       <div className="mt-auto">
@@ -23,7 +72,6 @@ export const Sidebar = ({ deadline }: { deadline: string }) => {
           <div className="bg-red-100 dark:bg-red-900/30 p-3 rounded flex flex-col gap-1 relative">
             <div className="text-red-600 dark:text-red-400 font-bold text-sm text-center">{t('sidebar.deadline')}:</div>
             <div className="text-red-600 dark:text-red-400 font-bold text-sm text-center">{deadline}</div>
-            {/*<div className="absolute right-2 top-1/2 -translate-y-1/2 bg-green-iu text-white text-xs font-bold px-2 py-0.5 rounded">EN</div>*/}
           </div>
           <LanguageToggle className="relative font-bold rounded" />
         </div>
@@ -37,7 +85,7 @@ export const Sidebar = ({ deadline }: { deadline: string }) => {
           ))}
         </div>
         <div className="flex items-center gap-2 mt-4">
-          <button className="bg-green-iu hover:bg-hover-green-iu dark:bg-green-iu dark:hover:hover:bg-dark-hover-green-iu text-white font-bold py-1.5 px-4 rounded text-sm flex-1 shadow-md">
+          <button className="bg-green-iu hover:bg-hover-green-iu dark:bg-green-iu dark:hover:bg-dark-hover-green-iu text-white font-bold py-1.5 px-4 rounded text-sm flex-1 shadow-md">
             {t('sidebar.submit')}
           </button>
           <button className="bg-gray-400 hover:bg-gray-500 text-white p-1.5 rounded-full">

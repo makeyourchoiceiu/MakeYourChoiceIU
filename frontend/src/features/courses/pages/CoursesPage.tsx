@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom'; // add this import
 import { CourseCard } from '@/features/courses/components/CourseCard';
 import { Sidebar } from '@/shared/layouts/Sidebar';
 import { mockCourses } from '@/shared/lib/mockApi';
@@ -8,6 +9,7 @@ import { Course } from '@/shared/types/course';
 
 const CoursesPage = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate(); // initialize navigation
   const [allCourses, setAllCourses] = useState<Course[]>(mockCourses);
   const [deadline, setDeadline] = useState('August 28, 23:59');
   const { toggleFavorite, isFavorite } = useFavorites();
@@ -18,7 +20,17 @@ const CoursesPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [languageFilter, setLanguageFilter] = useState<'all' | 'English' | 'Russian'>('all');
   const [formatFilter, setFormatFilter] = useState<'all' | 'online' | 'offline'>('all');
-  const [typeFilter, setTypeFilter] = useState<'all' | 'tech' | 'hum' | 'math'>('all');
+  // Default type filter is 'tech' as per requirements
+  const [typeFilter, setTypeFilter] = useState<'all' | 'tech' | 'hum' | 'math'>('tech');
+
+  // Handler for sidebar selection (includes main menu navigation)
+  const handleSidebarSelect = (type: 'main_menu' | 'tech' | 'hum' | 'math') => {
+    if (type === 'main_menu') {
+      navigate('/'); // or your home route, e.g. '/home'
+    } else {
+      setTypeFilter(type);
+    }
+  };
 
   // 1. Fetch Data from backend here
   useEffect(() => {
@@ -46,14 +58,24 @@ const CoursesPage = () => {
 
   const handleToggleFavorite = (id: string) => {
     console.log(`Toggled favorite for course: ${id}`);
-    // later add backend
     toggleFavorite(id);
+  };
+
+  const handleClearFilters = () => {
+    setSearchTerm('');
+    setLanguageFilter('all');
+    setFormatFilter('all');
+    setShowFilter(false);
   };
 
   return (
     <div className="flex min-h-screen bg-gray-100 dark:bg-gray-900">
-      {/* Left Sidebar */}
-      <Sidebar deadline={deadline} />
+      {/* Left Sidebar - passes the custom handler */}
+      <Sidebar
+        deadline={deadline}
+        activeType={typeFilter}
+        onSelectType={handleSidebarSelect}
+      />
 
       {/* Main Content Area */}
       <div className="flex-1 p-3 max-w-5xl">
@@ -117,30 +139,9 @@ const CoursesPage = () => {
                     <option value="offline">{t('course_page.offline')}</option>
                   </select>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1 dark:text-white">
-                    {t('course_page.type')}
-                  </label>
-                  <select
-                    value={typeFilter}
-                    onChange={(e) => setTypeFilter(e.target.value as any)}
-                    className="w-full p-2 border rounded dark:bg-gray-700 dark:text-white border-gray-100 dark:border-gray-600"
-                  >
-                    <option value="all">{t('course_page.all')}</option>
-                    <option value="tech">{t('course_page.tech')}</option>
-                    <option value="hum">{t('course_page.hum')}</option>
-                    <option value="math">{t('course_page.math')}</option>
-                  </select>
-                </div>
-                {/* Optional: clear filters button */}
+                {/* Clear filters button */}
                 <button
-                  onClick={() => {
-                    setSearchTerm('');
-                    setLanguageFilter('all');
-                    setFormatFilter('all');
-                    setTypeFilter('all');
-                    setShowFilter(false);
-                  }}
+                  onClick={handleClearFilters}
                   className="text-sm text-green-iu dark:text-green-iu hover:underline mt-2"
                 >
                   {t('course_page.clear_filters')}
@@ -153,7 +154,7 @@ const CoursesPage = () => {
         {/* Course List */}
         <div className="flex flex-col gap-3">
           {filteredCourses.length === 0 ? (
-            <div className="text-center py-10 ttext-gray-600 dark:text-gray-300">
+            <div className="text-center py-10 text-gray-600 dark:text-gray-300">
               {t('course_page.no_courses_found')}
             </div>
           ) : (
@@ -174,7 +175,6 @@ const CoursesPage = () => {
 
 export default CoursesPage;
 
-// Helper Icons
 const SearchIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
     <circle cx="11" cy="11" r="8"></circle>
