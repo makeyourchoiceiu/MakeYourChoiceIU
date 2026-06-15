@@ -6,9 +6,7 @@ export interface Course {
   instructor: string;
   description: string;
   type: 'tech' | 'hum' | 'math';
-}
-
-export interface UserProfile {
-  name: string;
-  id: string;
+  yearOfStudy: number[];
+  program: string[];
+  isArchived: boolean;
 }

@@ -1,12 +1,4 @@
-export interface Course {
-  id: string;
-  title: string;
-  language: 'English' | 'Russian';
-  format: 'offline' | 'online';
-  instructor: string;
-  description: string;
-  type: 'tech' | 'hum' | 'math';
-}
+import { Course } from '@/shared/types/course'
 
 // Mock courses data
 export const mockCourses: Course[] = [
@@ -26,6 +18,9 @@ export const mockCourses: Course[] = [
       'Wi-Fi\n' +
       'Embedded Systems\n',
     type: 'tech',
+    yearOfStudy: [2],
+    program: ['RO', 'SD', "AAI"],
+    isArchived: false,
   },
   {
     id: '2',
@@ -35,6 +30,9 @@ export const mockCourses: Course[] = [
     instructor: 'Nikolay Kudasov',
     description: 'The main purpose of this course is to present purely functional programming with a strong static type system and discuss its benefits for structuring...',
     type: 'tech',
+    yearOfStudy: [1],
+    program: ['CSE', 'DSAI'],
+    isArchived: false,
   },
   {
     id: '3',
@@ -44,6 +42,9 @@ export const mockCourses: Course[] = [
     instructor: 'Munir Makhmutov',
     description: 'The target audience of this course are students interested in music generation...',
     type: 'tech',
+    yearOfStudy: [1],
+    program: ['MFAI'],
+    isArchived: false,
   },
   {
     id: '4',
@@ -79,6 +80,9 @@ export const mockCourses: Course[] = [
       '\n' +
       'Course duration: 8 lectures and 8 practices.\n',
     type: 'tech',
+    yearOfStudy: [1],
+    program: ['CSE', 'DSAI'],
+    isArchived: false,
   },
   {
     id: '5',
@@ -332,6 +336,9 @@ export const mockCourses: Course[] = [
       '*here be dragons*\n' +
       ':::\n',
     type: 'math',
+    yearOfStudy: [1],
+    program: ['CSE', 'DSAI'],
+    isArchived: false,
   },
 ];
 
@@ -357,4 +364,19 @@ export const fetchMyEnrolledCourses = async (studentId: string = 'me'): Promise<
   // For demo, assume student enrolled in course id '1' and '2'
   const enrolledIds = ['1', '2'];
   return mockCourses.filter(c => enrolledIds.includes(c.id));
+};
+
+export const generateMockCourses = (count: number): Course[] => {
+  return Array.from({ length: count }, (_, i) => ({
+    id: `course-${i + 1}`,
+    title: `Elective Course ${i + 1}`,
+    language: i % 2 === 0 ? 'English' : 'Russian',
+    format: i % 2 === 0 ? 'offline' : 'online',
+    instructor: `Instructor ${i + 1}`,
+    description: `This is a description for course ${i + 1}`,
+    type: i % 3 === 0 ? 'tech' : i % 3 === 1 ? 'hum' : 'math',
+    yearOfStudy: [1, 2, 3, 4],
+    program: ['CSE', 'DSAI', 'SD', 'CBS', 'DS', 'AAI', 'RO', 'MFAI', 'AI360'],
+    isArchived: i > 10,
+  }));
 };

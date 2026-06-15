@@ -1,8 +1,10 @@
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useEffect } from 'react';
 import ThemeToggle from '@/shared/components/ThemeToggle';
 import LanguageToggle from '@/shared/components/LanguageToggle';
-import CoursesPage from '@/features/courses/pages/CoursesPage';
+import CoursesPage from '@/pages/CoursesPage';
+import { useProfileStore } from '@/stores/profileStore';
 
 // Placeholder pages using translations
 const HomePage = () => {
@@ -27,6 +29,15 @@ const LoginPage = () => {
 
 function App() {
   const { t } = useTranslation();
+  const { loadProfile, student, loading } = useProfileStore();
+
+  useEffect(() => {
+    loadProfile();
+  }, [loadProfile]);
+
+  if (loading && !student) {
+    return <div className="flex min-h-screen items-center justify-center">Loading your profile...</div>;
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">

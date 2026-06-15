@@ -37,6 +37,7 @@
     "react-router-dom": "^7.17.0",
     "remark-gfm": "^4.0.1",
     "tailwindcss": "^4.3.0",
-    "zod": "^4.4.3"
+    "zod": "^4.4.3",
+    "zustand": "^5.0.14"
   }
 }
