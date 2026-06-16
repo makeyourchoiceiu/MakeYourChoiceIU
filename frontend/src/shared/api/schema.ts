@@ -1491,20 +1491,25 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Список предложений (только для админа) */
+        /**
+         * List suggestions (admin only)
+         * @description Returns all suggestions ordered by creation date descending. Each item includes edit_token so the admin can build the edit link. Requires X-User-Email header with an admin email.
+         */
         get: {
             parameters: {
                 query?: {
-                    /** @description Фильтр по статусу */
+                    /** @description Filter by status */
                     status?: "pending" | "approved" | "rejected";
                 };
-                header?: never;
+                header: {
+                    "X-User-Email": string;
+                };
                 path?: never;
                 cookie?: never;
             };
             requestBody?: never;
             responses: {
-                /** @description Список предложений */
+                /** @description List of suggestions */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -1513,13 +1518,14 @@ export interface paths {
                         "application/json": components["schemas"]["Suggestion"][];
                     };
                 };
+                400: components["responses"]["Error"];
                 403: components["responses"]["Forbidden"];
             };
         };
         put?: never;
         /**
-         * Предложить курс (без авторизации)
-         * @description Любой желающий может предложить свой курс. Авторизация не требуется. Предложение получает статус pending и ждёт рассмотрения администратора.
+         * Submit a course suggestion (no auth required)
+         * @description Anyone can suggest a course without authentication. The suggestion is created with status=pending and waits for admin review.
          */
         post: {
             parameters: {
@@ -1534,7 +1540,7 @@ export interface paths {
                      * @example {
                      *       "name": "Introduction to Quantum Computing",
                      *       "instructor": "Alice Ivanova",
-                     *       "description": "Курс об основах квантовых вычислений",
+                     *       "description": "A course on the fundamentals of quantum computing",
                      *       "elective_language": "english",
                      *       "format": "online",
                      *       "prerequisite": "Linear Algebra, Probability Theory",
@@ -1545,7 +1551,7 @@ export interface paths {
                 };
             };
             responses: {
-                /** @description Предложение принято */
+                /** @description Suggestion submitted */
                 201: {
                     headers: {
                         [name: string]: unknown;
@@ -1579,13 +1585,15 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Одобрить предложение (только для админа)
-         * @description Меняет статус на approved. Создаёт черновой электив (status=0) на основе данных предложения. Далее админ заполняет недостающие поля через PATCH /electives/{id} и активирует вручную — после этого курс становится доступен для добавления в семестр.
+         * Approve a suggestion (admin only)
+         * @description Sets status to approved and creates a draft elective (status=0) from the suggestion data. program_language and elective_type are left null — the admin fills them in later via PATCH /electives/{id} and activates the elective manually. Requires X-User-Email header with an admin email.
          */
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header: {
+                    "X-User-Email": string;
+                };
                 path: {
                     id: components["parameters"]["id"];
                 };
@@ -1593,7 +1601,7 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description Предложение одобрено, черновой электив создан */
+                /** @description Suggestion approved, draft elective created */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -1604,6 +1612,21 @@ export interface paths {
                          *       "status": "success",
                          *       "message": "Suggestion approved",
                          *       "elective_id": 42
+                         *     }
+                         */
+                        "application/json": unknown;
+                    };
+                };
+                /** @description Suggestion is already approved */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": "error",
+                         *       "message": "Suggestion is already approved"
                          *     }
                          */
                         "application/json": unknown;
@@ -1629,13 +1652,15 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Отклонить предложение (только для админа)
-         * @description Меняет статус на rejected — предложение уходит в список отклонённых. В ответе возвращается edit_link, который админ может отправить автору (вручную — почта, телеграм и т.д.), чтобы тот мог исправить предложение.
+         * Reject a suggestion (admin only)
+         * @description Sets status to rejected. Returns only a success response — use GET /suggestions/{id}/edit-link to obtain the author's edit link separately. Requires X-User-Email header with an admin email.
          */
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header: {
+                    "X-User-Email": string;
+                };
                 path: {
                     id: components["parameters"]["id"];
                 };
@@ -1643,7 +1668,7 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description Предложение отклонено */
+                /** @description Suggestion rejected */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -1652,8 +1677,22 @@ export interface paths {
                         /**
                          * @example {
                          *       "status": "success",
-                         *       "message": "Suggestion rejected",
-                         *       "edit_link": "http://localhost:3000/suggestions/edit/a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                         *       "message": "Suggestion rejected"
+                         *     }
+                         */
+                        "application/json": unknown;
+                    };
+                };
+                /** @description Cannot reject an already approved suggestion */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": "error",
+                         *       "message": "Cannot reject an already approved suggestion"
                          *     }
                          */
                         "application/json": unknown;
@@ -1669,6 +1708,56 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/suggestions/{id}/edit-link": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get the author edit link for a suggestion (admin only)
+         * @description Returns the frontend URL the admin can share with the author so they can edit their suggestion without authentication. Requires X-User-Email header with an admin email.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header: {
+                    "X-User-Email": string;
+                };
+                path: {
+                    id: components["parameters"]["id"];
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Edit link */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "edit_link": "http://localhost:3000/suggestions/edit/a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                         *     }
+                         */
+                        "application/json": unknown;
+                    };
+                };
+                403: components["responses"]["Forbidden"];
+                404: components["responses"]["NotFound"];
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/suggestions/edit/{token}": {
         parameters: {
             query?: never;
@@ -1677,8 +1766,8 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Получить предложение по токену (для автора)
-         * @description Позволяет автору открыть своё предложение по уникальной ссылке без авторизации. Доступно только для предложений со статусом pending или rejected.
+         * Get suggestion by edit token (author, no auth)
+         * @description Allows the author to open their suggestion via a unique link without authentication. Only available for suggestions with status pending or rejected.
          */
         get: {
             parameters: {
@@ -1691,13 +1780,28 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description Данные предложения */
+                /** @description Suggestion data */
                 200: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
                         "application/json": components["schemas"]["Suggestion"];
+                    };
+                };
+                /** @description Approved suggestions cannot be edited */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": "error",
+                         *       "message": "Approved suggestions cannot be edited"
+                         *     }
+                         */
+                        "application/json": unknown;
                     };
                 };
                 404: components["responses"]["NotFound"];
@@ -1709,8 +1813,8 @@ export interface paths {
         options?: never;
         head?: never;
         /**
-         * Редактировать предложение по токену (для автора)
-         * @description Автор может исправить своё предложение по ссылке, полученной от админа. Доступно только для предложений со статусом pending или rejected. После редактирования статус автоматически меняется обратно на pending.
+         * Edit suggestion by token (author, no auth)
+         * @description The author can update their suggestion using the link received from the admin. Only available for suggestions with status pending or rejected. After editing, the status is automatically reset to pending.
          */
         patch: {
             parameters: {
@@ -1727,7 +1831,7 @@ export interface paths {
                      * @example {
                      *       "name": "Introduction to Quantum Computing (updated)",
                      *       "instructor": "Alice Ivanova",
-                     *       "description": "Обновлённое описание курса",
+                     *       "description": "Updated course description",
                      *       "elective_language": "english",
                      *       "format": "offline",
                      *       "prerequisite": "Linear Algebra",
@@ -1739,12 +1843,20 @@ export interface paths {
             };
             responses: {
                 200: components["responses"]["Success"];
-                /** @description Предложение уже одобрено и не может быть изменено */
+                /** @description Validation error or suggestion already approved */
                 400: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": "error",
+                         *       "message": "Approved suggestions cannot be edited"
+                         *     }
+                         */
+                        "application/json": unknown;
+                    };
                 };
                 404: components["responses"]["NotFound"];
             };
@@ -1916,7 +2028,7 @@ export interface components {
             status?: "pending" | "approved" | "rejected";
             /**
              * Format: uuid
-             * @description UUID для генерации ссылки редактирования. Видит только админ.
+             * @description UUID used to build the author edit link. Always returned in admin endpoints.
              */
             edit_token?: string;
             /** Format: date-time */
