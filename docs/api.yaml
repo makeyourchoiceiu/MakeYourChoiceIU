@@ -1,0 +1,1016 @@
+openapi: 3.0.3
+info:
+  title: MakeYourChoiceIU API
+  description: |
+    REST API для системы выбора элективов Иннополиса.
+    Все эндпоинты находятся под префиксом /api/.
+    Аутентификация сессионная (Django session + CSRF).
+  version: "1.0.0"
+
+servers:
+  - url: http://localhost:8000
+    description: Локальная разработка (Docker)
+
+tags:
+  - name: Auth
+    description: Авторизация пользователей
+  - name: Electives
+    description: Каталог элективов
+  - name: ElectiveTypes
+    description: Типы элективов
+  - name: Programs
+    description: Программы обучения
+  - name: Tracks
+    description: Треки программ
+  - name: Settings
+    description: Сводные настройки (языки, программы, типы)
+  - name: Exceptions
+    description: Исключения (электив недоступен для трека)
+  - name: Streams
+    description: Потоки итераций
+  - name: Voting
+    description: Подача заявок студентами
+
+paths:
+
+  # ─── AUTH ───────────────────────────────────────────────────────────────────
+
+  /api/auth/email:
+    get:
+      tags: [Auth]
+      summary: Авторизация по email
+      description: |
+        Возвращает профиль пользователя по email.
+        Ищет сначала в таблице Admin, потом в Student.
+        Роли: admin (0), admin-student (1), student.
+      parameters:
+        - name: email
+          in: query
+          required: true
+          schema:
+            type: string
+            example: admin@innopolis.university
+      responses:
+        "200":
+          description: Профиль найден
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/AdminAuthResponse'
+                  - $ref: '#/components/schemas/StudentAuthResponse'
+                  - $ref: '#/components/schemas/AdminStudentAuthResponse'
+        "404":
+          description: Пользователь не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # ─── ELECTIVES ──────────────────────────────────────────────────────────────
+
+  /api/electives/:
+    get:
+      tags: [Electives]
+      summary: Список элективов
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: integer
+            enum: [-1, 0, 1]
+          description: "-1 = удалён, 0 = архив, 1 = активный"
+        - name: elective_type
+          in: query
+          schema:
+            type: string
+          description: Фильтр по типу (primary key — строка)
+        - name: program_language
+          in: query
+          schema:
+            type: string
+          description: Фильтр по языку программы
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Полнотекстовый поиск по name, description, instructor
+      responses:
+        "200":
+          description: Массив элективов
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Elective'
+    post:
+      tags: [Electives]
+      summary: Создать электив
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ElectiveWrite'
+      responses:
+        "201":
+          description: Создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusSuccess'
+        "400":
+          description: Ошибка валидации
+
+  /api/electives/{id}/:
+    get:
+      tags: [Electives]
+      summary: Получить электив по ID
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Elective'
+          description: Электив
+        "404":
+          description: Не найден
+    patch:
+      tags: [Electives]
+      summary: Частичное обновление электива
+      description: |
+        Также используется для архивирования (status=0) и soft-delete (status=-1).
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ElectiveWrite'
+      responses:
+        "200":
+          description: Обновлён
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusSuccess'
+        "400":
+          description: Ошибка валидации
+
+  /api/electives/{id}/archive/:
+    post:
+      tags: [Electives]
+      summary: Архивировать электив (status → 0)
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        "200":
+          description: Архивирован
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: archived
+
+  # ─── ELECTIVE TYPES ─────────────────────────────────────────────────────────
+
+  /api/elective_types/:
+    get:
+      tags: [ElectiveTypes]
+      summary: Список типов элективов
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ElectiveType'
+          description: Типы
+    post:
+      tags: [ElectiveTypes]
+      summary: Создать тип электива
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ElectiveType'
+      responses:
+        "201":
+          description: Создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusSuccess'
+
+  /api/elective_types/{name}/:
+    delete:
+      tags: [ElectiveTypes]
+      summary: Удалить тип электива
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Удалён
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusSuccess'
+        "400":
+          description: Тип используется элективами
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessageResponse'
+
+  # ─── PROGRAMS ───────────────────────────────────────────────────────────────
+
+  /api/programs/:
+    get:
+      tags: [Programs]
+      summary: Список программ
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Program'
+          description: Программы
+    post:
+      tags: [Programs]
+      summary: Создать программу
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProgramWrite'
+      responses:
+        "201":
+          description: Создана
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusSuccess'
+
+  /api/programs/{id}/:
+    patch:
+      tags: [Programs]
+      summary: Обновить программу
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProgramWrite'
+      responses:
+        "200":
+          description: Обновлена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusSuccess'
+    delete:
+      tags: [Programs]
+      summary: Удалить программу
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        "200":
+          description: Удалена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusSuccess'
+
+  # ─── TRACKS ─────────────────────────────────────────────────────────────────
+
+  /api/tracks/:
+    get:
+      tags: [Tracks]
+      summary: Список треков
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Track'
+          description: Треки
+    post:
+      tags: [Tracks]
+      summary: Создать трек
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrackWrite'
+      responses:
+        "201":
+          description: Создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusSuccess'
+
+  /api/tracks/{id}/:
+    patch:
+      tags: [Tracks]
+      summary: Обновить трек
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrackWrite'
+      responses:
+        "200":
+          description: Обновлён
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusSuccess'
+    delete:
+      tags: [Tracks]
+      summary: Удалить трек
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        "200":
+          description: Удалён
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusSuccess'
+        "400":
+          description: Трек привязан к студентам
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessageResponse'
+
+  # ─── SETTINGS ───────────────────────────────────────────────────────────────
+
+  /api/settings/:
+    get:
+      tags: [Settings]
+      summary: Сводные настройки системы
+      description: |
+        Возвращает полную структуру: языки → программы → треки + все типы элективов.
+        Используется фронтендом для инициализации форм.
+      responses:
+        "200":
+          description: Настройки
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SettingsResponse'
+
+  # ─── EXCEPTIONS ─────────────────────────────────────────────────────────────
+
+  /api/exceptions:
+    get:
+      tags: [Exceptions]
+      summary: Все исключения + доступные элективы и треки
+      responses:
+        "200":
+          description: Исключения
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionsGetResponse'
+    post:
+      tags: [Exceptions]
+      summary: Создать исключение (электив недоступен для трека)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExceptionWrite'
+      responses:
+        "201":
+          description: Создано
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionCreatedResponse'
+        "400":
+          description: Уже существует / электив неактивен / не передан ID
+        "404":
+          description: Электив или трек не найден
+
+  /api/exceptions/{id}:
+    patch:
+      tags: [Exceptions]
+      summary: Обновить исключение
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExceptionWrite'
+      responses:
+        "200":
+          description: Обновлено
+        "404":
+          description: Исключение не найдено
+    delete:
+      tags: [Exceptions]
+      summary: Удалить исключение
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        "200":
+          description: Удалено
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+        "404":
+          description: Исключение не найдено
+
+  # ─── STREAMS ────────────────────────────────────────────────────────────────
+
+  /api/streams/:
+    get:
+      tags: [Streams]
+      summary: Список потоков
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Stream'
+          description: Потоки
+    post:
+      tags: [Streams]
+      summary: Создать поток
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StreamWrite'
+      responses:
+        "201":
+          description: Создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Stream'
+
+  /api/streams/{id}/:
+    patch:
+      tags: [Streams]
+      summary: Обновить поток
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StreamWrite'
+      responses:
+        "200":
+          description: Обновлён
+    delete:
+      tags: [Streams]
+      summary: Удалить поток
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        "200":
+          description: Удалён
+
+  /api/streams/{id}/elective/:
+    get:
+      tags: [Streams]
+      summary: Элективы потока
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Elective'
+          description: Элективы потока
+    post:
+      tags: [Streams]
+      summary: Добавить элективы в поток
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                electiveIds:
+                  type: array
+                  items:
+                    type: integer
+      responses:
+        "200":
+          description: Добавлены
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: added
+
+  /api/streams/{id}/elective/{electiveId}/:
+    delete:
+      tags: [Streams]
+      summary: Удалить электив из потока
+      parameters:
+        - $ref: '#/components/parameters/Id'
+        - name: electiveId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Удалён
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: removed
+
+  # ─── VOTING ─────────────────────────────────────────────────────────────────
+
+  /api/me/submissions:
+    post:
+      tags: [Voting]
+      summary: Подать заявку на элективы
+      description: |
+        Студент отправляет список элективов с приоритетами для одного типа в одной итерации.
+        Если заявка уже существует — старые записи перезаписываются (новая дата).
+        Дедлайн пока не проверяется (закомментировано в коде).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmissionRequest'
+      responses:
+        "201":
+          description: Заявка принята
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusSuccess'
+        "400":
+          description: Ошибка валидации (дубликаты, неактивные элективы)
+        "404":
+          description: Студент / итерация / тип не найден
+
+# ─── COMPONENTS ─────────────────────────────────────────────────────────────
+
+components:
+
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+
+  schemas:
+
+    StatusSuccess:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+
+    ErrorMessageResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: error
+        message:
+          type: string
+
+    # ── Elective ──────────────────────────────────────────────────────────────
+
+    Elective:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        instructor:
+          type: string
+        description:
+          type: string
+          description: Поддерживает Markdown
+        elective_language:
+          type: string
+          example: English
+        status:
+          type: integer
+          enum: [-1, 0, 1]
+          description: "1=активный, 0=архив, -1=удалён"
+        prerequisite:
+          type: string
+        elective_type:
+          type: string
+          description: FK на ElectiveType (primary key — строка)
+        program_language:
+          type: string
+          description: FK на ProgramLanguage (primary key — код языка)
+        degree_year:
+          type: array
+          items:
+            type: string
+
+    ElectiveWrite:
+      type: object
+      properties:
+        name:
+          type: string
+        instructor:
+          type: string
+        description:
+          type: string
+        elective_language:
+          type: string
+        status:
+          type: integer
+          enum: [-1, 0, 1]
+        prerequisite:
+          type: string
+        elective_type:
+          type: string
+        program_language:
+          type: string
+        degree_year:
+          type: array
+          items:
+            type: string
+
+    ElectiveType:
+      type: object
+      properties:
+        elective_type_name:
+          type: string
+          example: Core
+
+    Program:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        language:
+          type: string
+
+    ProgramWrite:
+      type: object
+      properties:
+        name:
+          type: string
+        language:
+          type: string
+
+    Track:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        program:
+          type: integer
+
+    TrackWrite:
+      type: object
+      properties:
+        name:
+          type: string
+        program:
+          type: integer
+
+    Stream:
+      type: object
+      properties:
+        id:
+          type: integer
+        degree_year:
+          type: string
+        program_lang:
+          type: string
+        elective_type:
+          type: string
+        programs:
+          type: array
+          items:
+            type: integer
+        priorities:
+          type: integer
+          description: Количество элективов которые студент должен выбрать
+
+    StreamWrite:
+      type: object
+      properties:
+        degree_year:
+          type: string
+        program_lang:
+          type: string
+        elective_type:
+          type: string
+        programs:
+          type: array
+          items:
+            type: integer
+        priorities:
+          type: integer
+
+    # ── Settings ──────────────────────────────────────────────────────────────
+
+    SettingsResponse:
+      type: object
+      properties:
+        languages:
+          type: array
+          items:
+            type: object
+            properties:
+              code:
+                type: string
+                example: ENG
+              name:
+                type: string
+              elective_types:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+              programs:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
+                    language:
+                      type: string
+                    tracks:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          name:
+                            type: string
+
+    # ── Exceptions ────────────────────────────────────────────────────────────
+
+    ExceptionWrite:
+      type: object
+      properties:
+        elective_id:
+          type: integer
+        track_id:
+          type: integer
+
+    ExceptionEntry:
+      type: object
+      properties:
+        id:
+          type: integer
+        elective:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+        track:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+        created_at:
+          type: string
+          format: date-time
+
+    ExceptionsGetResponse:
+      type: object
+      properties:
+        exceptions:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExceptionEntry'
+        all_tracks:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+        available_electives:
+          type: array
+          description: Активные элективы без исключений
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+
+    ExceptionCreatedResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/ExceptionEntry'
+
+    # ── Auth responses ────────────────────────────────────────────────────────
+
+    AdminAuthResponse:
+      type: object
+      properties:
+        role:
+          type: string
+          enum: [admin]
+        email:
+          type: string
+        all_electives:
+          type: array
+          items:
+            $ref: '#/components/schemas/Elective'
+
+    StudentAuthResponse:
+      type: object
+      properties:
+        student_id:
+          type: integer
+        role:
+          type: string
+          enum: [student]
+        email:
+          type: string
+        student_data:
+          $ref: '#/components/schemas/StudentData'
+
+    AdminStudentAuthResponse:
+      type: object
+      properties:
+        role:
+          type: string
+          enum: [admin-student]
+        email:
+          type: string
+        all_electives:
+          type: array
+          items:
+            $ref: '#/components/schemas/Elective'
+        student_data:
+          $ref: '#/components/schemas/StudentData'
+
+    StudentData:
+      type: object
+      properties:
+        iteration_id:
+          type: integer
+          nullable: true
+        deadline:
+          type: string
+          format: date-time
+          nullable: true
+        available_electives:
+          type: array
+          items:
+            type: object
+            properties:
+              elective_type:
+                type: string
+              priorities:
+                type: integer
+              electives:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentElective'
+        chosen_electives:
+          type: array
+          items:
+            type: object
+            properties:
+              elective_type:
+                type: string
+              electives:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    priority:
+                      type: integer
+                    elective:
+                      $ref: '#/components/schemas/StudentElective'
+
+    StudentElective:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        instructor:
+          type: string
+        description:
+          type: string
+        elective_language:
+          type: string
+        prerequisite:
+          type: string
+
+    # ── Voting ────────────────────────────────────────────────────────────────
+
+    SubmissionRequest:
+      type: object
+      required: [student_id, iteration_id, elective_type, electives]
+      properties:
+        student_id:
+          type: integer
+        iteration_id:
+          type: integer
+        elective_type:
+          type: string
+        electives:
+          type: array
+          items:
+            type: object
+            required: [priority, elective_id]
+            properties:
+              priority:
+                type: integer
+              elective_id:
+                type: integer
