@@ -11,7 +11,7 @@ class History(models.Model):
     elective = models.ForeignKey(catalog_models.Elective, on_delete=models.CASCADE)
     date = models.DateTimeField()
 
-    # если вдруг нужен будет ключ, но вроде нет
+    # uncomment if a composite key is needed in the future
     # class Meta:
     #     constraints = [
     #         models.UniqueConstraint(
