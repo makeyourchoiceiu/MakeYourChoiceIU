@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'login',
     'catalog',
     'iteration',
+    'suggestions',
     'rest_framework',
     'drf_spectacular',
     'django_filters',

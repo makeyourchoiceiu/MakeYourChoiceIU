@@ -953,10 +953,10 @@ paths:
   /suggestions:
     post:
       tags: [Suggestions]
-      summary: Предложить курс (без авторизации)
+      summary: Submit a course suggestion (no auth required)
       description: >
-        Любой желающий может предложить свой курс. Авторизация не требуется.
-        Предложение получает статус pending и ждёт рассмотрения администратора.
+        Anyone can suggest a course without authentication.
+        The suggestion is created with status=pending and waits for admin review.
       requestBody:
         required: true
         content:
@@ -966,14 +966,14 @@ paths:
             example:
               name: Introduction to Quantum Computing
               instructor: Alice Ivanova
-              description: Курс об основах квантовых вычислений
+              description: A course on the fundamentals of quantum computing
               elective_language: english
               format: online
               prerequisite: Linear Algebra, Probability Theory
               contact: alice@example.com
       responses:
         "201":
-          description: Предложение принято
+          description: Suggestion submitted
           content:
             application/json:
               example:
@@ -984,46 +984,70 @@ paths:
 
     get:
       tags: [Suggestions]
-      summary: Список предложений (только для админа)
+      summary: List suggestions (admin only)
+      description: >
+        Returns all suggestions ordered by creation date descending.
+        Each item includes edit_token so the admin can build the edit link.
+        Requires X-User-Email header with an admin email.
       parameters:
         - in: query
           name: status
           schema:
             type: string
             enum: [pending, approved, rejected]
-          description: Фильтр по статусу
+          description: Filter by status
+        - in: header
+          name: X-User-Email
+          required: true
+          schema:
+            type: string
       responses:
         "200":
-          description: Список предложений
+          description: List of suggestions
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: "#/components/schemas/Suggestion"
+        "400":
+          $ref: "#/components/responses/Error"
         "403":
           $ref: "#/components/responses/Forbidden"
 
   /suggestions/{id}/approve:
     post:
       tags: [Suggestions]
-      summary: Одобрить предложение (только для админа)
+      summary: Approve a suggestion (admin only)
       description: >
-        Меняет статус на approved. Создаёт черновой электив (status=0) на основе
-        данных предложения. Далее админ заполняет недостающие поля через
-        PATCH /electives/{id} и активирует вручную — после этого курс становится
-        доступен для добавления в семестр.
+        Sets status to approved and creates a draft elective (status=0) from the
+        suggestion data. program_language and elective_type are left null —
+        the admin fills them in later via PATCH /electives/{id} and activates
+        the elective manually.
+        Requires X-User-Email header with an admin email.
       parameters:
         - $ref: "#/components/parameters/id"
+        - in: header
+          name: X-User-Email
+          required: true
+          schema:
+            type: string
       responses:
         "200":
-          description: Предложение одобрено, черновой электив создан
+          description: Suggestion approved, draft elective created
           content:
             application/json:
               example:
                 status: success
                 message: Suggestion approved
                 elective_id: 42
+        "400":
+          description: Suggestion is already approved
+          content:
+            application/json:
+              example:
+                status: error
+                message: Suggestion is already approved
         "403":
           $ref: "#/components/responses/Forbidden"
         "404":
@@ -1032,21 +1056,59 @@ paths:
   /suggestions/{id}/reject:
     post:
       tags: [Suggestions]
-      summary: Отклонить предложение (только для админа)
+      summary: Reject a suggestion (admin only)
       description: >
-        Меняет статус на rejected — предложение уходит в список отклонённых.
-        В ответе возвращается edit_link, который админ может отправить автору
-        (вручную — почта, телеграм и т.д.), чтобы тот мог исправить предложение.
+        Sets status to rejected. Returns only a success response — use
+        GET /suggestions/{id}/edit-link to obtain the author's edit link separately.
+        Requires X-User-Email header with an admin email.
       parameters:
         - $ref: "#/components/parameters/id"
+        - in: header
+          name: X-User-Email
+          required: true
+          schema:
+            type: string
       responses:
         "200":
-          description: Предложение отклонено
+          description: Suggestion rejected
           content:
             application/json:
               example:
                 status: success
                 message: Suggestion rejected
+        "400":
+          description: Cannot reject an already approved suggestion
+          content:
+            application/json:
+              example:
+                status: error
+                message: Cannot reject an already approved suggestion
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /suggestions/{id}/edit-link:
+    get:
+      tags: [Suggestions]
+      summary: Get the author edit link for a suggestion (admin only)
+      description: >
+        Returns the frontend URL the admin can share with the author
+        so they can edit their suggestion without authentication.
+        Requires X-User-Email header with an admin email.
+      parameters:
+        - $ref: "#/components/parameters/id"
+        - in: header
+          name: X-User-Email
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Edit link
+          content:
+            application/json:
+              example:
                 edit_link: http://localhost:3000/suggestions/edit/a1b2c3d4-e5f6-7890-abcd-ef1234567890
         "403":
           $ref: "#/components/responses/Forbidden"
@@ -1056,10 +1118,10 @@ paths:
   /suggestions/edit/{token}:
     get:
       tags: [Suggestions]
-      summary: Получить предложение по токену (для автора)
+      summary: Get suggestion by edit token (author, no auth)
       description: >
-        Позволяет автору открыть своё предложение по уникальной ссылке без авторизации.
-        Доступно только для предложений со статусом pending или rejected.
+        Allows the author to open their suggestion via a unique link without authentication.
+        Only available for suggestions with status pending or rejected.
       parameters:
         - in: path
           name: token
@@ -1069,21 +1131,28 @@ paths:
             format: uuid
       responses:
         "200":
-          description: Данные предложения
+          description: Suggestion data
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Suggestion"
+        "400":
+          description: Approved suggestions cannot be edited
+          content:
+            application/json:
+              example:
+                status: error
+                message: Approved suggestions cannot be edited
         "404":
           $ref: "#/components/responses/NotFound"
 
     patch:
       tags: [Suggestions]
-      summary: Редактировать предложение по токену (для автора)
+      summary: Edit suggestion by token (author, no auth)
       description: >
-        Автор может исправить своё предложение по ссылке, полученной от админа.
-        Доступно только для предложений со статусом pending или rejected.
-        После редактирования статус автоматически меняется обратно на pending.
+        The author can update their suggestion using the link received from the admin.
+        Only available for suggestions with status pending or rejected.
+        After editing, the status is automatically reset to pending.
       parameters:
         - in: path
           name: token
@@ -1100,7 +1169,7 @@ paths:
             example:
               name: Introduction to Quantum Computing (updated)
               instructor: Alice Ivanova
-              description: Обновлённое описание курса
+              description: Updated course description
               elective_language: english
               format: offline
               prerequisite: Linear Algebra
@@ -1109,7 +1178,12 @@ paths:
         "200":
           $ref: "#/components/responses/Success"
         "400":
-          description: Предложение уже одобрено и не может быть изменено
+          description: Validation error or suggestion already approved
+          content:
+            application/json:
+              example:
+                status: error
+                message: Approved suggestions cannot be edited
         "404":
           $ref: "#/components/responses/NotFound"
 
@@ -1468,7 +1542,7 @@ components:
         edit_token:
           type: string
           format: uuid
-          description: UUID для генерации ссылки редактирования. Видит только админ.
+          description: UUID used to build the author edit link. Always returned in admin endpoints.
         created_at:
           type: string
           format: date-time

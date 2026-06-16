@@ -21,6 +21,8 @@ build/
 .idea/
 *.swp
 *.swo
+.claude
+.claude/settings.local.json
 
 
 secrets.yml

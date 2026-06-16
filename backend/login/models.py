@@ -4,7 +4,7 @@ from catalog import models as catalog_models
 class Admin(models.Model):
     id = models.BigAutoField(unique=True, primary_key=True)
     mail = models.CharField(unique=True)
-    role = models.IntegerField() #0 - admin, 1 - admin-student
+    role = models.IntegerField()  # 0 - admin, 1 - admin-student
 
 class Student(models.Model):
     id = models.BigAutoField(unique=True, primary_key=True)

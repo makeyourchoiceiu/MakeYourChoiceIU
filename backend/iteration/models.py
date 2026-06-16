@@ -20,6 +20,6 @@ class StreamElectiveRelation(models.Model):
     stream_id = models.ForeignKey(Stream, on_delete=models.CASCADE)
     elective_id = models.ForeignKey(catalog_models.Elective, on_delete=models.CASCADE)
 
-# class IterationStreamRelation(models.Model):
+# class IterationStreamRelation(models.Model):  # kept if explicit relation table is needed later
 #     iteration_id = models.ForeignKey(Iteration, on_delete=models.CASCADE)
 #     stream_id = models.ForeignKey(Stream, on_delete=models.CASCADE)

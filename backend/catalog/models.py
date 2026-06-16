@@ -14,10 +14,13 @@ class Elective(models.Model):
     name = models.CharField(max_length=200)
     instructor = models.CharField(max_length=100)
     description = models.TextField()
+    FORMAT_CHOICES = [('online', 'online'), ('offline', 'offline')]
+
     elective_type = models.ForeignKey(ElectiveType, null=True, on_delete=models.RESTRICT)
-    program_language = models.ForeignKey(ProgramLanguage, on_delete=models.CASCADE)
+    program_language = models.ForeignKey(ProgramLanguage, null=True, blank=True, on_delete=models.CASCADE)
     elective_language = models.CharField(max_length=20)
-    status = models.IntegerField(default=0) # 0 - archived, 1 - active, -1 - deleted
+    format = models.CharField(max_length=10, choices=FORMAT_CHOICES, blank=True, default='')
+    status = models.IntegerField(default=0)  # 0 - draft, 1 - active, 2 - completed, -1 - deleted
     degree_year = models.ManyToManyField(Degree, blank=True)
     prerequisite = models.TextField(blank=True)
 
