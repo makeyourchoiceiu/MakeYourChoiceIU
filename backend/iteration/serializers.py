@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import Stream
 from catalog.models import Program
-
+from iteration.models import Iteration
 
 class StreamSerializer(serializers.ModelSerializer):
     class Meta:
@@ -19,4 +19,9 @@ class StreamSerializer(serializers.ModelSerializer):
 class ProgramSerializer(serializers.ModelSerializer):
     class Meta:
         model = Program
+        fields = '__all__'
+
+class IterationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Iteration
         fields = '__all__'

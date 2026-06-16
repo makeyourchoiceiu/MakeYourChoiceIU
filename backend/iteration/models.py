@@ -15,6 +15,7 @@ class Iteration(models.Model):
     season = models.CharField(max_length=6)
     streams = models.ManyToManyField(Stream)
     deadline = models.DateTimeField()
+    status = models.IntegerField(default=0)
 
 class StreamElectiveRelation(models.Model):
     stream_id = models.ForeignKey(Stream, on_delete=models.CASCADE)
