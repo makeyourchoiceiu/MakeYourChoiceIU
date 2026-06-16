@@ -13,8 +13,8 @@ class StreamAdmin(admin.ModelAdmin):
 
 @admin.register(Iteration)
 class IterationAdmin(admin.ModelAdmin):
-    list_display = ('id', 'year', 'season', 'deadline',)
-    search_fields = ('year', 'season', 'deadline',)
+    list_display = ('id', 'year', 'season', 'deadline', 'status',)
+    search_fields = ('year', 'season', 'deadline', 'status',)
     filter_horizontal = ('streams',)
 
     def _streams(self, obj):

@@ -5,3 +5,4 @@ djangorestframework==3.14.0 # for API
 django-cors-headers==4.3.1 # for communication with frontend via React
 django-filter
 drf-spectacular==0.27.2
+openpyxl==3.1.2
