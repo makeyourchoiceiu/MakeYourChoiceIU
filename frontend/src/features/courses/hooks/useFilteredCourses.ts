@@ -1,11 +1,14 @@
-import { useMemo } from 'react';
-import { Course } from '@/shared/types/course';
-import { useCourseFilterStore } from '@/stores/courseFilterStore';
-import { useProfileStore } from '@/stores/profileStore';
+import {useMemo} from 'react';
+import {useDebounce} from '@/hooks/useDebounce';
+import {Course} from '@/shared/types/course';
+import {useCourseFilterStore} from '@/stores/courseFilterStore';
+import {useProfileStore} from '@/stores/profileStore';
 
 export const useFilteredCourses = (allCourses: Course[]) => {
   const { student } = useProfileStore();
   const { searchTerm, languageFilter, formatFilter, typeFilter } = useCourseFilterStore();
+
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
   // Filter by student's completed, year, program
   const relevantCourses = useMemo(() => {
@@ -19,16 +22,14 @@ export const useFilteredCourses = (allCourses: Course[]) => {
   }, [allCourses, student]);
 
   // Apply search & filters
-  const filteredCourses = useMemo(() => {
+  return useMemo(() => {
     return relevantCourses.filter((course) => {
       const matchesSearch =
-        searchTerm === '' || course.title.toLowerCase().includes(searchTerm.toLowerCase());
+        debouncedSearchTerm === '' || course.title.toLowerCase().includes(debouncedSearchTerm.toLowerCase());
       const matchesLanguage = languageFilter === 'all' || course.language === languageFilter;
       const matchesFormat = formatFilter === 'all' || course.format === formatFilter;
       const matchesType = typeFilter === 'all' || course.type === typeFilter;
       return matchesSearch && matchesLanguage && matchesFormat && matchesType;
     });
-  }, [relevantCourses, searchTerm, languageFilter, formatFilter, typeFilter]);
-
-  return filteredCourses;
+  }, [relevantCourses, debouncedSearchTerm, languageFilter, formatFilter, typeFilter]);
 };

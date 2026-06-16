@@ -58,6 +58,8 @@
     "offline": "Offline",
     "tech": "Technical",
     "hum": "Humanitarian",
-    "math": "Mathematical"
+    "math": "Mathematical",
+    "search": "Search",
+    "filter": "Filter"
   }
 }
