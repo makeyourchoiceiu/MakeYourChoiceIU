@@ -2,10 +2,10 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MarkdownRenderer } from '@/shared/components/MarkdownRenderer';
 
-interface CourseProps {
+interface ElectiveProps {
   id: string;
   title: string;
-  language: string;
+  elective_language: string;
   format: string;
   instructor: string;
   description: string;
@@ -13,16 +13,16 @@ interface CourseProps {
   onToggleFavorite: (id: string) => void;
 }
 
-export const CourseCard = ({
+export const ElectiveCard = ({
                              id,
                              title,
-                             language,
+                             elective_language,
                              format,
                              instructor,
                              description,
                              isFavorite,
                              onToggleFavorite,
-                           }: CourseProps) => {
+                           }: ElectiveProps) => {
   const { t } = useTranslation();
   const [expanded, setExpanded] = useState(false);
 
@@ -34,7 +34,7 @@ export const CourseCard = ({
         <button
           onClick={() => onToggleFavorite(id)}
           className="shrink-0 text-green-iu hover:text-hover-green-iu dark:text-green-iu dark:hover:hover:text-dark-hover-green-iu"
-          aria-label={t('course.toggle_favorite')}
+          aria-label={t('elective.toggle_favorite')}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -55,9 +55,9 @@ export const CourseCard = ({
       {/* Metadata – single line, tiny & muted */}
       <div className="flex flex-wrap gap-6 text-base font-medium mb-3">
         {[
-          { label: 'course.language', value: language, valueClass: 'text-green-iu' },
-          { label: 'course.format', value: format, valueClass: 'text-green-iu' },
-          { label: 'course.instructor', value: instructor, valueClass: 'text-gray-900 dark:text-gray-100' }
+          { label: 'elective.language', value: elective_language, valueClass: 'text-green-iu' },
+          { label: 'elective.format', value: format, valueClass: 'text-green-iu' },
+          { label: 'elective.instructor', value: instructor, valueClass: 'text-gray-900 dark:text-gray-100' }
         ].map(({ label, value, valueClass }) => (
           <div key={label} className="flex gap-2">
             <span className="font-bold text-gray-700 dark:text-gray-300">{t(label)}:</span>
@@ -85,7 +85,7 @@ export const CourseCard = ({
             className="absolute bottom-0 right-0 bg-white dark:bg-gray-800 pl-2 pb-0.5 font-medium text-green-iu hover:text-hover-green-iu dark:text-green-iu dark:hover:hover:text-dark-hover-green-iu leading-tight"
             aria-expanded={false}
           >
-            …{t('course.see_more')}
+            …{t('elective.see_more')}
           </button>
         )}
       </div>
@@ -96,7 +96,7 @@ export const CourseCard = ({
           onClick={() => setExpanded(false)}
           className="font-medium  text-green-iu hover:text-hover-green-iu dark:text-green-iu dark:hover:hover:text-dark-hover-green-iu"
         >
-          {t('course.see_less')}
+          {t('elective.see_less')}
         </button>
       )}
     </div>

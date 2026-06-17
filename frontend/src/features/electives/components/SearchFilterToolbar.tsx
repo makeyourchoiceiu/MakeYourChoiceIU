@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useCourseFilterStore } from '@/stores/courseFilterStore';
+import { useElectiveFilterStore } from '@/stores/electiveFilterStore';
 import { SearchIcon, FilterIcon } from '@/shared/components/icons';
 
 export const SearchFilterToolbar = () => {
@@ -9,7 +9,7 @@ export const SearchFilterToolbar = () => {
   const firstSelectRef = useRef<HTMLSelectElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
-  const { searchTerm, languageFilter, formatFilter, setSearchTerm, setLanguageFilter, setFormatFilter, clearFilters } = useCourseFilterStore();
+  const { searchTerm, languageFilter, formatFilter, setSearchTerm, setLanguageFilter, setFormatFilter, clearFilters } = useElectiveFilterStore();
 
   // Focus first select when filter panel opens
   useEffect(() => {
@@ -54,11 +54,11 @@ export const SearchFilterToolbar = () => {
         </div>
         <input
           type="text"
-          placeholder={t('course_page.search_by_title')}
+          placeholder={t('elective_page.search_by_title')}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="w-full pl-10 pr-3 py-2 border rounded-lg shadow-sm bg-white dark:bg-gray-800 dark:text-white border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          aria-label={t('course_page.search_aria') || 'Search courses'}
+          aria-label={t('elective_page.search_aria') || 'Search electives'}
         />
       </div>
 
@@ -66,7 +66,7 @@ export const SearchFilterToolbar = () => {
       <div className="relative shrink-0">
         <button
           onClick={() => setShowFilter(!showFilter)}
-          aria-label={t('course_page.filter_aria') || 'Filter courses'}
+          aria-label={t('elective_page.filter_aria') || 'Filter electives'}
           className="bg-green-iu hover:bg-hover-green-iu dark:bg-green-iu dark:hover:bg-dark-hover-green-iu p-2 rounded-lg text-white transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
         >
           <FilterIcon />
@@ -80,7 +80,7 @@ export const SearchFilterToolbar = () => {
           >
             <div>
               <label id="language-label" className="block text-sm font-medium mb-1 dark:text-white">
-                {t('course_page.language')}
+                {t('elective_page.language')}
               </label>
               <select
                 ref={firstSelectRef}
@@ -89,14 +89,14 @@ export const SearchFilterToolbar = () => {
                 aria-labelledby="language-label"
                 className="w-full p-2 border rounded dark:bg-gray-700 dark:text-white border-gray-100 dark:border-gray-600 focus:ring-2 focus:ring-blue-500"
               >
-                <option value="all">{t('course_page.all')}</option>
-                <option value="English">{t('course_page.en')}</option>
-                <option value="Russian">{t('course_page.ru')}</option>
+                <option value="all">{t('elective_page.all')}</option>
+                <option value="English">{t('elective_page.en')}</option>
+                <option value="Russian">{t('elective_page.ru')}</option>
               </select>
             </div>
             <div>
               <label id="format-label" className="block text-sm font-medium mb-1 dark:text-white">
-                {t('course_page.format')}
+                {t('elective_page.format')}
               </label>
               <select
                 value={formatFilter}
@@ -104,16 +104,16 @@ export const SearchFilterToolbar = () => {
                 aria-labelledby="format-label"
                 className="w-full p-2 border rounded dark:bg-gray-700 dark:text-white border-gray-100 dark:border-gray-600 focus:ring-2 focus:ring-blue-500"
               >
-                <option value="all">{t('course_page.all')}</option>
-                <option value="online">{t('course_page.online')}</option>
-                <option value="offline">{t('course_page.offline')}</option>
+                <option value="all">{t('elective_page.all')}</option>
+                <option value="online">{t('elective_page.online')}</option>
+                <option value="offline">{t('elective_page.offline')}</option>
               </select>
             </div>
             <button
               onClick={handleClearFilters}
               className="text-sm text-green-iu dark:text-green-iu hover:underline mt-2 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
             >
-              {t('course_page.clear_filters')}
+              {t('elective_page.clear_filters')}
             </button>
           </div>
         )}

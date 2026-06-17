@@ -6,7 +6,7 @@ const MOCK_STUDENT: StudentProfile = {
   name: 'Ivan Petrov',
   program: 'MFAI',
   yearOfStudy: 2,
-  completedCourses: ['course-001', 'course-005'], // IDs of courses already taken
+  completedElectives: ['elective-001', 'elective-005'], // IDs of electives already taken
 };
 
 export const fetchStudentProfile = async (): Promise<StudentProfile> => {

@@ -1,12 +1,12 @@
-export interface Course {
+export interface Elective {
   id: string;
   title: string;
-  language: 'English' | 'Russian';
+  elective_language: 'English' | 'Russian';
+  program_language: string;
   format: 'offline' | 'online';
   instructor: string;
   description: string;
   type: 'tech' | 'hum' | 'math';
-  yearOfStudy: number[];
-  program: string[];
+  degree_year: string[];
   isArchived: boolean;
 }

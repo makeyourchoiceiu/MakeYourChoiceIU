@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useCourseFilterStore, LanguageFilter, FormatFilter, TypeFilter } from '@/stores/courseFilterStore';
+import { useElectiveFilterStore, LanguageFilter, FormatFilter, TypeFilter } from '@/stores/electiveFilterStore';
 
 // Map URL param names to store keys and validation functions
 const paramMapping = {
@@ -16,9 +16,9 @@ const paramMapping = {
   },
 };
 
-export const useSyncCourseFilters = () => {
+export const useSyncElectiveFilters = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const { batchUpdate, ...storeValues } = useCourseFilterStore();
+  const { batchUpdate, ...storeValues } = useElectiveFilterStore();
   const isInitialMount = useRef(true);
   const isUpdatingFromURL = useRef(false);
 

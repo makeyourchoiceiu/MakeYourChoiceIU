@@ -1,7 +1,7 @@
 {
   "nav": {
     "home": "Главная",
-    "courses": "Курсы",
+    "electives": "Курсы",
     "dashboard": "Панель",
     "login": "Вход",
     "main_menu": "Главное меню",
@@ -13,10 +13,10 @@
     "home": {
       "welcome": "Добро пожаловать на курсы по выбору"
     },
-    "course_list": {
+    "elective_list": {
       "title": "Список курсов"
     },
-    "course_detail": {
+    "elective_detail": {
       "title": "Детали курса"
     },
     "dashboard": {
@@ -30,27 +30,27 @@
     "login": "Войти",
     "logout": "Выйти",
     "enroll": "Записаться",
-    "my_courses": "Мои курсы"
+    "my_electives": "Мои элективы"
   },
   "sidebar": {
     "deadline": "Дедлайн",
     "form": "Форма",
     "submit": "Отправить заявку"
   },
-  "course": {
+  "elective": {
     "language": "Язык",
     "format": "Формат",
     "instructor": "Преподаватель",
     "see_more": "Подробнее",
     "see_less": "Скрыть"
   },
-  "course_page": {
+  "elective_page": {
     "search_by_title": "Поиск по названию...",
     "language": "Язык",
     "format": "Формат",
     "type": "Тип",
     "clear_filters": "Очистить фильтры",
-    "no_courses_found": "Курсы не найдены",
+    "no_electives_found": "Элективы не найдены",
     "all": "Все",
     "en": "Английский",
     "ru": "Русский",

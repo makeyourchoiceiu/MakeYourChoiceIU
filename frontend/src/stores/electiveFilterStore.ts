@@ -4,7 +4,7 @@ export type LanguageFilter = 'all' | 'English' | 'Russian';
 export type FormatFilter = 'all' | 'online' | 'offline';
 export type TypeFilter = 'all' | 'tech' | 'hum' | 'math';
 
-interface CourseFilterState {
+interface ElectiveFilterState {
   searchTerm: string;
   languageFilter: LanguageFilter;
   formatFilter: FormatFilter;
@@ -18,10 +18,10 @@ interface CourseFilterState {
   clearFilters: () => void;
 
   // Batch update (for URL sync)
-  batchUpdate: (updates: Partial<Omit<CourseFilterState, 'batchUpdate' | 'setSearchTerm' | 'setLanguageFilter' | 'setFormatFilter' | 'setTypeFilter' | 'clearFilters'>>) => void;
+  batchUpdate: (updates: Partial<Omit<ElectiveFilterState, 'batchUpdate' | 'setSearchTerm' | 'setLanguageFilter' | 'setFormatFilter' | 'setTypeFilter' | 'clearFilters'>>) => void;
 }
 
-export const useCourseFilterStore = create<CourseFilterState>((set) => ({
+export const useElectiveFilterStore = create<ElectiveFilterState>((set) => ({
   searchTerm: '',
   languageFilter: 'all',
   formatFilter: 'all',

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useEffect } from 'react';
 import ThemeToggle from '@/shared/components/ThemeToggle';
 import LanguageToggle from '@/shared/components/LanguageToggle';
-import CoursesPage from '@/pages/CoursesPage';
+import ElectivesPage from '@/pages/ElectivesPage';
 import { useProfileStore } from '@/stores/profileStore';
 
 // Placeholder pages using translations
@@ -12,9 +12,9 @@ const HomePage = () => {
   return <h1 className="text-2xl">{t('pages.home.welcome', 'Welcome to Elective Courses')}</h1>;
 };
 
-const CourseDetailPage = () => {
+const ElectiveDetailPage = () => {
   const { t } = useTranslation();
-  return <h1 className="text-2xl">{t('pages.course_detail.title', 'Course Details')}</h1>;
+  return <h1 className="text-2xl">{t('pages.elective_detail.title', 'Elective Details')}</h1>;
 };
 
 const DashboardPage = () => {
@@ -46,7 +46,7 @@ function App() {
         <nav className="p-4 bg-white dark:bg-gray-800 text-black dark:text-white flex justify-between items-center">
           <div className="flex gap-4">
             <Link to="/">{t('nav.home', 'Home')}</Link>
-            <Link to="/courses">{t('nav.courses', 'Courses')}</Link>
+            <Link to="/electives">{t('nav.electives', 'Electives')}</Link>
             <Link to="/dashboard">{t('nav.dashboard', 'Dashboard')}</Link>
             <Link to="/login">{t('nav.login', 'Login')}</Link>
           </div>
@@ -64,8 +64,8 @@ function App() {
         <div className="p-0">
           <Routes>
             <Route path="/" element={<HomePage />} />
-            <Route path="/courses" element={<CoursesPage />} />
-            <Route path="/courses/:id" element={<CourseDetailPage />} />
+            <Route path="/electives" element={<ElectivesPage />} />
+            <Route path="/electives/:id" element={<ElectiveDetailPage />} />
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/login" element={<LoginPage />} />
           </Routes>

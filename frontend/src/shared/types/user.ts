@@ -3,5 +3,5 @@ export interface StudentProfile {
   name: string;
   program: string;
   yearOfStudy: number;
-  completedCourses: string[];
+  completedElectives: string[];
 }

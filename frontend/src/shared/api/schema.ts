@@ -1888,7 +1888,7 @@ export interface components {
              */
             degree_year?: string[];
             prerequisite?: string;
-        };
+        }
         ElectiveCreate: {
             name: string;
             instructor: string;

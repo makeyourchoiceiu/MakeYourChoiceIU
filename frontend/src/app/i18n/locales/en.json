@@ -1,7 +1,7 @@
 {
   "nav": {
     "home": "Home",
-    "courses": "Courses",
+    "electives": "Electives",
     "dashboard": "Dashboard",
     "login": "Login",
     "main_menu": "Main menu",
@@ -13,11 +13,11 @@
     "home": {
       "welcome": "Welcome to Elective Courses"
     },
-    "course_list": {
-      "title": "Course List"
+    "elective_list": {
+      "title": "Elective List"
     },
-    "course_detail": {
-      "title": "Course Details"
+    "elective_detail": {
+      "title": "Elective Details"
     },
     "dashboard": {
       "title": "My Dashboard"
@@ -30,27 +30,27 @@
     "login": "Login",
     "logout": "Logout",
     "enroll": "Enroll Now",
-    "my_courses": "My Courses"
+    "my_electives": "My Elective"
   },
   "sidebar": {
     "deadline": "Deadline",
     "form": "Form",
     "submit": "Submit tech electives"
   },
-  "course": {
+  "elective": {
     "language": "Language",
     "format": "Format",
     "instructor": "Instructor",
     "see_more": "See more",
     "see_less": "Hide"
   },
-  "course_page": {
+  "elective_page": {
     "search_by_title": "Search by title...",
     "language": "Language",
     "format": "Format",
     "type": "Type",
     "clear_filters": "Clear filters",
-    "no_courses_found": "No courses found",
+    "no_electives_found": "No electives found",
     "all": "All",
     "en": "English",
     "ru": "Russian",

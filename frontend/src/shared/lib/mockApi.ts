@@ -1,11 +1,12 @@
-import { Course } from '@/shared/types/course'
+import { Elective } from '@/shared/types/elective'
 
-// Mock courses data
-export const mockCourses: Course[] = [
+// Mock electives data
+export const mockElectives: Elective[] = [
   {
     id: '1',
     title: 'AARF – All About Radio Frequencies',
-    language: 'English',
+    elective_language: 'English',
+    program_language: 'ENG',
     format: 'online',
     instructor: 'Pierre-Philipp Braun',
     description: 'Wireless technologies play an important role in modern computing systems. Devices communicate using radio frequencies in applications ranging from wireless networking to embedded and IoT systems. Understanding how these technologies operate helps students better understand how modern devices communicate and interact.\n' +
@@ -18,38 +19,38 @@ export const mockCourses: Course[] = [
       'Wi-Fi\n' +
       'Embedded Systems\n',
     type: 'tech',
-    yearOfStudy: [2],
-    program: ['RO', 'SD', "AAI"],
+    degree_year: ['RO-02', 'SD-02', 'AAI-02'],
     isArchived: false,
   },
   {
     id: '2',
     title: 'Haskell',
-    language: 'English',
+    elective_language: 'English',
+    program_language: 'ENG',
     format: 'offline',
     instructor: 'Nikolay Kudasov',
     description: 'The main purpose of this course is to present purely functional programming with a strong static type system and discuss its benefits for structuring...',
     type: 'tech',
-    yearOfStudy: [1],
-    program: ['CSE', 'DSAI'],
+    degree_year: ['RO-02', 'SD-02', 'AAI-02'],
     isArchived: false,
   },
   {
     id: '3',
     title: 'Introduction to Music Generation',
-    language: 'English',
+    elective_language: 'English',
+    program_language: 'ENG',
     format: 'offline',
     instructor: 'Munir Makhmutov',
     description: 'The target audience of this course are students interested in music generation...',
     type: 'tech',
-    yearOfStudy: [1],
-    program: ['MFAI'],
+    degree_year: ['RO-02', 'SD-02', 'AAI-02'],
     isArchived: false,
   },
   {
     id: '4',
     title: 'Deep Learning for Search',
-    language: 'English',
+    elective_language: 'English',
+    program_language: 'ENG',
     format: 'online',
     instructor: 'Albert Nasybulin',
     description: 'The course covers essential concepts, approaches and architectures of modern deep learning-based search applications. The students will learn to implement modern deep learning models from scratch, design and evaluate machine learning pipelines, optimize and boost deep learning models and implement “state-of-the-art” solutions based on Large Language Models, such as Retrieval Augmented Generation. By the end of the course, students will have a comprehensive understanding of design principles and architectures of nowadays search applications and skills to implement the one “from scratch”. The course is delivered  by  employees of “MTS” and based on  their practical experience and real-life products.\n' +
@@ -80,14 +81,14 @@ export const mockCourses: Course[] = [
       '\n' +
       'Course duration: 8 lectures and 8 practices.\n',
     type: 'tech',
-    yearOfStudy: [1],
-    program: ['CSE', 'DSAI'],
+    degree_year: ['RO-02', 'SD-02', 'AAI-02'],
     isArchived: false,
   },
   {
     id: '5',
     title: 'Advanced Markdown',
-    language: 'English',
+    elective_language: 'English',
+    program_language: 'ENG',
     format: 'online',
     instructor: 'John Markdown',
     description: '---\n' +
@@ -336,8 +337,7 @@ export const mockCourses: Course[] = [
       '*here be dragons*\n' +
       ':::\n',
     type: 'math',
-    yearOfStudy: [1],
-    program: ['CSE', 'DSAI'],
+    degree_year: ['RO-02', 'SD-02', 'AAI-02'],
     isArchived: false,
   },
 ];
@@ -345,38 +345,38 @@ export const mockCourses: Course[] = [
 // Simulate API delay
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-// Fetch all courses
-export const fetchCourses = async (): Promise<Course[]> => {
+// Fetch all electives
+export const fetchElectives = async (): Promise<Elective[]> => {
   await delay(500);
-  return [...mockCourses];
+  return [...mockElectives];
 };
 
-// Fetch a single course by id
-export const fetchCourseById = async (id: string): Promise<Course | undefined> => {
+// Fetch a single elective by id
+export const fetchElectiveById = async (id: string): Promise<Elective | undefined> => {
   await delay(300);
-  return mockCourses.find(c => c.id === id);
+  return mockElectives.find(c => c.id === id);
 };
 
-// For the sidebar: get currently enrolled courses for a specific student.
+// For the sidebar: get currently enrolled electives for a specific student.
 // In a real app this would be user‑specific. For mock, we just return a subset.
-export const fetchMyEnrolledCourses = async (studentId: string = 'me'): Promise<Course[]> => {
+export const fetchMyEnrolledElectives = async (studentId: string = 'me'): Promise<Elective[]> => {
   await delay(400);
-  // For demo, assume student enrolled in course id '1' and '2'
+  // For demo, assume student enrolled in elective id '1' and '2'
   const enrolledIds = ['1', '2'];
-  return mockCourses.filter(c => enrolledIds.includes(c.id));
+  return mockElectives.filter(c => enrolledIds.includes(c.id));
 };
 
-export const generateMockCourses = (count: number): Course[] => {
+export const generateMockElectives = (count: number): Elective[] => {
   return Array.from({ length: count }, (_, i) => ({
-    id: `course-${i + 1}`,
-    title: `Elective Course ${i + 1}`,
-    language: i % 2 === 0 ? 'English' : 'Russian',
+    id: `elective-${i + 1}`,
+    title: `Elective ${i + 1}`,
+    elective_language: i % 2 === 0 ? 'English' : 'Russian',
+    program_language: i % 2 === 0 ? 'ENG' : 'RUS',
     format: i % 2 === 0 ? 'offline' : 'online',
     instructor: `Instructor ${i + 1}`,
-    description: `This is a description for course ${i + 1}`,
+    description: `This is a description for elective ${i + 1}`,
     type: i % 3 === 0 ? 'tech' : i % 3 === 1 ? 'hum' : 'math',
-    yearOfStudy: [1, 2, 3, 4],
-    program: ['CSE', 'DSAI', 'SD', 'CBS', 'DS', 'AAI', 'RO', 'MFAI', 'AI360'],
+    degree_year: ['CSE-01', 'DSAI-01', 'SD-02', 'CBS', 'DS', 'AAI', 'RO', 'MFAI', 'AI360'],
     isArchived: i > 10,
   }));
 };

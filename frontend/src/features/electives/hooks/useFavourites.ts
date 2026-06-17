@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 
-const STORAGE_KEY = 'favoriteCourses';
+const STORAGE_KEY = 'favoriteElectives';
 
 function loadFavorites(): string[] {
   try {
