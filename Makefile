@@ -1,4 +1,4 @@
-.PHONY: up down build restart logs shell-backend shell-db migrate makemigrations seed test lint
+.PHONY: up down build rebuild restart logs shell-backend shell-db migrate makemigrations seed test lint
 
 up:
 	docker compose up -d
@@ -8,6 +8,10 @@ down:
 
 build:
 	docker compose up -d --build
+
+rebuild:
+	docker compose build --no-cache
+	docker compose up -d
 
 restart:
 	docker compose restart
