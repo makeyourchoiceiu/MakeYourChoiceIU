@@ -1,5 +1,4 @@
 import { useTranslation } from 'react-i18next';
-import LanguageToggle from '@/shared/components/LanguageToggle';
 
 interface SidebarProps {
   deadline: string;
@@ -11,12 +10,8 @@ export const Sidebar = ({ deadline, activeType, onSelectType }: SidebarProps) =>
   const { t } = useTranslation();
 
   return (
-    <div className="w-64 h-screen sticky top-0 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 p-5 flex flex-col gap-4 overflow-y-auto">
-      {/* Logo */}
-      <div className="text-3xl font-bold text-green-iu">IU</div>
-      <hr className="border-t-2 border-green-iu -mx-5" />
+    <div className="w-64 sticky top-14 h-[calc(100vh-3.5rem)] bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 p-5 flex flex-col gap-4 overflow-y-auto z-10">
       <nav className="space-y-3 text-bold font-medium">
-        {/*<div className="font-bold text-gray-800 dark:text-gray-200">{t('nav.main_menu')}</div>*/}
         <button
           onClick={() => onSelectType('main_menu')}
           className={`w-full text-left font-bold cursor-pointer transition-colors ${
@@ -27,8 +22,6 @@ export const Sidebar = ({ deadline, activeType, onSelectType }: SidebarProps) =>
         >
           {t('nav.main_menu')}
         </button>
-
-        {/* Technical button - updates filter to 'tech' */}
         <button
           onClick={() => onSelectType('tech')}
           className={`w-full text-left font-bold cursor-pointer transition-colors ${
@@ -39,8 +32,6 @@ export const Sidebar = ({ deadline, activeType, onSelectType }: SidebarProps) =>
         >
           {t('nav.technical')}
         </button>
-
-        {/* Humanitarian button - updates filter to 'hum' */}
         <button
           onClick={() => onSelectType('hum')}
           className={`w-full text-left font-bold cursor-pointer transition-colors ${
@@ -51,8 +42,6 @@ export const Sidebar = ({ deadline, activeType, onSelectType }: SidebarProps) =>
         >
           {t('nav.humanitarian')}
         </button>
-
-        {/* Mathematical button - updates filter to 'math' */}
         <button
           onClick={() => onSelectType('math')}
           className={`w-full text-left font-bold cursor-pointer transition-colors ${
@@ -65,15 +54,12 @@ export const Sidebar = ({ deadline, activeType, onSelectType }: SidebarProps) =>
         </button>
       </nav>
 
-      {/* Form */}
       <div className="mt-auto">
-        <div className="flex items-center justify-between gap-2 mb-4">
-          {/* Deadline */}
+        <div className="items-center justify-between mb-4">
           <div className="bg-red-100 dark:bg-red-900/30 p-3 rounded flex flex-col gap-1 relative">
             <div className="text-red-600 dark:text-red-400 font-bold text-sm text-center">{t('sidebar.deadline')}:</div>
             <div className="text-red-600 dark:text-red-400 font-bold text-sm text-center">{deadline}</div>
           </div>
-          <LanguageToggle className="relative font-bold rounded" />
         </div>
         <h4 className="font-bold mb-2 border-b border-green-iu inline-block pb-1 text-sm text-gray-800 dark:text-gray-200">{t('sidebar.form')}</h4>
         <div className="space-y-2 mt-3">

@@ -25,7 +25,7 @@ export const useElectiveFilterStore = create<ElectiveFilterState>((set) => ({
   searchTerm: '',
   languageFilter: 'all',
   formatFilter: 'all',
-  typeFilter: 'all',
+  typeFilter: 'tech',
 
   setSearchTerm: (term) => set({ searchTerm: term }),
   setLanguageFilter: (filter) => set({ languageFilter: filter }),
@@ -36,7 +36,7 @@ export const useElectiveFilterStore = create<ElectiveFilterState>((set) => ({
       searchTerm: '',
       languageFilter: 'all',
       formatFilter: 'all',
-      typeFilter: 'all',
+      typeFilter: 'tech',
     }),
   batchUpdate: (updates) => set((state) => ({ ...state, ...updates })),
 }));

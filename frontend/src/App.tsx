@@ -1,78 +1,51 @@
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import { useEffect } from 'react';
-import ThemeToggle from '@/shared/components/ThemeToggle';
-import LanguageToggle from '@/shared/components/LanguageToggle';
-import ElectivesPage from '@/pages/ElectivesPage';
-import { useProfileStore } from '@/stores/profileStore';
-
-// Placeholder pages using translations
-const HomePage = () => {
-  const { t } = useTranslation();
-  return <h1 className="text-2xl">{t('pages.home.welcome', 'Welcome to Elective Courses')}</h1>;
-};
-
-const ElectiveDetailPage = () => {
-  const { t } = useTranslation();
-  return <h1 className="text-2xl">{t('pages.elective_detail.title', 'Elective Details')}</h1>;
-};
-
-const DashboardPage = () => {
-  const { t } = useTranslation();
-  return <h1 className="text-2xl">{t('pages.dashboard.title', 'My Dashboard')}</h1>;
-};
-
-const LoginPage = () => {
-  const { t } = useTranslation();
-  return <h1 className="text-2xl">{t('pages.login.title', 'Login Page')}</h1>;
-};
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from '@/shared/contexts/AuthContext';
+import { useAuth } from '@/shared/hooks/useAuth';
+import { AdminElectivesPage, ElectivesPage, LoginPage } from './pages';
+import { Header } from '@/shared/layouts/Header';  // <-- import the external Header
 
 function App() {
-  const { t } = useTranslation();
-  const { loadProfile, student, loading } = useProfileStore();
+  return (
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/*" element={<ProtectedRoutes />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
+  );
+}
 
-  useEffect(() => {
-    loadProfile();
-  }, [loadProfile]);
+function ProtectedRoutes() {
+  const { session, isLoading, isAdminMode, isStudentMode } = useAuth();
 
-  if (loading && !student) {
-    return <div className="flex min-h-screen items-center justify-center">Loading your profile...</div>;
+  if (isLoading) {
+    return <div className="flex min-h-screen items-center justify-center">Loading...</div>;
+  }
+  if (!session) {
+    return <Navigate to="/login" replace />;
   }
 
-  return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-      <BrowserRouter>
-        {/* Navigation bar with language switcher */}
-        <nav className="p-4 bg-white dark:bg-gray-800 text-black dark:text-white flex justify-between items-center">
-          <div className="flex gap-4">
-            <Link to="/">{t('nav.home', 'Home')}</Link>
-            <Link to="/electives">{t('nav.electives', 'Electives')}</Link>
-            <Link to="/dashboard">{t('nav.dashboard', 'Dashboard')}</Link>
-            <Link to="/login">{t('nav.login', 'Login')}</Link>
-          </div>
-          <div className="flex items-center gap-4">
-            <LanguageToggle />
-            <ThemeToggle />
-          </div>
-          {/*<div className="bg-gray-100 dark:bg-gray-900 text-black dark:text-white">*/}
-          {/*  <h1 className="text-2xl">This adapts to theme</h1>*/}
-          {/*</div>*/}
-        </nav>
+  if (isAdminMode) {
+    return (
+      <div>
+        <Header />
+        <AdminElectivesPage />
+      </div>
+    );
+  }
 
+  if (isStudentMode) {
+    return (
+      <div>
+        <Header />
+        <ElectivesPage />
+      </div>
+    );
+  }
 
-        {/* Routes */}
-        <div className="p-0">
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/electives" element={<ElectivesPage />} />
-            <Route path="/electives/:id" element={<ElectiveDetailPage />} />
-            <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/login" element={<LoginPage />} />
-          </Routes>
-        </div>
-      </BrowserRouter>
-    </div>
-  );
+  return <Navigate to="/login" replace />;
 }
 
 export default App;

@@ -5,7 +5,7 @@ import type { Elective } from '@/shared/types/elective';
 // ------------------------------------------------------------------
 // 1. DTO type (strictly internal to this module)
 // ------------------------------------------------------------------
-type ElectiveDTO = components['schemas']['Elective'];
+export type ElectiveDTO = components['schemas']['Elective'];
 
 // ------------------------------------------------------------------
 // 2. Mappers (the only place where DTO ↔ Model conversion happens)
@@ -31,7 +31,7 @@ function mapElectiveLanguage(dtoLang: string | undefined): 'English' | 'Russian'
  * Convert backend DTO → frontend model.
  * Fields not present in the DTO (format, program) get sensible defaults.
  */
-function dtoToElective(dto: ElectiveDTO): Elective {
+export function dtoToElective(dto: ElectiveDTO): Elective {
   return {
     id: String(dto.id ?? ''),
     title: dto.name ?? '',

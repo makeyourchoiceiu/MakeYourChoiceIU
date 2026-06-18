@@ -27,7 +27,7 @@ export const ElectiveCard = ({
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm py-3 px-4 border border-gray-100 dark:border-gray-700 relative">
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm py-3 px-4 border border-gray-200 dark:border-gray-700 relative">
       {/* Compact header: title + star */}
       <div className="flex items-start justify-between gap-2 mb-1">
         <h3 className="text-lg font-bold text-green-iu truncate">{title}</h3>

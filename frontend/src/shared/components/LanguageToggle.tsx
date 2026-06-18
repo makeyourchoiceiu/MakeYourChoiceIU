@@ -13,7 +13,7 @@ const LanguageToggle = ({ className = '' }) => {
     <div className={`flex space-x-2 ${className || ''}`}>
       <button
         onClick={changeLanguage}
-        className="px-2 py-1 rounded bg-white dark:bg-gray-800 text-green-iu hover:text-hover-green-iu dark:text-green-iu dark:hover:hover:text-dark-hover-green-iu border-2 border-solid"
+        className="px-2 py-1 rounded bg-green-iu hover:bg-hover-green-iu dark:bg-green-iu dark:hover:bg-dark-hover-green-iu text-white border-solid"
       >
         {buttonLabel}
       </button>

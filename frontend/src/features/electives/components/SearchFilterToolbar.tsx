@@ -57,7 +57,7 @@ export const SearchFilterToolbar = () => {
           placeholder={t('elective_page.search_by_title')}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-10 pr-3 py-2 border rounded-lg shadow-sm bg-white dark:bg-gray-800 dark:text-white border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full pl-10 pr-3 py-2 border rounded-lg shadow-sm bg-white dark:bg-gray-800 dark:text-white border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           aria-label={t('elective_page.search_aria') || 'Search electives'}
         />
       </div>
