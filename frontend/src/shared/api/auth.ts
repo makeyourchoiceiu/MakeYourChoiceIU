@@ -20,7 +20,7 @@ interface BaseAuthDTO {
 /**
  * DTO for a pure admin (no student record).
  */
-interface AdminAuthDTO extends BaseAuthDTO {
+export interface AdminAuthDTO extends BaseAuthDTO {
   role: 'admin';
   all_electives: ElectiveDTO[];
 }
@@ -28,7 +28,7 @@ interface AdminAuthDTO extends BaseAuthDTO {
 /**
  * DTO for a pure student (no admin record).
  */
-interface StudentAuthDTO extends BaseAuthDTO {
+export interface StudentAuthDTO extends BaseAuthDTO {
   role: 'student';
   degree_year: string;
   program: {
@@ -46,13 +46,14 @@ interface StudentAuthDTO extends BaseAuthDTO {
     priority: number;
     elective: ElectiveDTO;
   }[];
+  iteration_id: number;
 }
 
 /**
  * DTO for an admin-student (found in both tables).
  * Merges fields from both admin and student responses.
  */
-interface AdminStudentAuthDTO extends BaseAuthDTO {
+export interface AdminStudentAuthDTO extends BaseAuthDTO {
   role: 'admin-student';
   all_electives: ElectiveDTO[];
   degree_year: string;
@@ -71,6 +72,7 @@ interface AdminStudentAuthDTO extends BaseAuthDTO {
     priority: number;
     elective: ElectiveDTO;
   }[];
+  iteration_id: number;
 }
 
 type AuthDTO = AdminAuthDTO | StudentAuthDTO | AdminStudentAuthDTO;
@@ -110,6 +112,7 @@ export interface AuthSession {
     priority: number;
     elective: Elective;
   }[];
+  iterationId?: number;
 }
 
 // ------------------------------------------------------------------
@@ -147,7 +150,7 @@ function dtoToAuthSession(dto: AuthDTO): AuthSession {
     return {
       user: baseUser,
       effectiveMode: 'admin',
-      allElectives: dto.all_electives.map(dtoToElective),
+      allElectives: dto.all_electives?.map(dtoToElective) ?? [],
     };
   }
 
@@ -160,8 +163,9 @@ function dtoToAuthSession(dto: AuthDTO): AuthSession {
       degreeYear: dto.degree_year,
       program: dto.program,
       track: dto.track,
-      availableElectives: dto.available_electives.map(dtoToElective),
-      myChoices: dto.my_choices.map(mapChoice),
+      availableElectives: dto.available_electives?.map(dtoToElective) ?? [],
+      myChoices: dto.my_choices?.map(mapChoice) ?? [],
+      iterationId: dto.iteration_id
     };
   }
 
@@ -171,12 +175,13 @@ function dtoToAuthSession(dto: AuthDTO): AuthSession {
   return {
     user: baseUser,
     effectiveMode: 'admin', // will be overridden by useAuth if a preference is stored
-    allElectives: dto.all_electives.map(dtoToElective),
+    allElectives: dto.all_electives?.map(dtoToElective) ?? [],
     degreeYear: dto.degree_year,
     program: dto.program,
     track: dto.track,
-    availableElectives: dto.available_electives.map(dtoToElective),
-    myChoices: dto.my_choices.map(mapChoice),
+    availableElectives: dto.available_electives?.map(dtoToElective) ?? [],
+    myChoices: dto.my_choices?.map(mapChoice) ?? [],
+    iterationId: dto.iteration_id
   };
 }
 
@@ -208,7 +213,7 @@ export async function loginByEmail(email: string): Promise<AuthSession> {
 
   // --- Real backend call ---
   try {
-    const response = await axios.get<AuthDTO>('/api/auth/email/', {
+    const response = await axios.get<AuthDTO>('/api/auth/email', {
       params: { email },
       withCredentials: true,
       headers: {

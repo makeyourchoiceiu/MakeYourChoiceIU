@@ -8,11 +8,19 @@ import { useSyncElectiveFilters } from '@/hooks/useSyncElectiveFilters';
 import { useFilteredElectives } from '@/features/electives/hooks/useFilteredElectives';
 import { SearchFilterToolbar } from '@/features/electives/components/SearchFilterToolbar';
 import { ElectiveList } from '@/features/electives/components/ElectiveList';
+import { fetchElectives } from '@/shared/api/electives';
+import { useElectiveSubmission } from '@/shared/hooks/useElectiveSubmission';
+import type { Elective } from "@/shared/types/elective";
+import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 
 export function ElectivesPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { session } = useAuth();
-  const electives = session?.allElectives ?? [];
+  const [electives, setElectives] = useState<Elective[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
   const [deadline, setDeadline] = useState('August 28, 23:59');
   const { toggleFavorite, isFavorite } = useFavorites();
   const { typeFilter, setTypeFilter } = useElectiveFilterStore();
@@ -32,11 +40,87 @@ export function ElectivesPage() {
     }
   };
 
+  const studentId = session?.user?.id;
+  const iterationId = session?.iterationId;
+
+  const { submit, isLoading: submitting } = useElectiveSubmission({
+    studentId: studentId ?? '0',
+    iterationId: iterationId ?? 0,
+  });
+
+  const handleSidebarSubmit = async (
+    selectedIds: string[],
+    type: 'tech' | 'hum' | 'math'
+  ) => {
+    if (!studentId || !iterationId) {
+      throw new Error(t('sidebar.toast.missingInfo'));
+    }
+    await submit(selectedIds, type);
+  };
+
   // Fetch real data (mock for now)
   useEffect(() => {
-    // fetchElectives().then(setAllElectives);
-    // fetchDeadline().then(setDeadline);
+    let isMounted = true;
+
+    const loadElectives = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        // You can pass filters if needed – initially fetch all active ones
+        const data = await fetchElectives({ status: 1 }); // 1 = active
+        if (isMounted) {
+          setElectives(data);
+          // Optionally fetch deadline from another endpoint if available
+          // setDeadline(await fetchDeadline());
+        }
+      } catch (err) {
+        if (isMounted) {
+          setError(err instanceof Error ? err : new Error('Failed to fetch electives'));
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    void loadElectives();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-100 dark:bg-gray-900">
+        <div className="text-center text-gray-600 dark:text-gray-300">
+          <div className="mb-4">Loading electives...</div>
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-iu mx-auto"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-100 dark:bg-gray-900">
+        <div className="text-center text-red-600 dark:text-red-400">
+          <div className="text-xl mb-4">Something went wrong</div>
+          <div>{error.message}</div>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-4 px-4 py-2 bg-green-iu text-white rounded hover:bg-hover-green-iu"
+          >
+            Try again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  console.log('Session allElectives:', session?.allElectives);
+  console.log('Filtered electives:', filteredElectives);
 
   return (
     <div className="flex min-h-screen bg-gray-100 dark:bg-gray-900">
@@ -44,6 +128,8 @@ export function ElectivesPage() {
         deadline={deadline}
         activeType={typeFilter}
         onSelectType={handleSidebarSelect}
+        electives={electives}
+        onSubmitSelected={handleSidebarSubmit}
       />
 
       <div className="flex-1 p-3 max-w-5xl">

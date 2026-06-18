@@ -35,7 +35,16 @@
   "sidebar": {
     "deadline": "Deadline",
     "form": "Form",
-    "submit": "Submit tech electives"
+    "submit": "Submit tech electives",
+    "select_placeholder": "Select elective",
+    "toast": {
+      "duplicate": "You selected the same elective more than once. Please choose unique electives.",
+      "success": "Your electives have been registered successfully!",
+      "error": "Failed to register your electives. Please try again later.",
+      "missingInfo": "Missing student or iteration information. Please log in again.",
+      "invalidType": "Cannot submit for this category. Please select an elective type."
+    },
+    "submitting": "Submitting..."
   },
   "elective": {
     "language": "Language",

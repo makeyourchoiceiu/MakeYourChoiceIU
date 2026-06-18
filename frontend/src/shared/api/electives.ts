@@ -81,8 +81,22 @@ export async function fetchElectives(params?: {
   program_language?: string;
   search?: string;
 }): Promise<Elective[]> {
-  const response = await axios.get<ElectiveDTO[]>('/api/electives/', { params });
-  return response.data.map(dtoToElective);
+  const response = await axios.get('/api/electives/', { params });
+  const data = response.data;
+
+  // Handle paginated response (Django REST Framework style)
+  if (data && typeof data === 'object' && 'results' in data && Array.isArray(data.results)) {
+    return data.results.map(dtoToElective);
+  }
+
+  // Handle plain array
+  if (Array.isArray(data)) {
+    return data.map(dtoToElective);
+  }
+
+  // If it's a single object (maybe error or unexpected), log and return empty
+  console.warn('Unexpected response format from /api/electives/', data);
+  return [];
 }
 
 /**

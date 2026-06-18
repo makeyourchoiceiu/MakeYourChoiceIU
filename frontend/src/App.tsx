@@ -2,7 +2,8 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from '@/shared/contexts/AuthContext';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { AdminElectivesPage, ElectivesPage, LoginPage } from './pages';
-import { Header } from '@/shared/layouts/Header';  // <-- import the external Header
+import { Header } from '@/shared/layouts/Header';
+import { Toaster } from 'react-hot-toast';
 
 function App() {
   return (
@@ -13,6 +14,16 @@ function App() {
           <Route path="/*" element={<ProtectedRoutes />} />
         </Routes>
       </BrowserRouter>
+      <Toaster
+        position="bottom-right"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: '#363636',
+            color: '#fff',
+          },
+        }}
+      />
     </AuthProvider>
   );
 }

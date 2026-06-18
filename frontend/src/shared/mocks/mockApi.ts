@@ -1,60 +1,61 @@
 import type { ElectiveDTO } from '@/shared/api/electives';
+import type { StudentAuthDTO, AdminAuthDTO, AdminStudentAuthDTO } from '@/shared/api/auth'
 
 // ------------------------------------------------------------------
 // 1. DTO types for each role
 // ------------------------------------------------------------------
 
-export type StudentAuthDTO = {
-  id: number;
-  mail: string;
-  role: 'student';
-  degree_year: string;
-  program: {
-    id: number;
-    name: string;
-    language: string;
-  };
-  track: {
-    id: number;
-    name: string;
-  } | null;
-  available_electives: ElectiveDTO[];
-  my_choices: {
-    elective_type: string;
-    priority: number;
-    elective: ElectiveDTO;
-  }[];
-};
-
-export type AdminAuthDTO = {
-  id: number;
-  mail: string;
-  role: 'admin';
-  all_electives: ElectiveDTO[];
-};
-
-export type AdminStudentAuthDTO = {
-  id: number;
-  mail: string;
-  role: 'admin-student';
-  all_electives: ElectiveDTO[];
-  degree_year: string;
-  program: {
-    id: number;
-    name: string;
-    language: string;
-  };
-  track: {
-    id: number;
-    name: string;
-  } | null;
-  available_electives: ElectiveDTO[];
-  my_choices: {
-    elective_type: string;
-    priority: number;
-    elective: ElectiveDTO;
-  }[];
-};
+// export type StudentAuthDTO = {
+//   id: number;
+//   mail: string;
+//   role: 'student';
+//   degree_year: string;
+//   program: {
+//     id: number;
+//     name: string;
+//     language: string;
+//   };
+//   track: {
+//     id: number;
+//     name: string;
+//   } | null;
+//   available_electives: ElectiveDTO[];
+//   my_choices: {
+//     elective_type: string;
+//     priority: number;
+//     elective: ElectiveDTO;
+//   }[];
+// };
+//
+// export type AdminAuthDTO = {
+//   id: number;
+//   mail: string;
+//   role: 'admin';
+//   all_electives: ElectiveDTO[];
+// };
+//
+// export type AdminStudentAuthDTO = {
+//   id: number;
+//   mail: string;
+//   role: 'admin-student';
+//   all_electives: ElectiveDTO[];
+//   degree_year: string;
+//   program: {
+//     id: number;
+//     name: string;
+//     language: string;
+//   };
+//   track: {
+//     id: number;
+//     name: string;
+//   } | null;
+//   available_electives: ElectiveDTO[];
+//   my_choices: {
+//     elective_type: string;
+//     priority: number;
+//     elective: ElectiveDTO;
+//   }[];
+// };
 
 // ------------------------------------------------------------------
 // 2. Shared mock elective data (to avoid duplication)
@@ -154,6 +155,7 @@ export function mockStudentAuth(): StudentAuthDTO {
         elective: mockElectives[0], // Advanced Python
       },
     ],
+    iteration_id: 1,
   };
 }
 
@@ -203,5 +205,6 @@ export function mockAdminStudentAuth(): AdminStudentAuthDTO {
         elective: mockElectives[2], // Russian Literature
       },
     ],
+    iteration_id: 2,
   };
 }

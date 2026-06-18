@@ -21,7 +21,7 @@ export const ElectiveList = ({ electives, isFavorite, onToggleFavorite }: Electi
 
   return (
     <div className="flex flex-col gap-3">
-      {electives.map((elective) => (
+      {electives?.map((elective) => (
         <ElectiveCard
           key={elective.id}
           {...elective}
