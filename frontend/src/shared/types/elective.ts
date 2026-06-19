@@ -9,4 +9,5 @@ export interface Elective {
   type: 'tech' | 'hum' | 'math';
   degree_year: string[];
   isArchived: boolean;
+  backendType: string;
 }

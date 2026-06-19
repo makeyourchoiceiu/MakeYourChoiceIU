@@ -43,6 +43,7 @@ export function dtoToElective(dto: ElectiveDTO): Elective {
     type: mapElectiveType(dto.elective_type),
     degree_year: dto.degree_year ?? [],
     isArchived: dto.status === 0,
+    backendType: dto.elective_type ?? '',
   };
 }
 

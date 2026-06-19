@@ -7,7 +7,7 @@ interface UseElectiveSubmissionParams {
 }
 
 interface UseElectiveSubmissionReturn {
-  submit: (selectedIds: string[], type: 'tech' | 'hum' | 'math') => Promise<void>;
+  submit: (selectedIds: string[], type: string) => Promise<void>;
   isLoading: boolean;
   error: Error | null;
 }

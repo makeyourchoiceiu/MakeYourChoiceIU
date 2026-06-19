@@ -40,20 +40,13 @@ interface SubmissionResponseDTO {
 export async function submitStudentElectives(
   studentId: number | string,
   iterationId: number,
-  electiveType: 'tech' | 'hum' | 'math',
+  electiveType: string,
   choices: { priority: number; electiveId: string | number }[]
 ): Promise<SubmissionResponseDTO> {
-  // Convert electiveType to uppercase as backend expects
-  const typeMap: Record<'tech' | 'hum' | 'math', string> = {
-    tech: 'TECH',
-    hum: 'HUM',
-    math: 'MATH',
-  };
-
   const payload: SubmissionRequestDTO = {
     student_id: studentId,
     iteration_id: iterationId,
-    elective_type: typeMap[electiveType],
+    elective_type: electiveType,
     electives: choices.map(({ priority, electiveId }) => ({
       priority,
       elective_id: String(electiveId), // ensure it's string; backend can handle numeric strings

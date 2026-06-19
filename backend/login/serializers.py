@@ -81,6 +81,7 @@ class AdminResponseSerializer(serializers.Serializer):
 
 
 class AdminStudentResponseSerializer(serializers.Serializer):
+    student_id = serializers.IntegerField(help_text='Student database ID')
     role = serializers.CharField(help_text='"admin-student" — user has both admin and student access')
     email = serializers.CharField(help_text='Authenticated user email')
     all_electives = AdminElectiveSerializer(

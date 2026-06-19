@@ -11,7 +11,6 @@ import { ElectiveList } from '@/features/electives/components/ElectiveList';
 import { fetchElectives } from '@/shared/api/electives';
 import { useElectiveSubmission } from '@/shared/hooks/useElectiveSubmission';
 import type { Elective } from "@/shared/types/elective";
-import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 
 export function ElectivesPage() {
@@ -25,20 +24,17 @@ export function ElectivesPage() {
   const { toggleFavorite, isFavorite } = useFavorites();
   const { typeFilter, setTypeFilter } = useElectiveFilterStore();
 
-  // Sync filters with URL
   useSyncElectiveFilters();
 
-  // Filtered electives based on student & filter store
-  const filteredElectives = useFilteredElectives(electives);
+  // Determine which electives to show:
+  // - For students: use availableElectives from the session (filtered by the backend)
+  // - For admins: use the full list fetched from the API
+  const sidebarElectives = session?.effectiveMode === 'student'
+    ? (session?.availableElectives ?? [])
+    : electives;
 
-  // Sidebar navigation
-  const handleSidebarSelect = (type: 'main_menu' | 'tech' | 'hum' | 'math') => {
-    if (type === 'main_menu') {
-      navigate('/');
-    } else {
-      setTypeFilter(type);
-    }
-  };
+  // Apply search and filters (language, format, type) to the correct list
+  const filteredElectives = useFilteredElectives(sidebarElectives);
 
   const studentId = session?.user?.id;
   const iterationId = session?.iterationId;
@@ -48,30 +44,38 @@ export function ElectivesPage() {
     iterationId: iterationId ?? 0,
   });
 
-  const handleSidebarSubmit = async (
-    selectedIds: string[],
-    type: 'tech' | 'hum' | 'math'
-  ) => {
+  const handleSidebarSelect = (type: 'main_menu' | 'tech' | 'hum' | 'math') => {
+    if (type === 'main_menu') {
+      navigate('/');
+    } else {
+      setTypeFilter(type);
+    }
+  };
+
+  const handleSidebarSubmit = async (selectedIds: string[], type: string) => {
     if (!studentId || !iterationId) {
       throw new Error(t('sidebar.toast.missingInfo'));
     }
     await submit(selectedIds, type);
   };
 
-  // Fetch real data (mock for now)
+  // Fetch electives for admin mode (only needed when not in student mode)
   useEffect(() => {
-    let isMounted = true;
+    // If we are in student mode, we already have the electives from the session,
+    // so we don't need to fetch them separately. For admin mode, we still fetch.
+    if (session?.effectiveMode === 'student') {
+      setIsLoading(false);
+      return;
+    }
 
+    let isMounted = true;
     const loadElectives = async () => {
       try {
         setIsLoading(true);
         setError(null);
-        // You can pass filters if needed – initially fetch all active ones
-        const data = await fetchElectives({ status: 1 }); // 1 = active
+        const data = await fetchElectives({ status: 1 });
         if (isMounted) {
           setElectives(data);
-          // Optionally fetch deadline from another endpoint if available
-          // setDeadline(await fetchDeadline());
         }
       } catch (err) {
         if (isMounted) {
@@ -83,13 +87,17 @@ export function ElectivesPage() {
         }
       }
     };
+    loadElectives();
+    return () => { isMounted = false; };
+  }, [session?.effectiveMode]);
 
-    void loadElectives();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+  // Optionally update deadline from session if available
+  useEffect(() => {
+    if (session?.deadline) {
+      const formatted = new Date(session.deadline).toLocaleString();
+      setDeadline(formatted);
+    }
+  }, [session?.deadline]);
 
   if (isLoading) {
     return (
@@ -119,16 +127,13 @@ export function ElectivesPage() {
     );
   }
 
-  console.log('Session allElectives:', session?.allElectives);
-  console.log('Filtered electives:', filteredElectives);
-
   return (
     <div className="flex min-h-screen bg-gray-100 dark:bg-gray-900">
       <Sidebar
         deadline={deadline}
         activeType={typeFilter}
         onSelectType={handleSidebarSelect}
-        electives={electives}
+        electives={sidebarElectives}
         onSubmitSelected={handleSidebarSubmit}
       />
 

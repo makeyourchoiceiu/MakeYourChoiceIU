@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import { useState } from 'react';
-import toast from 'react-hot-toast'; // or your toast library
+import { useState, useEffect } from 'react'; // <-- import useEffect
+import toast from 'react-hot-toast';
 import type { Elective } from '@/shared/types/elective';
 
 interface SidebarProps {
@@ -8,7 +8,7 @@ interface SidebarProps {
   activeType: 'main_menu' | 'tech' | 'hum' | 'math' | 'all';
   onSelectType: (type: 'main_menu' | 'tech' | 'hum' | 'math' | 'all') => void;
   electives: Elective[];
-  onSubmitSelected?: (ids: string[], type: 'tech' | 'hum' | 'math') => Promise<void>;
+  onSubmitSelected?: (ids: string[], type: string) => Promise<void>;
 }
 
 export const Sidebar = ({
@@ -23,6 +23,10 @@ export const Sidebar = ({
     Array(5).fill(null)
   );
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setSelectedIds(Array(5).fill(null));
+  }, [activeType]);
 
   const getFilteredElectives = (): Elective[] => {
     if (activeType === 'main_menu' || activeType === 'all') {
@@ -40,30 +44,49 @@ export const Sidebar = ({
   };
 
   const handleSubmit = async () => {
-    // 1. Collect non-null IDs
     const filled = selectedIds.filter((id): id is string => id !== null);
+    if (filled.length === 0) {
+      toast.error(t('sidebar.toast.noSelection'));
+      return;
+    }
 
-    // 2. Check duplicates
+    const firstSelected = filtered.find(e => e.id === filled[0]);
+    if (!firstSelected) {
+      toast.error(t('sidebar.toast.invalidSelection'));
+      return;
+    }
+    const backendType = firstSelected.backendType;
+
+    const allSame = filled.every(id => {
+      const el = filtered.find(e => e.id === id);
+      return el?.backendType === backendType;
+    });
+    if (!allSame) {
+      toast.error(t('sidebar.toast.mixedTypes'));
+      return;
+    }
+
     const uniqueIds = new Set(filled);
     if (uniqueIds.size !== filled.length) {
       toast.error(t('sidebar.toast.duplicate'));
       return;
     }
 
-    // 3. If parent handler exists, call it
-    if (onSubmitSelected) {
-      setLoading(true);
-      try {
-        await onSubmitSelected(filled, activeType as 'tech' | 'hum' | 'math');
-        toast.success(t('sidebar.toast.success'));
-        // Optionally clear selections after success
-        setSelectedIds(Array(5).fill(null));
-      } catch (err) {
-        const message = err instanceof Error ? err.message : t('sidebar.toast.error');
-        toast.error(message);
-      } finally {
-        setLoading(false);
-      }
+    if (!onSubmitSelected) {
+      toast.error(t('sidebar.toast.noHandler'));
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await onSubmitSelected(filled, backendType);
+      toast.success(t('sidebar.toast.success'));
+      setSelectedIds(Array(5).fill(null));
+    } catch (err) {
+      const message = err instanceof Error ? err.message : t('sidebar.toast.error');
+      toast.error(message);
+    } finally {
+      setLoading(false);
     }
   };
 

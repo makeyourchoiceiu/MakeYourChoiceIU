@@ -42,7 +42,11 @@
       "success": "Your electives have been registered successfully!",
       "error": "Failed to register your electives. Please try again later.",
       "missingInfo": "Missing student or iteration information. Please log in again.",
-      "invalidType": "Cannot submit for this category. Please select an elective type."
+      "invalidType": "Cannot submit for this category. Please select an elective type.",
+      "noSelection": "Please select at least one elective.",
+      "mixedTypes": "All selected electives must be of the same type.",
+      "invalidSelection": "Invalid elective selection.",
+      "noHandler": "Submission handler not available."
     },
     "submitting": "Submitting..."
   },
