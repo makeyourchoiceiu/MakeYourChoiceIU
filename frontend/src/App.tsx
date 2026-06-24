@@ -1,115 +1,62 @@
-import { useState } from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
-import { LoginPage } from './pages/LoginPage';
-import { useAuth } from './hooks/useAuth';
-import { StudentElectivesPage } from './pages/StudentElectivesPage';
-import { AdminElectivesPage } from './pages/AdminElectivesPage';
-import { AdminProgramSettingsPage } from './pages/AdminProgramSettingsPage';
-import { AdminExceptionsPage } from './pages/AdminExceptionsPage';
-import { AdminSemesterManagementPage } from './pages/AdminSemesterManagementPage';
-import { AppShell } from './components/AppShell';
-import { UiAlert } from './components/UiAlert';
-import { useAdminElectivesFlow } from './hooks/useAdminElectivesFlow';
-import { useStudentElectivesFlow } from './hooks/useStudentElectivesFlow';
-import { toUserFacingError } from './utils/userFacingError';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from '@/shared/contexts/AuthContext';
+import { useAuth } from '@/shared/hooks/useAuth';
+import { AdminElectivesPage, ElectivesPage, LoginPage } from './pages';
+import { Header } from '@/shared/layouts/Header';
+import { Toaster } from 'react-hot-toast';
 
 function App() {
-    const auth = useAuth();
-    const [query, setQuery] = useState('');
-    const studentFlow = useStudentElectivesFlow({
-        authResponse: auth.authResponse,
-    });
-    const adminFlow = useAdminElectivesFlow({
-        canManageElectives: auth.authResponse?.role === 'admin' || auth.authResponse?.role === 'admin-student',
-        setAdminElectives: auth.setAdminElectives,
-    });
+  return (
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/*" element={<ProtectedRoutes />} />
+        </Routes>
+      </BrowserRouter>
+      <Toaster
+        position="bottom-right"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: '#363636',
+            color: '#fff',
+          },
+        }}
+      />
+    </AuthProvider>
+  );
+}
 
-    function handleLogout() {
-        auth.logout();
-        setQuery('');
-        studentFlow.resetStudentState();
-        adminFlow.resetActionState();
-    }
+function ProtectedRoutes() {
+  const { session, isLoading, isAdminMode, isStudentMode } = useAuth();
 
-    if (!auth.authResponse || !auth.user || !auth.effectiveMode) {
-        return (
-            <LoginPage
-                loading={auth.loading}
-                error={auth.error}
-                onSubmit={auth.login}
-            />
-        );
-    }
+  if (isLoading) {
+    return <div className="flex min-h-screen items-center justify-center">Loading...</div>;
+  }
+  if (!session) {
+    return <Navigate to="/login" replace />;
+  }
 
-    const isAdminMode = auth.effectiveMode === 'admin';
-    const isStudentMode = auth.effectiveMode === 'student';
-    const adminTabs = isAdminMode
-        ? [
-            { to: '/admin/electives', label: 'Electives' },
-            { to: '/admin/program-settings', label: 'Program settings' },
-            { to: '/admin/exceptions', label: 'Exceptions' },
-            { to: '/admin/semester-management', label: 'Semester management' },
-        ]
-        : undefined;
-
+  if (isAdminMode) {
     return (
-        <AppShell
-            user={auth.user}
-            onLogout={handleLogout}
-            onSwitchToStudent={auth.user.role === 'admin-student' ? auth.switchToStudent : undefined}
-            tabs={adminTabs}
-        >
-            {adminFlow.actionError ? <UiAlert message={toUserFacingError(adminFlow.actionError, 'Action failed')} /> : null}
-            {adminFlow.actionLoadingId !== null ? (
-                <p>Processing elective id: {adminFlow.actionLoadingId}</p>
-            ) : null}
-
-            {isStudentMode ? (
-                <StudentElectivesPage
-                    electives={studentFlow.studentElectives}
-                    locale="en"
-                    favouriteIds={studentFlow.favouriteIds}
-                    availableElectiveTypes={auth.studentData?.availableElectiveTypes ?? []}
-                    chosenByType={studentFlow.chosenByType}
-                    getSelections={studentFlow.getSelections}
-                    setSelection={studentFlow.setSelection}
-                    resetSelections={studentFlow.resetSelections}
-                    submitSelections={studentFlow.submitSelections}
-                    savingType={studentFlow.savingType}
-                    saveError={studentFlow.saveError}
-                    query={query}
-                    onQueryChange={setQuery}
-                    onToggleFavourite={studentFlow.handleToggleFavourite}
-                />
-            ) : null}
-
-            {isAdminMode ? (
-                <Routes>
-                    <Route path="/" element={<Navigate to="/admin/electives" replace />} />
-                    <Route
-                        path="/admin/electives"
-                        element={
-                            <AdminElectivesPage
-                                electives={auth.adminElectives}
-                                locale="en"
-                                query={query}
-                                onQueryChange={setQuery}
-                                onCreateElective={adminFlow.handleCreateElective}
-                                onUpdateElective={adminFlow.handleUpdateElective}
-                                onArchive={adminFlow.handleArchiveElective}
-                                onDelete={adminFlow.handleDeleteElective}
-                                onRestore={adminFlow.handleRestoreElective}
-                            />
-                        }
-                    />
-                    <Route path="/admin/program-settings" element={<AdminProgramSettingsPage />} />
-                    <Route path="/admin/exceptions" element={<AdminExceptionsPage />} />
-                    <Route path="/admin/semester-management" element={<AdminSemesterManagementPage />} />
-                    <Route path="*" element={<Navigate to="/admin/electives" replace />} />
-                </Routes>
-            ) : null}
-        </AppShell>
+      <div>
+        <Header />
+        <AdminElectivesPage />
+      </div>
     );
+  }
+
+  if (isStudentMode) {
+    return (
+      <div>
+        <Header />
+        <ElectivesPage />
+      </div>
+    );
+  }
+
+  return <Navigate to="/login" replace />;
 }
 
 export default App;

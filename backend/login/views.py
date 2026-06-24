@@ -160,6 +160,7 @@ def auth_email(request):
 
         if admin and admin.role == 1:
             full_data = {
+                'student_id': student.id,
                 'role': role_map.get(admin.role),
                 'email': admin.mail,
                 'all_electives': Elective.objects.all(),

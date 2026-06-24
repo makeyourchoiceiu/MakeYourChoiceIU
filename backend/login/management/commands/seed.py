@@ -93,7 +93,16 @@ class Command(BaseCommand):
         Admin.objects.get_or_create(mail='admin.mock@iu.local', defaults=dict(role=0))
         Admin.objects.get_or_create(mail='admin.student.mock@iu.local', defaults=dict(role=1))
 
-        student, _ = Student.objects.get_or_create(
+        Student.objects.get_or_create(
+            mail='admin.student.mock@iu.local',
+            defaults=dict(
+                degree_year=m1,
+                program=se_prog,
+                track=se_track,
+            )
+        )
+
+        Student.objects.get_or_create(
             mail='student.mock@iu.local',
             defaults=dict(
                 degree_year=m1,
@@ -103,6 +112,6 @@ class Command(BaseCommand):
         )
 
         self.stdout.write(self.style.SUCCESS('Done. Mock users:'))
-        self.stdout.write('  admin        → admin.mock@iu.local')
+        self.stdout.write('  admin         → admin.mock@iu.local')
         self.stdout.write('  admin+student → admin.student.mock@iu.local')
-        self.stdout.write('  student      → student.mock@iu.local')
+        self.stdout.write('  student       → student.mock@iu.local')
