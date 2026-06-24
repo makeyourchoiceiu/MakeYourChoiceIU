@@ -1,4 +1,4 @@
-import axios from 'axios';
+import apiClient from './client';
 import type { components } from './schema';
 import type { Elective } from '@/shared/types/elective';
 
@@ -36,7 +36,7 @@ export function dtoToElective(dto: ElectiveDTO): Elective {
     id: String(dto.id ?? ''),
     title: dto.name ?? '',
     elective_language: mapElectiveLanguage(dto.elective_language),
-    program_language: dto.program_language,
+    program_language: dto.program_language ?? '',
     format: 'offline', // not provided by backend
     instructor: dto.instructor ?? '',
     description: dto.description ?? '',
@@ -82,7 +82,7 @@ export async function fetchElectives(params?: {
   program_language?: string;
   search?: string;
 }): Promise<Elective[]> {
-  const response = await axios.get('/api/electives/', { params });
+  const response = await apiClient.get('/electives/', { params });
   const data = response.data;
 
   // Handle paginated response (Django REST Framework style)
@@ -105,7 +105,7 @@ export async function fetchElectives(params?: {
  * Fetch a single elective by its numeric ID.
  */
 export async function fetchElectiveById(id: number): Promise<Elective> {
-  const response = await axios.get<ElectiveDTO>(`/api/electives/${id}/`);
+  const response = await apiClient.get<ElectiveDTO>(`/electives/${id}/`);
   return dtoToElective(response.data);
 }
 
@@ -117,7 +117,7 @@ export async function createElective(
   data: Omit<Elective, 'id'>
 ): Promise<Elective> {
   const payload = electiveToDto(data);
-  const response = await axios.post<ElectiveDTO>('/api/electives/', payload);
+  const response = await apiClient.post<ElectiveDTO>('/electives/', payload);
   return dtoToElective(response.data);
 }
 
@@ -131,7 +131,7 @@ export async function updateElective(
   data: Partial<Omit<Elective, 'id'>>
 ): Promise<Elective> {
   const payload = electiveToDto(data as any); // cast is safe because it's partial
-  const response = await axios.patch<ElectiveDTO>(`/api/electives/${id}/`, payload);
+  const response = await apiClient.patch<ElectiveDTO>(`/electives/${id}/`, payload);
   return dtoToElective(response.data);
 }
 
@@ -140,7 +140,7 @@ export async function updateElective(
  * Archive an elective (set status → 0).
  */
 export async function archiveElective(id: number): Promise<Elective> {
-  const response = await axios.post<ElectiveDTO>(`/api/electives/${id}/archive/`);
+  const response = await apiClient.post<ElectiveDTO>(`/electives/${id}/archive/`);
   return dtoToElective(response.data);
 }
 
@@ -149,7 +149,7 @@ export async function archiveElective(id: number): Promise<Elective> {
  * Uses PATCH because there is no dedicated restore endpoint.
  */
 export async function restoreElective(id: number): Promise<Elective> {
-  const response = await axios.patch<ElectiveDTO>(`/api/electives/${id}/`, {
+  const response = await apiClient.patch<ElectiveDTO>(`/electives/${id}/`, {
     status: 1,
   });
   return dtoToElective(response.data);
@@ -160,7 +160,7 @@ export async function restoreElective(id: number): Promise<Elective> {
  * Uses PATCH – the backend has no DELETE method.
  */
 export async function deleteElective(id: number): Promise<Elective> {
-  const response = await axios.patch<ElectiveDTO>(`/api/electives/${id}/`, {
+  const response = await apiClient.patch<ElectiveDTO>(`/electives/${id}/`, {
     status: -1,
   });
   return dtoToElective(response.data);

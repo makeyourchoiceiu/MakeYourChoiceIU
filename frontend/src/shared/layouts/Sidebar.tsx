@@ -1,12 +1,12 @@
 import { useTranslation } from 'react-i18next';
-import { useState, useEffect } from 'react'; // <-- import useEffect
+import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import type { Elective } from '@/shared/types/elective';
 
 interface SidebarProps {
   deadline: string;
-  activeType: 'main_menu' | 'tech' | 'hum' | 'math' | 'all';
-  onSelectType: (type: 'main_menu' | 'tech' | 'hum' | 'math' | 'all') => void;
+  activeType: 'tech' | 'hum' | 'math';
+  onSelectType: (type: 'main_menu' | 'tech' | 'hum' | 'math') => void;
   electives: Elective[];
   onSubmitSelected?: (ids: string[], type: string) => Promise<void>;
 }
@@ -29,9 +29,6 @@ export const Sidebar = ({
   }, [activeType]);
 
   const getFilteredElectives = (): Elective[] => {
-    if (activeType === 'main_menu' || activeType === 'all') {
-      return electives;
-    }
     return electives.filter((e) => e.type === activeType);
   };
 
@@ -100,11 +97,7 @@ export const Sidebar = ({
       <nav className="space-y-3 text-bold font-medium">
         <button
           onClick={() => onSelectType('main_menu')}
-          className={`w-full text-left font-bold cursor-pointer transition-colors ${
-            activeType === 'main_menu'
-              ? 'text-gray-800 dark:text-gray-200'
-              : 'text-green-iu hover:text-hover-green-iu dark:text-green-iu dark:hover:text-dark-hover-green-iu'
-          }`}
+          className={'w-full text-left font-bold cursor-pointer transition-colors text-green-iu hover:text-hover-green-iu dark:text-green-iu dark:hover:text-dark-hover-green-iu'}
         >
           {t('nav.main_menu')}
         </button>

@@ -1,5 +1,5 @@
+import apiClient from './client';
 import axios from 'axios';
-import type { Elective } from '@/shared/types/elective';
 
 // ------------------------------------------------------------------
 // 1. Request DTO (what the backend expects)
@@ -54,16 +54,9 @@ export async function submitStudentElectives(
   };
 
   try {
-    const response = await axios.post<SubmissionResponseDTO>(
-      '/api/me/submissions',
-      payload,
-      {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        // Include credentials if needed (cookies)
-        withCredentials: true,
-      }
+    const response = await apiClient.post<SubmissionResponseDTO>(
+      '/me/submissions',
+      payload
     );
     return response.data;
   } catch (error) {

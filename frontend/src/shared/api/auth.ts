@@ -1,6 +1,4 @@
-import axios from 'axios';
-import { getCsrfToken } from '@/shared/utils/csrf';
-import { mockStudentAuth, mockAdminAuth, mockAdminStudentAuth } from '@/shared/mocks/mockApi';
+import apiClient from './client';
 import { dtoToElective, type ElectiveDTO } from './electives';
 import type { Elective } from '@/shared/types/elective';
 
@@ -184,25 +182,9 @@ function dtoToAuthSession(dto: AuthDTO): AuthSession {
 // ------------------------------------------------------------------
 
 export async function loginByEmail(email: string): Promise<AuthSession> {
-  // --- Mock support ---
-  if (email === 'mock.student@example.com') {
-    return dtoToAuthSession(mockStudentAuth());
-  }
-  if (email === 'mock.admin@example.com') {
-    return dtoToAuthSession(mockAdminAuth());
-  }
-  if (email === 'mock.admin-student@example.com') {
-    return dtoToAuthSession(mockAdminStudentAuth());
-  }
-
-  // --- Real backend ---
   try {
-    const response = await axios.get<AuthDTO>('/api/auth/email', {
+    const response = await apiClient.get<AuthDTO>('/auth/email', {
       params: { email },
-      withCredentials: true,
-      headers: {
-        'X-CSRFToken': getCsrfToken(),
-      },
     });
     return dtoToAuthSession(response.data);
   } catch (error) {

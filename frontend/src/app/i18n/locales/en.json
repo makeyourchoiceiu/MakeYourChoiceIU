@@ -55,7 +55,8 @@
     "format": "Format",
     "instructor": "Instructor",
     "see_more": "See more",
-    "see_less": "Hide"
+    "see_less": "Hide",
+    "deadlineDefault": "August 28, 23:59"
   },
   "elective_page": {
     "search_by_title": "Search by title...",

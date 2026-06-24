@@ -87,11 +87,6 @@ export function LoginPage() {
             )}
           </button>
         </form>
-
-        {/* Footer */}
-        <div className="text-center text-sm text-gray-500">
-          <span>Demo: use mock.student@example.com to log in student profile, mock.admin@example.com to log in admin profile, mock.admin-student@example.com to log in admin-student profile</span>
-        </div>
       </div>
     </div>
   );

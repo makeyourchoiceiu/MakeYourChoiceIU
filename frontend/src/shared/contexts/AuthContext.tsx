@@ -3,6 +3,7 @@ import React, {
   useState,
   useEffect,
   useCallback,
+  useRef,
 } from 'react';
 import { loginByEmail, clearSession, type AuthSession } from '@/shared/api/auth';
 
@@ -36,6 +37,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const validationDone = useRef(false);
+
   // Restore session from localStorage on mount
   useEffect(() => {
     const stored = localStorage.getItem('myc-auth-session');
@@ -49,6 +52,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
     setIsLoading(false);
   }, []);
+
+  useEffect(() => {
+    if (validationDone.current || !session?.user?.email) return;
+
+    const validateSession = async () => {
+      try {
+        const fresh = await loginByEmail(session.user.email);
+        setSession(fresh);
+        localStorage.setItem('myc-auth-session', JSON.stringify(fresh));
+      } catch {
+        localStorage.removeItem('myc-auth-session');
+        setSession(null);
+      } finally {
+        validationDone.current = true;
+      }
+    };
+
+    void validateSession();
+  }, [session?.user?.email]);
 
   const login = useCallback(async (email: string) => {
     setIsLoading(true);
@@ -73,12 +95,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const toggleMode = useCallback(() => {
-    if (!session) return;
-    if (session.user.role !== 'admin-student') {
-      console.warn('toggleMode called for non-admin-student – ignoring.');
-      return;
-    }
-    const newMode: 'admin' | 'student' = session.effectiveMode === 'admin' ? 'student' : 'admin';
+    if (!session || session.user.role !== 'admin-student') return;
+    const newMode = session.effectiveMode === 'admin' ? 'student' : 'admin';
     const updatedSession: AuthSession = { ...session, effectiveMode: newMode };
     setSession(updatedSession);
     localStorage.setItem('myc-auth-session', JSON.stringify(updatedSession));

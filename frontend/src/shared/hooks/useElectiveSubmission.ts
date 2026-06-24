@@ -20,7 +20,7 @@ export function useElectiveSubmission({
   const [error, setError] = useState<Error | null>(null);
 
   const submit = useCallback(
-    async (selectedIds: string[], type: 'tech' | 'hum' | 'math') => {
+    async (selectedIds: string[], type: string) => {
       const choices = selectedIds.map((id, index) => ({
         priority: index + 1,
         electiveId: id,

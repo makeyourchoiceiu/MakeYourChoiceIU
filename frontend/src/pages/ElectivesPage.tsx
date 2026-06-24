@@ -20,7 +20,6 @@ export function ElectivesPage() {
   const [electives, setElectives] = useState<Elective[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
-  const [deadline, setDeadline] = useState('August 28, 23:59');
   const { toggleFavorite, isFavorite } = useFavorites();
   const { typeFilter, setTypeFilter } = useElectiveFilterStore();
 
@@ -46,7 +45,7 @@ export function ElectivesPage() {
 
   const handleSidebarSelect = (type: 'main_menu' | 'tech' | 'hum' | 'math') => {
     if (type === 'main_menu') {
-      navigate('/');
+      navigate('/menu');
     } else {
       setTypeFilter(type);
     }
@@ -91,13 +90,11 @@ export function ElectivesPage() {
     return () => { isMounted = false; };
   }, [session?.effectiveMode]);
 
-  // Optionally update deadline from session if available
-  useEffect(() => {
-    if (session?.deadline) {
-      const formatted = new Date(session.deadline).toLocaleString();
-      setDeadline(formatted);
-    }
-  }, [session?.deadline]);
+  const deadlineFormatted = session?.deadline
+    ? new Date(session.deadline).toLocaleString()
+    : t('sidebar.deadlineDefault');
+
+  const activeTypeForSidebar = typeFilter !== 'all' ? typeFilter : 'tech';
 
   if (isLoading) {
     return (
@@ -130,8 +127,8 @@ export function ElectivesPage() {
   return (
     <div className="flex min-h-screen bg-gray-100 dark:bg-gray-900">
       <Sidebar
-        deadline={deadline}
-        activeType={typeFilter}
+        deadline={deadlineFormatted}
+        activeType={activeTypeForSidebar}
         onSelectType={handleSidebarSelect}
         electives={sidebarElectives}
         onSubmitSelected={handleSidebarSubmit}

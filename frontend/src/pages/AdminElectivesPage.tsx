@@ -6,15 +6,14 @@ import {useFilteredElectives} from "@/features/electives/hooks/useFilteredElecti
 
 export function AdminElectivesPage() {
   const { session, isAdminMode } = useAuth();
+  const electives = session?.allElectives ?? [];
+
+  const filteredElectives = useFilteredElectives(electives);
 
   // Protect the route
   if (!isAdminMode) {
     return <Navigate to="/student" />;
   }
-
-  const electives = session?.allElectives ?? [];
-
-  const filteredElectives = useFilteredElectives(electives);
 
   return (
     <div className="min-h-screen text-base font-medium  bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-gray-300">

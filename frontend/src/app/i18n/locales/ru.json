@@ -55,7 +55,8 @@
     "format": "Формат",
     "instructor": "Преподаватель",
     "see_more": "Подробнее",
-    "see_less": "Скрыть"
+    "see_less": "Скрыть",
+    "deadlineDefault": "28 августа, 23:59"
   },
   "elective_page": {
     "search_by_title": "Поиск по названию...",
